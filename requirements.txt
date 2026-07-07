@@ -1,0 +1,13 @@
+tensorflow==2.16.1
+numpy<2.0.0
+pillow
+fastapi
+uvicorn
+python-multipart
+scipy
+opencv-python-headless
+plantcv
+matplotlib
+google-generativeai
+python-dotenv
+pydantic

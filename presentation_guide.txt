@@ -1,0 +1,78 @@
+AGROFAST PRESENTATION GUIDE
+===========================
+
+Congratulations on building AgroFast! This guide outlines a high-impact, professional structure for presenting the project. Keep your delivery engaging, show real features, and tell a story about how this tech empowers real farmers.
+
+---
+
+STEP 1: THE INTRODUCTION (1-2 Minutes)
+--------------------------------------
+*   **The Hook:** Start with the core problem: "Traditional farming is critical to global food security, yet farmers face unpredictable climates, rising operational costs, and crop diseases without modern, data-driven tools."
+
+
+*   **The Solution:** "We created AgroFast — a smart, next-generation agricultural management system. It bridges the gap between generations of farming experience and modern AI technology."
+*   **Key Value Pillars:**
+    1.  AI Leaf Diagnostics (Disease detection)
+    2.  Smart Crop Recommendations (Live weather & profitability matching)
+    3.  Farm Finances & Budgeting (Real-time expense tracking & warning systems)
+
+---
+
+STEP 2: THE LANDING PAGE & NARRATIVE SHOWCASE (2 Minutes)
+---------------------------------------------------------
+*   **Showcase the visual aesthetics:** Open `login.html`. Scroll down slowly. Highlight:
+    *   The modern tech grid background and floating leaves.
+    *   The smooth scroll-snapping narrative panels ("Cultivating the Future", "Empowering Today's Farmers", "Sustainability").
+    *   Explain: "Our design instantly welcomes users and tells a story, making complex technology feel premium and accessible to everyday users."
+*   **Showcase Portal Navigation:** Slide between "Sign In" and "Register" on the auth card. Explain that authentication is fully integrated with Firebase.
+
+---
+
+STEP 3: DASHBOARD & FARM MANAGEMENT (2-3 Minutes)
+-----------------------------------------------
+*   **Log in** to navigate to `dashboard.html`.
+*   **Navigate to Manage Farms (`manage.html`):**
+    *   Explain: "Every farm is unique. A farmer can manage multiple farm plots, specifying soil type, irrigation type, water source, and planting dates."
+    *   **Demonstrate creating a new farm:** Fill in details, upload an image, and enter specific Soil Nutrients (Nitrogen, Phosphorus, Potassium - NPK) % values.
+    *   **Upload Feedback:** Point out the upload progress indicator on the button (e.g., "Connecting... 45% -> Success!"). "We built real-time upload progress feedback so users are never left guessing."
+    *   **Live NPK Editing:** Go to an existing farm card, click "Edit" on Soil Nutrients (NPK), change the values, and click "Save". Explain: "Nutrient levels change over time. Farmers can update NPK soil values on-the-fly directly from the farm card, and it syncs immediately to Firebase."
+
+---
+
+STEP 4: CROP RECOMMENDATIONS ENGINE (3 Minutes)
+---------------------------------------------
+*   **Navigate to `recommendations.html`.** This is the highlight of the user experience!
+*   **Showcase live Open-Meteo Integration:** Point out the Weather Hero card at the top. Explain: "The app auto-detects the farmer's GPS location and fetches real-time temperature, humidity, wind, and feels-like temperature."
+*   **Monthly Forecast Strip:** Click different months in the calendar strip (e.g., March, June). Notice the cards re-order instantly.
+*   **Weather Fit & Profitability scoring:** Explain: "We developed a custom scoring algorithm:
+    *   40% Weather Fit (comparing crop's ideal temperature/humidity against selected month's forecast).
+    *   60% Revenue Score (based on expected market price and yield per acre).
+    *   Together, this creates the 'Profitability Score', showing farmers what is both biologically safe and financially smart to grow."
+*   **Interactive filters:** Toggle "Match Season only" and "High profit only". Sort by "Price: Highest First" or "Fastest Harvest".
+
+---
+
+STEP 5: EXPENSE TRACKER & BUDGET SAFETY (2 Minutes)
+-------------------------------------------------
+*   **Navigate to `expenses.html`.**
+*   **The visual layout:** Point out the compact, scrollable left navbar (which now fits settings perfectly) and the table layout that rescales seamlessly on laptops.
+*   **Add an expense:** Select a farm, choose a category (Seeds, Fertilizer, Labor), and type an amount.
+*   **Demonstrate the Budget Warning System:** Attempt to log an expense that exceeds that farm's budget.
+    *   Show the pop-up warning recommending a safe buffer budget: "Warning: This expense exceeds the budget... Recommended safe budget: KSh XX,XXX. Proceed?"
+    *   Explain: "The system proactively warns farmers before they overspend, calculating safe financial buffers automatically."
+*   **Showcase Budget Meters:** Point out the progress bars showing how much of the budget has been used for each farm, color-coding from green to yellow to red.
+
+---
+
+STEP 6: AI DISEASE CLASSIFIER (1-2 Minutes)
+-------------------------------------------
+*   Explain the AI model architecture:
+    *   "The Crop Scanner runs on a trained convolutional neural network using MobileNetV2 as a frozen backbone, combined with a custom deep learning head."
+    *   "We trained the model with two-phase fine-tuning, Inverse-Frequency Class Weights, and aggressive augmentation, achieving validation accuracy above 92% across 15 agricultural classes (potato, tomato, pepper leaf categories)."
+
+---
+
+STEP 7: WRAP-UP & IMPACT (1 Minute)
+-----------------------------------
+*   **Conclusion:** "AgroFast is a complete operating system for modern farmers. It brings predictive weather metrics, AI diagnostics, and corporate-level budgeting together in a stunning, highly optimized dark-mode interface."
+*   Ask for questions from the presentation audience.

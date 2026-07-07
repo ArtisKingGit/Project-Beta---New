@@ -1,0 +1,23 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Datasets (heavy training data)
+backend/ai/datasets/
+
+# Duplicate/heavy build output
+offline_build/
+
+# OS junk
+.DS_Store
+desktop.ini
+
+# Secrets
+backend/.env
+.env

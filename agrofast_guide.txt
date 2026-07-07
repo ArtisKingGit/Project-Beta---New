@@ -1,0 +1,53 @@
+AGROFAST - HOW IT WORKS
+=======================
+
+AgroFast is a next-generation, AI-powered agricultural management platform. It combines machine learning, real-time weather analytics, financial tracking, and conversational AI into a modern, unified interface.
+
+Below is an overview of how the system functions:
+
+1. SECURE PORTAL & CUSTOM PROFILES (SMART AUTH)
+-----------------------------------------------
+*   **Authentication**: Users register and log in securely via Firebase Auth (supporting email/password and Google Sign-In).
+*   **Farming Profiles**: User settings, active languages, theme preferences, and currency settings are stored in Firebase Realtime Database.
+
+2. MULTI-PLOT FARM MANAGEMENT (MANAGE FARMS)
+--------------------------------------------
+*   **Farm Creation**: Farmers can add and manage multiple unique farm plots, specifying:
+    *   Plot size, location, and irrigation type (drip, sprinkler, rain-fed).
+    *   Soil type (clay, sandy, loamy) and main crop.
+    *   Live Soil Nutrients (NPK - Nitrogen, Phosphorus, Potassium % values).
+*   **Live Updates**: NPK values can be modified on-the-fly directly on each farm card, synchronizing immediately to the Firebase database.
+
+3. AI LEAF DIAGNOSTICS (CROP SCANNER)
+-------------------------------------
+*   **Model Architecture**: The AI Scanner uses a Convolutional Neural Network (CNN) featuring a MobileNetV2 backbone (frozen for feature extraction) combined with a custom deep learning classification head.
+*   **How it Works**: A farmer uploads a photo of a crop leaf. The backend processes the image and runs inference to identify pests, diseases, and nutrient deficiencies.
+*   **Scope & Accuracy**: The model yields a validation accuracy of over 91-92% across multiple agricultural categories (including Apple, Maize, Mango, Pepper, Potato, and Tomato leaf varieties).
+
+4. SMART CROP RECOMMENDATIONS ENGINE
+------------------------------------
+*   **Live Weather Integration**: The application auto-detects the farmer's GPS coordinates and fetches local meteorological data (temperature, humidity, wind, feels-like) using the Open-Meteo API.
+*   **Profitability Scoring Algorithm**: Calculates the ideal crops to grow for a selected month using a weighted score:
+    *   *40% Weather Fit*: Compares historical/forecasted temperature and humidity against ideal crop growth requirements.
+    *   *60% Revenue Score*: Analyzes market price trends and average yield per acre.
+*   **Dynamic Sorting**: Results are sorted instantly by profitability, harvest speed, or market value.
+
+5. FINANCIAL TRACKER & BUDGET SAFETY SYSTEM
+-------------------------------------------
+*   **Expense Log**: Users track operational costs by category (Seeds, Fertilizer, Labor, Equipment, or Custom).
+*   **Visual Budget Meters**: Circular and horizontal progress bars display the percentage of budget used per plot, color-coding dynamically from green to yellow to red.
+*   **Budget Warning System**: If an entered expense exceeds the plot's remaining budget, the system warns the user and calculates a recommended safe budget buffer.
+
+6. EXPERT AI ADVISOR (CHAT)
+---------------------------
+*   **Conversational Assistant**: An interactive chat widget powered by Google's Gemini API is integrated directly into the dashboard.
+*   **Farming Context**: The assistant is pre-configured with expert agronomic guidelines, providing answers to complex questions on soil health, pest control, and optimal harvesting cycles.
+
+7. CORE CHALLENGES ADDRESSED (SLIDE OVERVIEW)
+---------------------------------------------
+*   **Unpredictable Climate Change**: Extreme weather patterns, unexpected droughts, and temperature shifts disrupt traditional seasonal planting.
+*   **Crop Pest & Disease Outbreaks**: Undetected leaf diseases and insect infestations lead to massive harvest losses without quick diagnosis.
+*   **Volatile Operational Costs**: Rising costs of seeds, fertilizer, and labor make operational budgeting extremely difficult to forecast.
+*   **Market Price Volatility**: Fluctuating crop market prices lead to unstable revenues, making crop selection highly risky.
+*   **Lack of Expert Advice**: Modern agronomic guidelines and soil-science diagnostics are often inaccessible or delayed for local farmers.
+*   **Soil Nutrient Depletion**: Continuous intensive farming depletes Nitrogen, Phosphorus, and Potassium (NPK) levels, reducing long-term yield.

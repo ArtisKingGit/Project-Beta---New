@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>AgroFast | Welcome</title>
+  <meta name="description" content="AgroFast is a next-generation smart farming assistant powered by AI. Get real-time leaf disease diagnostics, personalized crop recommendations, and secure farm expense tracking.">
+  <link rel="icon" type="image/jpeg" href="AgroFast%20Logo.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script>
+    (function () {
+      const theme = localStorage.getItem('agrofast-theme');
+      const cls = theme === 'light' ? 'light-theme' : theme === 'dark' ? 'dark-theme' : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark-theme' : 'light-theme');
+      document.documentElement.classList.add(cls);
+      document.addEventListener('DOMContentLoaded', () => document.body.classList.add(cls));
+    })();
+  </script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/assistant-widget.css">
+  <link rel="stylesheet" href="tutorial.css">
+
+  <style>
+    :root {
+      --primary: #22c55e;
+      --primary-glow: rgba(34, 197, 94, 0.4);
+      --primary-dark: #16a34a;
+      --bg-dark: #020617;
+      --bg-slate: #0b1329;
+      --card-bg: rgba(15, 23, 42, 0.45);
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      background: var(--bg-dark);
+    }
+
+    body {
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Common Tech Grid Background */
+    .tech-bg {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: -1;
+    }
+
+    .tech-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.5), var(--bg-dark));
+      z-index: -1;
+    }
+
+    /* Floating Leaves Decoration */
+    .leaf-container {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .leaf {
+      position: absolute;
+      bottom: -50px;
+      color: var(--primary);
+      opacity: 0.15;
+      filter: drop-shadow(0 0 5px var(--primary-glow));
+      animation: floatUp 15s linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(0deg) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.15;
+      }
+      90% {
+        opacity: 0.15;
+      }
+      100% {
+        transform: translateY(-110vh) rotate(360deg) translateX(100px);
+        opacity: 0;
+      }
+    }
+
+    /* Scroll Snapped Sections */
+    section {
+      min-height: 100vh;
+      width: 100%;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 20px;
+    }
+
+    /* SECTION 1: HERO INTRO */
+    #hero-section {
+      justify-content: space-between;
+      padding-top: 60px;
+      padding-bottom: 40px;
+      background: radial-gradient(circle at 50% 30%, rgba(34, 197, 94, 0.08), transparent 60%), var(--bg-dark);
+    }
+
+    .hero-content {
+      text-align: center;
+      max-width: 1000px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .logo-wrapper {
+      position: relative;
+      width: 320px;
+      height: 240px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+      perspective: 1000px;
+    }
+
+    .hero-logo {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 35px var(--primary-glow);
+      z-index: 10;
+      animation: pulseGlow 3s infinite alternate;
+    }
+
+    .swarm-tag {
+      position: absolute;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #86efac;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 6px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 5;
+      backdrop-filter: blur(4px);
+      transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+    }
+
+    @keyframes swarm1 {
+      0% { transform: rotate(0deg) translate(110px) rotate(0deg) scale(0.9); opacity: 0.6; }
+      50% { transform: rotate(180deg) translate(130px) rotate(-180deg) scale(1.1); opacity: 1; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
+      100% { transform: rotate(360deg) translate(110px) rotate(-360deg) scale(0.9); opacity: 0.6; }
+    }
+    @keyframes swarm2 {
+      0% { transform: rotate(60deg) translate(120px) rotate(-60deg) scale(1.1); opacity: 1; }
+      50% { transform: rotate(240deg) translate(100px) rotate(-240deg) scale(0.85); opacity: 0.5; }
+      100% { transform: rotate(420deg) translate(120px) rotate(-420deg) scale(1.1); opacity: 1; }
+    }
+    @keyframes swarm3 {
+      0% { transform: rotate(120deg) translate(100px) rotate(-120deg) scale(0.85); opacity: 0.5; }
+      50% { transform: rotate(300deg) translate(125px) rotate(-300deg) scale(1.1); opacity: 1; color: var(--primary); }
+      100% { transform: rotate(480deg) translate(100px) rotate(-480deg) scale(0.85); opacity: 0.5; }
+    }
+    @keyframes swarm4 {
+      0% { transform: rotate(180deg) translate(125px) rotate(-180deg) scale(1); opacity: 0.8; }
+      50% { transform: rotate(360deg) translate(95px) rotate(-360deg) scale(0.9); opacity: 0.6; }
+      100% { transform: rotate(540deg) translate(125px) rotate(-540deg) scale(1); opacity: 0.8; }
+    }
+    @keyframes swarm5 {
+      0% { transform: rotate(240deg) translate(105px) rotate(-240deg) scale(0.9); opacity: 0.6; }
+      50% { transform: rotate(420deg) translate(130px) rotate(-420deg) scale(1.15); opacity: 1; color: var(--primary); }
+      100% { transform: rotate(600deg) translate(105px) rotate(-600deg) scale(0.9); opacity: 0.6; }
+    }
+    @keyframes swarm6 {
+      0% { transform: rotate(300deg) translate(115px) rotate(-300deg) scale(1.1); opacity: 1; }
+      50% { transform: rotate(480deg) translate(100px) rotate(-480deg) scale(0.8); opacity: 0.4; }
+      100% { transform: rotate(660deg) translate(115px) rotate(-660deg) scale(1.1); opacity: 1; }
+    }
+
+    .tag-1 { animation: swarm1 22s linear infinite; }
+    .tag-2 { animation: swarm2 26s linear infinite; }
+    .tag-3 { animation: swarm3 20s linear infinite; }
+    .tag-4 { animation: swarm4 24s linear infinite; }
+    .tag-5 { animation: swarm5 28s linear infinite; }
+    .tag-6 { animation: swarm6 18s linear infinite; }
+
+    @keyframes pulseGlow {
+      0% {
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+        transform: scale(1);
+      }
+      100% {
+        box-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
+        transform: scale(1.03);
+      }
+    }
+
+    .hero-title {
+      font-size: clamp(2.5rem, 7vw, 4.5rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #4ade80, #10b981, #06b6d4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 4px 10px rgba(34, 197, 94, 0.15));
+      letter-spacing: -1px;
+      margin-bottom: 5px;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.35rem);
+      color: var(--text-muted);
+      max-width: 600px;
+      line-height: 1.6;
+      min-height: 50px;
+    }
+
+    /* Typewriter blink */
+    .txt-rotate > .wrap {
+      border-right: 0.08em solid var(--primary);
+      padding-right: 3px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 1100px;
+      margin-top: 40px;
+      perspective: 1000px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 30px 24px;
+      text-align: left;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(34, 197, 94, 0.08) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(34, 197, 94, 0.3);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(34, 197, 94, 0.05);
+    }
+
+    .feature-icon-wrapper {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: rgba(34, 197, 94, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      transition: 0.3s;
+    }
+
+    .feature-card:hover .feature-icon-wrapper {
+      background: var(--primary);
+      color: #020617;
+      transform: scale(1.1) rotate(5deg);
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .feature-icon-wrapper i {
+      font-size: 22px;
+      color: var(--primary);
+      transition: 0.3s;
+    }
+
+    .feature-card:hover .feature-icon-wrapper i {
+      color: #020617;
+    }
+
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Scroll Indicator */
+    .scroll-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      text-decoration: none;
+      transition: color 0.3s;
+      animation: bounce 2s infinite;
+      z-index: 10;
+    }
+
+    .scroll-indicator:hover {
+      color: var(--primary);
+    }
+
+    .scroll-mouse {
+      width: 24px;
+      height: 40px;
+      border: 2px solid currentColor;
+      border-radius: 12px;
+      position: relative;
+    }
+
+    .scroll-wheel {
+      width: 4px;
+      height: 8px;
+      background: currentColor;
+      border-radius: 2px;
+      position: absolute;
+      left: 50%;
+      top: 6px;
+      transform: translateX(-50%);
+      animation: scrollWheel 1.5s infinite;
+    }
+
+    @keyframes scrollWheel {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, 15px);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      60% {
+        transform: translateY(-5px);
+      }
+    }
+
+
+    /* ABOUT SECTIONS */
+    .about-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 60px;
+      max-width: 1200px;
+      width: 100%;
+      margin: auto;
+      padding: 0 40px;
+    }
+
+    .about-text {
+      flex: 1.2;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .about-text h2 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #4ade80, #10b981);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -1px;
+    }
+
+    .about-text p {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .about-image-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+    }
+
+    .about-image {
+      width: 100%;
+      max-width: 450px;
+      height: 320px;
+      object-fit: cover;
+      border-radius: 28px;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .about-image:hover {
+      transform: scale(1.05) rotate(1deg);
+      border-color: rgba(34, 197, 94, 0.25);
+      box-shadow: 0 25px 50px rgba(34, 197, 94, 0.1);
+    }
+
+    /* Scroll triggered animation classes */
+    section.active .about-text {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    section.active .about-image-wrapper {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* SECTION 2: AUTHENTICATION */
+    #auth-section {
+      background: radial-gradient(circle at 50% 70%, rgba(34, 197, 94, 0.08), transparent 60%), var(--bg-dark);
+      overflow-y: auto;
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 460px;
+      margin: auto;
+      animation: fadeInUp 0.8s ease-out;
+      position: relative;
+    }
+
+    /* Background glow behind card */
+    .auth-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120%;
+      height: 120%;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, transparent 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      padding: 40px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+
+    .logo-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .logo-header h2 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 5px;
+    }
+
+    .logo-header p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    /* Tab Switcher */
+    .auth-tabs {
+      position: relative;
+      display: flex;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 16px;
+      padding: 5px;
+      margin-bottom: 30px;
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 12px 0;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 2;
+      transition: color 0.3s;
+    }
+
+    .tab-btn.active {
+      color: #020617;
+    }
+
+    .active-tab-pill {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      width: calc(50% - 5px);
+      height: calc(100% - 10px);
+      background: var(--primary);
+      border-radius: 12px;
+      z-index: 1;
+      box-shadow: 0 4px 15px var(--primary-glow);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Sliding Form Viewport */
+    .auth-card-body {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .forms-slider {
+      display: flex;
+      width: 200%;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .form-slide {
+      width: 50%;
+      padding: 0 5px;
+      transition: opacity 0.3s;
+    }
+
+    .form-slide.inactive {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .full-width {
+      grid-column: span 2;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 16px;
+      transition: color 0.3s;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      padding: 14px 16px 14px 46px;
+      border-radius: 14px;
+      color: var(--text);
+      font-size: 15px;
+      transition: all 0.3s;
+      outline: none;
+    }
+
+    /* Inputs without icons (e.g. name fields in signup) */
+    input.no-icon {
+      padding-left: 16px;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+    }
+
+    input:focus + i {
+      color: var(--primary);
+    }
+
+    /* Buttons */
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: #052e16;
+      border: none;
+      padding: 16px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.15);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-submit:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+
+    .btn-google {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 14px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-google:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-google img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 22px 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .divider:not(:empty)::before {
+      margin-right: 1em;
+    }
+
+    .divider:not(:empty)::after {
+      margin-left: 1em;
+    }
+
+    .footer-links {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .toggle-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .toggle-link:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    /* Error Messages */
+    .error-msg {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      animation: shake 0.4s ease-in-out;
+    }
+
+    /* Success Messages */
+    .success-msg {
+      background: rgba(34, 197, 94, 0.1);
+      color: #4ade80;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    /* GLOBAL LOADER */
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      background: #020617;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 20px;
+      transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+    }
+
+    .page-loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .spinner-box {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .spinner-outer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 4px solid rgba(34, 197, 94, 0.05);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    }
+
+    .spinner-inner {
+      position: absolute;
+      width: 70%;
+      height: 70%;
+      border: 4px solid rgba(6, 182, 212, 0.05);
+      border-bottom-color: #06b6d4;
+      border-radius: 50%;
+      animation: spinReverse 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    }
+
+    .spinner-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes spinReverse {
+      to { transform: rotate(-360deg); }
+    }
+
+    /* Enhanced Button Loading */
+    .btn-loading {
+      position: relative;
+      overflow: hidden;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.15);
+      width: var(--progress, 0%);
+      transition: width 0.2s ease;
+      z-index: 1;
+    }
+
+    .btn-loading span {
+      position: relative;
+      z-index: 2;
+    }
+
+    .btn-error {
+      background: #ef4444 !important;
+      color: white !important;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3) !important;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 0 20px;
+      }
+      .about-panel {
+        flex-direction: column !important;
+        gap: 30px;
+        padding: 0 20px;
+        text-align: center;
+      }
+      .about-image {
+        height: 250px;
+      }
+      #hero-section {
+        height: auto;
+        min-height: 100vh;
+        scroll-snap-align: none;
+        scroll-snap-stop: none;
+      }
+      html {
+        scroll-snap-type: none;
+      }
+      section {
+        scroll-snap-align: none;
+        scroll-snap-stop: none;
+        height: auto;
+        min-height: 100vh;
+      }
+    }
+
+    @media (max-width: 550px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-grid .form-group {
+        grid-column: span 1 !important;
+      }
+      .glass-card {
+        padding: 30px 20px;
+      }
+    }
+
+    /* Light Theme Overrides */
+    body.light-theme {
+      --bg-dark: #f8fafc;
+      --bg-slate: #f1f5f9;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --border: rgba(0, 0, 0, 0.1);
+      --text: #0f172a;
+      --text-muted: #475569;
+    }
+
+    body.light-theme .page-loader {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    body.light-theme input {
+      background: rgba(0, 0, 0, 0.02);
+      color: #0f172a;
+    }
+
+    body.light-theme input:focus {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    body.light-theme .btn-google {
+      background: rgba(0, 0, 0, 0.02);
+      color: #0f172a;
+    }
+
+    body.light-theme .btn-google:hover {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    body.light-theme .tab-btn.active {
+      color: #ffffff;
+    }
+
+    body.light-theme .auth-tabs {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    /* Location Permission Notification Banner */
+    .location-banner {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-150px);
+      width: 90%;
+      max-width: 650px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(34, 197, 94, 0.15);
+      border-radius: 16px;
+      z-index: 10000;
+      padding: 16px 20px;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.5s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .location-banner.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .location-banner-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .location-banner-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-size: 20px;
+      flex-shrink: 0;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+    }
+
+    .pulse-location {
+      animation: locationPulse 2s infinite;
+    }
+
+    @keyframes locationPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); text-shadow: 0 0 8px rgba(34, 197, 94, 0.8); }
+      100% { transform: scale(1); }
+    }
+
+    .location-banner-text {
+      flex: 1;
+      min-width: 250px;
+      text-align: left;
+    }
+
+    .location-banner-text h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 3px;
+      letter-spacing: 0.3px;
+    }
+
+    .location-banner-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .location-banner-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .btn-location-allow {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #052e16;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(34, 197, 94, 0.2);
+    }
+
+    .btn-location-allow:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 15px rgba(34, 197, 94, 0.35);
+    }
+
+    .btn-location-dismiss {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-location-dismiss:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Light Theme override for Location Banner */
+    body.light-theme .location-banner {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(34, 197, 94, 0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 15px rgba(34, 197, 94, 0.1);
+    }
+    body.light-theme .location-banner-text h4 {
+      color: #0f172a;
+    }
+    body.light-theme .btn-location-dismiss {
+      background: rgba(0, 0, 0, 0.03);
+      color: #0f172a;
+      border-color: rgba(0, 0, 0, 0.08);
+    }
+    body.light-theme .btn-location-dismiss:hover {
+      background: rgba(0, 0, 0, 0.06);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Location Permission Notification Banner -->
+  <div id="locationNotification" class="location-banner">
+    <div class="location-banner-content">
+      <div class="location-banner-icon">
+        <i class="fas fa-map-marker-alt pulse-location"></i>
+      </div>
+      <div class="location-banner-text">
+        <h4 data-i18n="location_banner_title">Enable Location Services</h4>
+        <p data-i18n="location_banner_desc">Allow location permissions to get the latest weather info for crop recommendations.</p>
+      </div>
+      <div class="location-banner-actions">
+        <button class="btn-location-allow" onclick="requestLocationPermission()" data-i18n="location_banner_allow">Allow Location</button>
+        <button class="btn-location-dismiss" onclick="dismissLocationBanner()" data-i18n="location_banner_dismiss">Later</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Page Loader -->
+  <div class="page-loader" id="pageLoader">
+    <div class="spinner-box">
+      <div class="spinner-outer"></div>
+      <div class="spinner-inner"></div>
+      <img src="AgroFast%20Logo.jpg" class="spinner-logo" alt="AgroFast">
+    </div>
+    <div id="loaderPercent" style="font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 10px; font-family: monospace;">0%</div>
+    <p style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Initializing AgroFast AI</p>
+  </div>
+
+  <!-- Background decorations -->
+  <div class="leaf-container" id="leafContainer"></div>
+
+  <!-- SECTION 1: HERO INTRO -->
+  <section id="hero-section">
+    <div class="tech-bg"></div>
+    
+    <div></div> <!-- Spacer -->
+
+    <div class="hero-content">
+      <div class="logo-wrapper">
+        <img src="AgroFast%20Logo.jpg" class="hero-logo" alt="AgroFast Logo">
+        <div class="swarm-tag tag-1">Innovative</div>
+        <div class="swarm-tag tag-2">Artificial Intelligence</div>
+        <div class="swarm-tag tag-3">Smart Farming</div>
+        <div class="swarm-tag tag-4">Diagnostics</div>
+        <div class="swarm-tag tag-5">Expense Tracker</div>
+        <div class="swarm-tag tag-6">Agronomy</div>
+      </div>
+      <h1 class="hero-title">Your all in one Digital Agriculture App</h1>
+      <p class="hero-subtitle">
+        Cultivating the future with 
+        <span class="txt-rotate" data-period="2000" data-rotate='[ "Artificial Intelligence.", "Real-time Leaf Diagnostics.", "Smart Expense Tracking.", "Expert Agricultural Advice." ]'></span>
+      </p>
+
+      <!-- Interactive Feature Showcase Grid -->
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card" id="feat-scanner">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-leaf"></i>
+          </div>
+          <h3>AI Diagnostic Scanner</h3>
+          <p>Scan crop leaves (Apple, Bell Pepper, Maize, Mango, Potato, Tomato) to detect pests, diseases, and nutrient deficiencies instantly with high accuracy.</p>
+        </div>
+        <!-- Feature 2 -->
+        <div class="feature-card" id="feat-chatbot">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-robot"></i>
+          </div>
+          <h3>Expert AI Advisor</h3>
+          <p>Chat 24/7 with an AI assistant trained in agronomy to receive customized soil and crop advice.</p>
+        </div>
+        <!-- Feature 3 -->
+        <div class="feature-card" id="feat-finance">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-wallet"></i>
+          </div>
+          <h3>Smart Farm Finance</h3>
+          <p>Easily log operational expenses, track seasonal revenues, and visualize your financial budget.</p>
+        </div>
+        <!-- Feature 4 -->
+        <div class="feature-card" id="feat-history">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-history"></i>
+          </div>
+          <h3>Scan & Health History</h3>
+          <p>Track crop health improvements over time with historical diagnostic logs and saved farm reports.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll Down Prompt -->
+    <a href="#about-section-1" class="scroll-indicator" id="scrollDownBtn">
+      <span>Our Story</span>
+      <div class="scroll-mouse">
+        <div class="scroll-wheel"></div>
+      </div>
+    </a>
+  </section>
+
+  <!-- NARRATIVE SECTION 1: INNOVATION MEETS AGRICULTURE -->
+  <section id="about-section-1">
+    <div class="tech-bg"></div>
+    <div class="about-panel">
+      <div class="about-text">
+        <h2>Cultivating the Future of Agriculture</h2>
+        <p>Welcome to AgroFast, where innovation meets agriculture and every solution is designed with the future of farming in mind. We believe that agriculture is more than simply growing crops—it is the foundation of communities, economies, and food security around the world. As farming continues to evolve, so does the need for smarter, faster, and more sustainable solutions that empower farmers to reach their full potential.</p>
+        <p>Our mission is to bridge the gap between traditional agricultural practices and modern technology. We are dedicated to providing reliable tools, premium agricultural products, and innovative solutions that help farmers increase productivity while protecting the environment for future generations. Every feature, service, and resource we offer has been carefully designed to make farming simpler, more efficient, and more rewarding.</p>
+      </div>
+      <div class="about-image-wrapper">
+        <img src="images/smart_farm.png" class="about-image" alt="Smart Farm Technology">
+      </div>
+    </div>
+  </section>
+
+  <!-- NARRATIVE SECTION 2: OVERCOMING CHALLENGES -->
+  <section id="about-section-2">
+    <div class="tech-bg"></div>
+    <div class="about-panel" style="flex-direction: row-reverse;">
+      <div class="about-text">
+        <h2>Empowering Today's Farmers</h2>
+        <p>We understand the challenges that today's farmers face. Unpredictable weather, rising production costs, changing market demands, and the growing need for sustainable farming practices require solutions that are both practical and forward-thinking. That's why AgroFast focuses on delivering dependable support and modern agricultural innovations that help overcome these challenges with confidence.</p>
+        <p>Whether you're cultivating a small family farm, managing a commercial agricultural enterprise, or just beginning your journey into farming, AgroFast is here to support every step of the process. From planning and planting to harvesting and beyond, our goal is to equip farmers with the knowledge, technology, and resources needed to make informed decisions and achieve long-term success.</p>
+        <p>Our commitment goes beyond products and services. We are building a community where farmers, agricultural professionals, researchers, and innovators can connect, learn, and grow together. By sharing knowledge, encouraging collaboration, and supporting continuous improvement, we strive to inspire positive change across the agricultural industry.</p>
+      </div>
+      <div class="about-image-wrapper">
+        <img src="images/ai_scanner.png" class="about-image" alt="AI Diagnostic Scanner in Action">
+      </div>
+    </div>
+  </section>
+
+  <!-- NARRATIVE SECTION 3: SUSTAINABILITY & RESILIENCE -->
+  <section id="about-section-3">
+    <div class="tech-bg"></div>
+    <div class="about-panel">
+      <div class="about-text">
+        <h2>Embracing a Resilient Future</h2>
+        <p>Innovation is at the heart of everything we do. We believe that the future of agriculture lies in combining generations of farming experience with cutting-edge technology. By embracing smarter farming methods, data-driven decision making, and sustainable practices, we help create a future where agriculture becomes more productive, resilient, and environmentally responsible.</p>
+        <p>Sustainability remains one of our core values. We recognize our responsibility to help protect natural resources while ensuring that future generations can continue to thrive. Through environmentally conscious farming practices, efficient resource management, and innovative agricultural technologies, AgroFast supports a future where productivity and sustainability work hand in hand rather than competing against one another.</p>
+        <p>Every successful harvest begins with a single decision—the decision to embrace better solutions. At AgroFast, we are proud to stand beside farmers as trusted partners, providing dependable support, advanced agricultural solutions, and a shared vision for a stronger, more sustainable future.</p>
+        <p>Together, we are transforming agriculture through innovation, empowering farmers with knowledge, and cultivating a world where every harvest reflects the possibilities of modern farming. Welcome to AgroFast—where progress grows, innovation thrives, and the future of agriculture begins today.</p>
+      </div>
+      <div class="about-image-wrapper">
+        <img src="images/sustainable_farm.png" class="about-image" alt="Sustainable Ecofriendly Agriculture">
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: AUTHENTICATION (LOGIN & REGISTER) -->
+  <section id="auth-section">
+    <div class="tech-bg"></div>
+    <div class="auth-glow"></div>
+
+    <div class="auth-container">
+      <div class="glass-card">
+        <div class="logo-header">
+          <h2>AgroFast Portal</h2>
+          <p id="authSubtitle">Sign in to access your digital farm profile</p>
+        </div>
+
+        <div id="errorBox" class="error-msg"></div>
+        <div id="successBox" class="success-msg"></div>
+
+        <!-- Sliding Tabs -->
+        <div class="auth-tabs">
+          <div class="active-tab-pill" id="activeTabPill"></div>
+          <button class="tab-btn active" id="tabBtnLogin" onclick="switchTab('login')">Sign In</button>
+          <button class="tab-btn" id="tabBtnSignup" onclick="switchTab('signup')">Register</button>
+        </div>
+
+        <div class="auth-card-body">
+          <div class="forms-slider" id="formsSlider">
+            
+            <!-- SLIDE 1: LOGIN FORM -->
+            <div class="form-slide" id="loginSlide">
+              <div class="form-group">
+                <label for="loginEmail">Email Address</label>
+                <div class="input-wrapper">
+                  <i class="fas fa-envelope"></i>
+                  <input type="email" id="loginEmail" placeholder="name@farm.com">
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label for="loginPassword">Password</label>
+                <div class="input-wrapper">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" id="loginPassword" placeholder="••••••••">
+                </div>
+              </div>
+
+              <div class="form-helpers" style="display: flex; justify-content: flex-end; margin-bottom: 20px; font-size: 13px;">
+                <span class="toggle-link" onclick="handleForgotPassword()">Forgot Password?</span>
+              </div>
+
+              <button class="btn-submit" id="loginBtn" onclick="login(this)">
+                <span>Sign In</span>
+                <i class="fas fa-arrow-right"></i>
+              </button>
+
+              <div class="divider">OR</div>
+
+              <button class="btn-google" id="googleLoginBtn" onclick="googleSignIn(this)">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                <span>Continue with Google</span>
+              </button>
+
+              <div class="footer-links">
+                Don't have an account? <span class="toggle-link" onclick="switchTab('signup')">Register Here</span>
+              </div>
+            </div>
+
+            <!-- SLIDE 2: SIGNUP FORM -->
+            <div class="form-slide inactive" id="signupSlide">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="signupFirstName">First Name</label>
+                  <input type="text" id="signupFirstName" class="no-icon" placeholder="John">
+                </div>
+                <div class="form-group">
+                  <label for="signupLastName">Last Name</label>
+                  <input type="text" id="signupLastName" class="no-icon" placeholder="Doe">
+                </div>
+                <div class="form-group full-width">
+                  <label for="signupEmail">Email Address</label>
+                  <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signupEmail" placeholder="john@example.com">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="signupPassword">Password</label>
+                  <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signupPassword" placeholder="••••••••">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="signupConfirmPassword">Confirm</label>
+                  <div class="input-wrapper">
+                    <i class="fas fa-shield-halved"></i>
+                    <input type="password" id="signupConfirmPassword" placeholder="••••••••">
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn-submit" id="signupBtn" onclick="signup(this)">
+                <span>Create Account</span>
+                <i class="fas fa-user-plus"></i>
+              </button>
+
+              <div class="divider">OR</div>
+
+              <button class="btn-google" id="googleSignupBtn" onclick="googleSignIn(this)">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                <span>Sign up with Google</span>
+              </button>
+
+              <div class="footer-links">
+                Already have an account? <span class="toggle-link" onclick="switchTab('login')">Sign In</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIREBASE & CORE LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+    import { checkLoginTutorial } from "./tutorial.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9-wQyYDIlQIzE1BcdmnOF9Q0FLXBX030",
+      authDomain: "project-beta-7f0a3.firebaseapp.com",
+      databaseURL: "https://project-beta-7f0a3-default-rtdb.firebaseio.com",
+      projectId: "project-beta-7f0a3",
+      storageBucket: "project-beta-7f0a3.firebasestorage.app",
+      messagingSenderId: "240282480318",
+      appId: "1:240282480318:web:7335fc94bb7dbb061cb8ef"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const provider = new GoogleAuthProvider();
+
+    // Apply theme on body
+    const cachedTheme = localStorage.getItem('agrofast-theme') || 'dark';
+    document.body.classList.remove('light-theme', 'dark-theme');
+    if (cachedTheme === 'light') {
+      document.body.classList.add('light-theme');
+    } else if (cachedTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.body.classList.add(prefersDark ? 'dark-theme' : 'light-theme');
+    }
+
+    // 1. Loader Animation (Fixed page-loaded bug)
+    const hideLoader = () => {
+      const loader = document.getElementById('pageLoader');
+      const percentText = document.getElementById('loaderPercent');
+      let progress = 0;
+
+      const interval = setInterval(() => {
+        progress += Math.random() * 25;
+        if (progress > 100) progress = 100;
+        if (percentText) percentText.innerText = `${Math.round(progress)}%`;
+
+        if (progress === 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            if (loader) loader.classList.add('hidden');
+            checkLoginTutorial();
+          }, 200);
+        }
+      }, 50);
+    };
+
+    if (document.readyState === 'complete') {
+      hideLoader();
+    } else {
+      window.addEventListener('load', hideLoader);
+    }
+
+    // 2. Tab Switching Logic (Login vs Signup)
+    window.switchTab = (tab) => {
+      const pill = document.getElementById('activeTabPill');
+      const slider = document.getElementById('formsSlider');
+      const tabLogin = document.getElementById('tabBtnLogin');
+      const tabSignup = document.getElementById('tabBtnSignup');
+      const loginSlide = document.getElementById('loginSlide');
+      const signupSlide = document.getElementById('signupSlide');
+      const subtitle = document.getElementById('authSubtitle');
+      const errorBox = document.getElementById('errorBox');
+
+      errorBox.style.display = 'none';
+
+      if (tab === 'login') {
+        pill.style.transform = 'translateX(0)';
+        slider.style.transform = 'translateX(0)';
+        tabLogin.classList.add('active');
+        tabSignup.classList.remove('active');
+        loginSlide.classList.remove('inactive');
+        signupSlide.classList.add('inactive');
+        subtitle.innerText = "Sign in to access your digital farm profile";
+        history.replaceState(null, null, ' ');
+      } else {
+        pill.style.transform = 'translateX(100%)';
+        slider.style.transform = 'translateX(-50%)';
+        tabLogin.classList.remove('active');
+        tabSignup.classList.add('active');
+        loginSlide.classList.add('inactive');
+        signupSlide.classList.remove('inactive');
+        subtitle.innerText = "Create an account to start managing your farm";
+        history.replaceState(null, null, '#signup');
+      }
+    };
+
+    // Listen for hash changes to support direct links (e.g., login.html#signup)
+    const checkHash = () => {
+      if (window.location.hash === '#signup') {
+        switchTab('signup');
+        setTimeout(() => {
+          document.getElementById('auth-section').scrollIntoView({ behavior: 'smooth' });
+        }, 300);
+      } else {
+        switchTab('login');
+      }
+    };
+    window.addEventListener('hashchange', checkHash);
+    window.addEventListener('DOMContentLoaded', checkHash);
+
+    // 3. Generate Floating Leaves
+    const leafContainer = document.getElementById('leafContainer');
+    const leafIcons = ['fa-leaf', 'fa-seedling', 'fa-clover'];
+    for (let i = 0; i < 15; i++) {
+      const leaf = document.createElement('i');
+      const randomIcon = leafIcons[Math.floor(Math.random() * leafIcons.length)];
+      leaf.className = `fas ${randomIcon} leaf`;
+      leaf.style.left = `${Math.random() * 100}vw`;
+      leaf.style.animationDelay = `${Math.random() * 12}s`;
+      leaf.style.fontSize = `${Math.random() * 15 + 15}px`;
+      leaf.style.animationDuration = `${Math.random() * 10 + 10}s`;
+      leafContainer.appendChild(leaf);
+    }
+
+    // 4. Mouse Move Glow Effect on Feature Cards
+    const cards = document.querySelectorAll('.feature-card');
+    cards.forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--x', `${x}px`);
+        card.style.setProperty('--y', `${y}px`);
+      });
+    });
+
+    // 5. Scroll Triggered Animation Observer
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.3
+    };
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('section').forEach(section => {
+      sectionObserver.observe(section);
+    });
+
+    // 6. Loading Progress Helper for Buttons
+    async function simulateProgress(btn, targetText = "Processing...") {
+      const originalContent = btn.innerHTML;
+      btn.classList.add('btn-loading');
+      btn.style.setProperty('--progress', '0%');
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += Math.random() * 18;
+        if (progress > 92) progress = 92;
+        const span = btn.querySelector('span');
+        if (span) span.innerText = `${targetText} ${Math.round(progress)}%`;
+        btn.style.setProperty('--progress', `${progress}%`);
+      }, 150);
+
+      return {
+        stop: (success = true, errorMsg = "Failed") => {
+          clearInterval(interval);
+          const span = btn.querySelector('span');
+          if (success) {
+            btn.style.setProperty('--progress', '100%');
+            if (span) span.innerText = `${targetText} 100%`;
+          } else {
+            btn.classList.remove('btn-loading');
+            btn.classList.add('btn-error');
+            if (span) span.innerText = errorMsg;
+            const icon = btn.querySelector('i');
+            if (icon) icon.className = 'fas fa-triangle-exclamation';
+            setTimeout(() => {
+              btn.classList.remove('btn-error');
+              btn.innerHTML = originalContent;
+            }, 2200);
+          }
+        }
+      };
+    }
+
+    // 7. Firebase Authentication Functions
+    window.login = async (btn) => {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const errorBox = document.getElementById("errorBox");
+
+      errorBox.style.display = "none";
+
+      if (!email || !password) {
+        showError("Please enter your email and password.");
+        return;
+      }
+
+      const progress = await simulateProgress(btn, "Signing In...");
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        progress.stop(true);
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        let msg = err.message.replace("Firebase: ", "");
+        if (msg.includes("auth/invalid-credential") || msg.includes("auth/user-not-found")) {
+          msg = "Invalid email address or password. Please try again.";
+        }
+        if (msg.includes("permission-denied")) {
+          msg = "Access Denied: Please check your Firebase Database rules.";
+        }
+        progress.stop(false, "Login Failed");
+        showError(msg);
+      }
+    };
+
+    window.signup = async (btn) => {
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value;
+      const confirm = document.getElementById("signupConfirmPassword").value;
+      const firstName = document.getElementById("signupFirstName").value.trim();
+      const lastName = document.getElementById("signupLastName").value.trim();
+      const errorBox = document.getElementById("errorBox");
+
+      errorBox.style.display = "none";
+
+      if (!email || !password || !confirm || !firstName || !lastName) {
+        showError("Please fill in all registration fields.");
+        return;
+      }
+
+      if (password !== confirm) {
+        showError("Passwords do not match. Please verify.");
+        return;
+      }
+
+      if (password.length < 6) {
+        showError("Password must be at least 6 characters long.");
+        return;
+      }
+
+      const progress = await simulateProgress(btn, "Registering...");
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const fullName = `${firstName} ${lastName}`;
+
+        // Update auth profile
+        await updateProfile(user, { displayName: fullName });
+
+        // Save metadata in Database
+        await set(ref(db, "users/" + user.uid), {
+          name: fullName,
+          email: email,
+          scans: 0,
+          joinedAt: new Date().toISOString()
+        });
+
+        // Save default settings mapped to selected language/theme
+        const currentLang = localStorage.getItem('agrofast-lang') || 'en';
+        const currentTheme = localStorage.getItem('agrofast-theme') || 'dark';
+        await set(ref(db, `users/${user.uid}/settings`), {
+          lang: currentLang,
+          theme: currentTheme,
+          currency: 'KES',
+          unit: 'acres',
+          notifyScan: true,
+          notifyInventory: true
+        });
+
+        progress.stop(true);
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        progress.stop(false, "Signup Failed");
+        let msg = err.message.replace("Firebase: ", "");
+        if (msg.includes("permission-denied")) {
+          msg = "Account created, but database setup failed due to 'Permission Denied'. Please check your Firebase rules.";
+        }
+        showError(msg);
+      }
+    };
+
+    window.googleSignIn = async (btn) => {
+      const progress = await simulateProgress(btn, "Connecting...");
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        // Verify or create DB record
+        const userRef = ref(db, "users/" + user.uid);
+        const snap = await get(userRef);
+
+        if (!snap.exists()) {
+          await set(userRef, {
+            name: user.displayName || "Farmer",
+            email: user.email,
+            photo: user.photoURL || "",
+            scans: 0,
+            joinedAt: new Date().toISOString()
+          });
+
+          // Save default settings mapped to selected language/theme
+          const currentLang = localStorage.getItem('agrofast-lang') || 'en';
+          const currentTheme = localStorage.getItem('agrofast-theme') || 'dark';
+          await set(ref(db, `users/${user.uid}/settings`), {
+            lang: currentLang,
+            theme: currentTheme,
+            currency: 'KES',
+            unit: 'acres',
+            notifyScan: true,
+            notifyInventory: true
+          });
+        }
+        progress.stop(true);
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        progress.stop(false, "Google Failed");
+        showError(err.message.replace("Firebase: ", ""));
+      }
+    };
+
+    window.handleForgotPassword = async () => {
+      let email = document.getElementById("loginEmail").value.trim();
+      const errorBox = document.getElementById("errorBox");
+      const successBox = document.getElementById("successBox");
+      if (errorBox) errorBox.style.display = "none";
+      if (successBox) successBox.style.display = "none";
+
+      if (!email) {
+        email = prompt("Please enter your email address to reset your password:");
+        if (!email) return; // User cancelled
+        email = email.trim();
+      }
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showSuccess(`A password reset link has been sent to ${email}. Please check your inbox.`);
+      } catch (error) {
+        console.error("Password reset error:", error);
+        let msg = error.message.replace("Firebase: ", "");
+        if (error.code === "auth/invalid-email") {
+          msg = "Please enter a valid email address.";
+        } else if (error.code === "auth/user-not-found") {
+          msg = "No registered user found with this email address.";
+        }
+        showError(msg);
+      }
+    };
+
+    function showError(msg) {
+      const successBox = document.getElementById("successBox");
+      if (successBox) successBox.style.display = "none";
+      const errorBox = document.getElementById("errorBox");
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+      errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function showSuccess(msg) {
+      const errorBox = document.getElementById("errorBox");
+      if (errorBox) errorBox.style.display = "none";
+      const successBox = document.getElementById("successBox");
+      successBox.textContent = msg;
+      successBox.style.display = "block";
+      successBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  </script>
+
+  <!-- Typewriter Effect Script -->
+  <script>
+    var TxtRotate = function(el, toRotate, period) {
+      this.toRotate = toRotate;
+      this.el = el;
+      this.loopNum = 0;
+      this.period = parseInt(period, 10) || 2000;
+      this.txt = '';
+      this.tick();
+      this.isDeleting = false;
+    };
+
+    TxtRotate.prototype.tick = function() {
+      var i = this.loopNum % this.toRotate.length;
+      var fullTxt = this.toRotate[i];
+
+      if (this.isDeleting) {
+        this.txt = fullTxt.substring(0, this.txt.length - 1);
+      } else {
+        this.txt = fullTxt.substring(0, this.txt.length + 1);
+      }
+
+      this.el.innerHTML = '<span class="wrap">'+this.txt+'</span>';
+
+      var that = this;
+      var delta = 150 - Math.random() * 50;
+
+      if (this.isDeleting) { delta /= 2; }
+
+      if (!this.isDeleting && this.txt === fullTxt) {
+        delta = this.period;
+        this.isDeleting = true;
+      } else if (this.isDeleting && this.txt === '') {
+        this.isDeleting = false;
+        this.loopNum++;
+        delta = 500;
+      }
+
+      setTimeout(function() {
+        that.tick();
+      }, delta);
+    };
+
+    window.onload = function() {
+      var elements = document.getElementsByClassName('txt-rotate');
+      for (var i=0; i<elements.length; i++) {
+        var toRotate = elements[i].getAttribute('data-rotate');
+        var period = elements[i].getAttribute('data-period');
+        if (toRotate) {
+          new TxtRotate(elements[i], JSON.parse(toRotate), period);
+        }
+      }
+      
+      // Check location permissions after a short delay
+      if (typeof window.checkLocationPermission === 'function') {
+        window.checkLocationPermission();
+      }
+    };
+
+    // Location Permission Prompt Logic
+    window.checkLocationPermission = async () => {
+      // If user dismissed it during this session or previously, check localStorage
+      if (localStorage.getItem('agrofast-location-dismissed') === 'true') {
+        return;
+      }
+
+      // Dynamically localize banner text based on local storage lang setting
+      const lang = localStorage.getItem('agrofast-lang') || 'en';
+      const localTranslations = {
+        en: {
+          title: "Enable Location Services",
+          desc: "Allow location permissions to get the latest weather info for crop recommendations.",
+          allow: "Allow Location",
+          dismiss: "Later"
+        },
+        sw: {
+          title: "Washa Huduma za Eneo",
+          desc: "Ruhusu eneo ili kupata habari za hivi punde za hali ya hewa kwa mapendekezo ya mazao.",
+          allow: "Ruhusu Eneo",
+          dismiss: "Baadaye"
+        },
+        zu: {
+          title: "Vula Izinsiza Zendawo",
+          desc: "Vumela izimvume zendawo ukuze uthole ulwazi lwakamuva lwesimo sezulu nezincomo zezitshalo.",
+          allow: "Vumela Indawo",
+          dismiss: "Later"
+        },
+        ve: {
+          title: "Tendele Zwiko zha Fhethu",
+          desc: "Tendele ndivhadzo dza fhethu u wana mafhungo a zwino a mutsho na nyeletshedzo dza zwalwa.",
+          allow: "Tendele Fhethu",
+          dismiss: "Later"
+        },
+        af: {
+          title: "Aktiveer Liggingdienste",
+          desc: "Laat liggingtoestemmings toe om die nuutste weersomstandighede vir gewasaanbevelings te kry.",
+          allow: "Laat Ligging Toe",
+          dismiss: "Later"
+        }
+      };
+
+      const t = localTranslations[lang] || localTranslations.en;
+      const titleEl = document.querySelector('#locationNotification h4');
+      const descEl = document.querySelector('#locationNotification p');
+      const allowBtn = document.querySelector('#locationNotification .btn-location-allow');
+      const dismissBtn = document.querySelector('#locationNotification .btn-location-dismiss');
+      
+      if (titleEl) titleEl.textContent = t.title;
+      if (descEl) descEl.textContent = t.desc;
+      if (allowBtn) allowBtn.textContent = t.allow;
+      if (dismissBtn) dismissBtn.textContent = t.dismiss;
+
+      if (navigator.permissions) {
+        try {
+          const result = await navigator.permissions.query({ name: 'geolocation' });
+          if (result.state === 'granted') {
+            return;
+          } else if (result.state === 'denied') {
+            return;
+          }
+          showLocationBanner();
+        } catch (e) {
+          showLocationBanner();
+        }
+      } else {
+        showLocationBanner();
+      }
+    };
+
+    window.showLocationBanner = () => {
+      const banner = document.getElementById('locationNotification');
+      if (banner) {
+        setTimeout(() => {
+          banner.classList.add('show');
+        }, 1500); // 1.5s delay for premium transition
+      }
+    };
+
+    window.hideLocationBanner = () => {
+      const banner = document.getElementById('locationNotification');
+      if (banner) banner.classList.remove('show');
+    };
+
+    window.dismissLocationBanner = () => {
+      window.hideLocationBanner();
+      localStorage.setItem('agrofast-location-dismissed', 'true');
+    };
+
+    window.requestLocationPermission = () => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          window.hideLocationBanner();
+          localStorage.setItem('agrofast-location-granted', 'true');
+        },
+        (error) => {
+          console.warn("Location permission error or denied:", error);
+          window.hideLocationBanner();
+          localStorage.setItem('agrofast-location-dismissed', 'true');
+        },
+        { timeout: 8000 }
+      );
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="js/assistant-widget.js"></script>
+</body>
+
+</html>
