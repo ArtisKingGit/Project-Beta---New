@@ -324,6 +324,16 @@
                 flex-direction: row;
                 gap: 15px;
             }
+
+            /* Reveal the hamburger at the same width the sidebar collapses,
+               so there's always a way to reopen it (was previously only
+               shown below 768px, leaving a 769-1024px dead zone). */
+            .mobile-menu-btn {
+                display: block;
+                padding: 10px;
+                min-width: 44px;
+                min-height: 44px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -331,8 +341,43 @@
                 font-size: 24px;
             }
 
-            .mobile-menu-btn {
-                display: block;
+            /* Trim card padding so settings rows keep usable width on phones. */
+            .glass-card {
+                padding: 20px;
+            }
+
+            /* Let each setting row wrap: label on top, control below,
+               instead of squeezing both onto one cramped line. */
+            .setting-row {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .setting-row select,
+            .setting-row .custom-select-wrapper {
+                width: 100%;
+            }
+
+            select {
+                max-width: 100%;
+            }
+
+            .profile-preview {
+                gap: 14px;
+            }
+
+            .profile-preview img {
+                width: 72px;
+                height: 72px;
+            }
+
+            /* Photo URL + Upload button row: stack instead of overflowing. */
+            .photo-input-row {
+                flex-wrap: wrap;
+            }
+
+            .photo-input-row > div {
+                flex: 1 1 100%;
             }
         }
 
@@ -567,7 +612,7 @@
 
             <div class="form-group">
                 <label>Profile Picture</label>
-                <div style="display: flex; gap: 15px; align-items: center;">
+                <div class="photo-input-row" style="display: flex; gap: 15px; align-items: center;">
                     <div style="flex: 1; position: relative;">
                         <input type="text" id="photoUrlInput" placeholder="https://example.com/photo.jpg"
                             oninput="updatePreview()">

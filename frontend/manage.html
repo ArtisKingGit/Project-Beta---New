@@ -478,13 +478,46 @@
                 grid-template-columns: 1fr;
             }
 
+            .header {
+                flex-wrap: wrap;
+                row-gap: 10px;
+            }
+
             .header h1 {
                 font-size: 24px;
+            }
+
+            #currentTime {
+                font-size: 13px;
             }
 
             /* Mobile Menu Button */
             .mobile-menu-btn {
                 display: block;
+                padding: 10px;
+                min-width: 44px;
+                min-height: 44px;
+            }
+
+            /* Farm-card edit/delete icon buttons are sized via inline style
+               (width/height:32px) — !important is needed to raise them to a
+               comfortable touch target on phones without touching desktop. */
+            .edit-btn,
+            .delete-btn {
+                width: 40px !important;
+                height: 40px !important;
+            }
+
+            /* NPK quick-edit controls (generated in loadFarms()) are sized via
+               inline style — bump their touch target on phones only. */
+            .soil-npk button {
+                padding: 8px 12px !important;
+                min-height: 36px;
+            }
+
+            .soil-npk input[type="number"] {
+                padding: 10px !important;
+                min-height: 36px;
             }
         }
 
@@ -716,6 +749,21 @@
         @media (max-width: 1200px) {
             .form-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Re-declared after the two unconditional/1200px .form-grid rules above so it
+           wins the source-order tiebreak at <=1024px (see mobile audit issue #1). */
+        @media (max-width: 1024px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Edit-Farm modal grid is set inline (style="grid-template-columns:1fr 1fr")
+               which beats any non-!important stylesheet rule, so !important is required
+               here to collapse it to one column on phones (see mobile audit issue #2). */
+            #editFarmModal .form-grid {
+                grid-template-columns: 1fr !important;
             }
         }
     </style>

@@ -11,17 +11,40 @@ from pydantic import BaseModel
 # pyrefly: ignore [missing-import]
 import uvicorn
 import os
+import asyncio
 # pyrefly: ignore [missing-import]
 import google.generativeai as genai
 # pyrefly: ignore [missing-import]
 from dotenv import load_dotenv
 from ai.classifier import predict_crop
 from ai.detector import detect_disease
- 
+
+# Force IPv4-only DNS resolution for outbound calls. On some container hosts
+# (e.g. Hugging Face Spaces) DNS advertises an IPv6 route to Google's APIs
+# that isn't actually reachable, and gRPC's fallback-to-IPv4 behavior can
+# stall for a long time before giving up. Disabling AF_INET6 results here
+# makes the underlying gRPC/HTTP client skip straight to IPv4.
+import socket
+_orig_getaddrinfo = socket.getaddrinfo
+def _ipv4_only_getaddrinfo(host, port, family=0, type=0, proto=0, flags=0):
+    return _orig_getaddrinfo(host, port, socket.AF_INET, type, proto, flags)
+socket.getaddrinfo = _ipv4_only_getaddrinfo
+
+# Belt-and-suspenders: never let google-auth fall back to probing the GCE
+# metadata server (which can hang 20-90s on non-GCP hosts) — this app always
+# authenticates with an explicit API key, never Application Default Credentials.
+os.environ.setdefault("NO_GCE_CHECK", "true")
+
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+    # transport="rest" avoids the gRPC C-core transport, which has multiple
+    # open upstream reports of indefinite socket stalls with no exception
+    # and no timeout (e.g. googleapis/python-genai#1893). REST uses Python's
+    # ordinary HTTP stack, so request_options={"timeout": ...} reliably bounds it.
+    genai.configure(api_key=GEMINI_API_KEY, transport="rest")
+
+GEMINI_TIMEOUT_SECONDS = 20
 
 
 app = FastAPI()
@@ -140,7 +163,29 @@ async def chat_endpoint(request: ChatRequest):
                 })
         
         chat = model.start_chat(history=history)
-        response = chat.send_message(request.message)
+
+        def _call_gemini():
+            # request_options timeout bounds the REST call itself; this only
+            # takes effect reliably because transport="rest" was set above.
+            return chat.send_message(
+                request.message,
+                request_options={"timeout": GEMINI_TIMEOUT_SECONDS},
+            )
+
+        try:
+            # Run the blocking SDK call in a worker thread so it can never
+            # freeze the single asyncio event loop (which would otherwise
+            # also stall unrelated /predict requests), and enforce a hard
+            # outer deadline so the client always gets a response even if
+            # the SDK-level timeout fails to fire on a true socket stall.
+            response = await asyncio.wait_for(
+                asyncio.to_thread(_call_gemini),
+                timeout=GEMINI_TIMEOUT_SECONDS + 5,
+            )
+        except asyncio.TimeoutError:
+            print("Gemini call exceeded outer deadline")
+            return JSONResponse(status_code=504, content={"error": "The AI assistant timed out. Please try again."})
+
         return {"response": response.text}
     except Exception as e:
         print(f"Error in chat: {str(e)}")
@@ -165,6 +210,7 @@ else:
 if __name__ == "__main__":
     # HOST/PORT are set by cloud hosts (e.g. Hugging Face Spaces needs 0.0.0.0:7860);
     # defaults to 127.0.0.1:5500 locally to match the dashboard's compatibility checks.
-    host = os.getenv("HOST", "127.0.0.1")
+    # host = os.getenv("HOST", "127.0.0.1")
+    host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", 5500))
     uvicorn.run(app, host=host, port=port)

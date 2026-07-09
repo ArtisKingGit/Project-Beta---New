@@ -1057,6 +1057,9 @@
         left: 0;
         top: 0;
         height: 100vh;
+        max-height: 100dvh;
+        /* 100dvh avoids the drawer bottom (incl. Logout) being covered by
+           iOS Safari's dynamic address/tab bar chrome; 100vh above is the fallback. */
         width: 280px;
         z-index: 1000;
         transform: translateX(-100%);
@@ -1450,6 +1453,11 @@
         gap: 20px;
       }
 
+      .header {
+        flex-wrap: wrap;
+        row-gap: 8px;
+      }
+
       .header h1 {
         font-size: 24px;
       }
@@ -1457,6 +1465,84 @@
       /* Mobile Menu Button */
       .mobile-menu-btn {
         display: block;
+        padding: 10px;
+        min-width: 44px;
+        min-height: 44px;
+      }
+
+      /* .dashboard-grid becomes a flex column here, where align-self controls
+         width (cross-axis) instead of the desktop grid's row-height. Without
+         this, the widget shrinks to fit its content instead of going full-width. */
+      .weather-widget {
+        align-self: stretch;
+      }
+
+      /* Stack the budget ring above its details instead of squeezing both
+         into a full-width mobile card side-by-side. */
+      .budget-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+      }
+
+      .budget-ring {
+        width: 110px;
+        height: 110px;
+        align-self: center;
+      }
+
+      .budget-ring svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Tighten bar spacing/label size so 5 price-chart bars don't overlap
+         their labels on a narrow phone width. */
+      .price-chart {
+        gap: 6px;
+      }
+
+      .chart-bar::after {
+        font-size: 9px;
+      }
+
+      /* Enlarge sub-40px icon tap targets without shifting layout: negative
+         margin offsets the added padding so the visible glyph position/size
+         is unchanged. Only applied to plain inline icons with no explicit
+         width/height of their own. */
+      .delete-task,
+      .inventory-item .fa-trash {
+        padding: 8px;
+        margin: -8px;
+      }
+
+      /* .task-checkbox (native checkbox input) and .viewfinder-clear-btn
+         (absolutely-positioned circular button) both already have fixed
+         width/height, so the padding/margin trick above would shrink the
+         native control or shift the anchored position; grow them directly
+         instead. */
+      .task-checkbox {
+        width: 24px;
+        height: 24px;
+      }
+
+      .viewfinder-clear-btn {
+        width: 40px;
+        height: 40px;
+      }
+    }
+
+    /* Small-phone breakpoint (~360-480px): .stats-bar's 2-column layout from
+       the 1024px block above still crowds currency values like "KSh 150,000"
+       into too little width on real phones, and the location banner's text
+       min-width is borderline against the banner's own 90%-width sizing. */
+    @media (max-width: 480px) {
+      .stats-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .location-banner-text {
+        min-width: 0;
       }
     }
 
@@ -2692,7 +2778,7 @@
           </div>
           <div class="budget-content">
             <div class="budget-ring">
-              <svg width="140" height="140">
+              <svg width="140" height="140" viewBox="0 0 140 140">
                 <circle class="ring-bg" cx="70" cy="70" r="60"></circle>
                 <circle class="ring-fill" id="budgetRingFill" cx="70" cy="70" r="60"></circle>
               </svg>

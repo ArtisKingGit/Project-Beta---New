@@ -694,6 +694,41 @@
             .budget-summary-bar {
                 grid-template-columns: 1fr;
             }
+
+            /* Prevent budget-edit row (label + input + Save/Cancel) from
+               overflowing its card and forcing a page-wide horizontal scroll. */
+            .budget-input-row {
+                flex-wrap: wrap;
+            }
+
+            .budget-input-row .budget-inline-input {
+                flex: 1 1 100%;
+            }
+
+            .budget-save-btn {
+                flex: 1 1 auto;
+                padding: 12px 16px;
+            }
+
+            /* Enlarge the delete icon's tap target on the expense table. */
+            .delete-btn {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            /* Trim column padding and drop the least-essential columns
+               (Date, Farm) so the table stops needing sideways scrolling. */
+            .expense-table th,
+            .expense-table td {
+                padding: 10px 8px;
+            }
+
+            .expense-table th:nth-child(1),
+            .expense-table td:nth-child(1),
+            .expense-table th:nth-child(4),
+            .expense-table td:nth-child(4) {
+                display: none;
+            }
         }
 
         /* Modal Styles */
@@ -868,6 +903,9 @@
 
             .mobile-menu-btn {
                 display: block;
+                padding: 10px;
+                min-width: 44px;
+                min-height: 44px;
             }
 
             .expenses-container {
@@ -884,6 +922,19 @@
 
             .header h1 {
                 font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Keep the title and clock on one tidy row (or a clean wrap)
+               instead of the h1 breaking mid-word on narrow phones. */
+            .header {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            #currentTime {
+                font-size: 13px;
             }
         }
     </style>
