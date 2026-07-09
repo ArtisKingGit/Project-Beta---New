@@ -94,8 +94,8 @@
 
     body {
       background: var(--bg-dark);
-      background-image: radial-gradient(at 5% 5%, rgba(34,197,94,0.06) 0, transparent 50%),
-                        radial-gradient(at 95% 95%, rgba(59,130,246,0.06) 0, transparent 50%);
+      background-image: radial-gradient(at 5% 5%, rgba(34, 197, 94, 0.06) 0, transparent 50%),
+        radial-gradient(at 95% 95%, rgba(59, 130, 246, 0.06) 0, transparent 50%);
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
@@ -124,6 +124,7 @@
       overflow-y: auto;
       scrollbar-width: none;
     }
+
     .sidebar::-webkit-scrollbar {
       display: none;
     }
@@ -157,7 +158,8 @@
     }
 
     .profile img {
-      width: 68px; height: 68px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
       border: 2px solid var(--primary);
       margin-bottom: 10px;
@@ -165,10 +167,21 @@
       box-shadow: 0 0 16px var(--primary-glow);
     }
 
-    .profile p { font-weight: 700; font-size: 15px; }
-    .profile span { font-size: 11px; color: var(--primary); font-weight: 600; letter-spacing: 0.5px; }
+    .profile p {
+      font-weight: 700;
+      font-size: 15px;
+    }
 
-    .nav { flex: 1; }
+    .profile span {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .nav {
+      flex: 1;
+    }
 
     .nav a {
       display: flex;
@@ -184,20 +197,28 @@
       transition: all 0.25s;
     }
 
-    .nav a i { font-size: 16px; width: 20px; text-align: center; }
+    .nav a i {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
 
-    .nav a:hover, .nav a.active {
+    .nav a:hover,
+    .nav a.active {
       background: rgba(34, 197, 94, 0.12);
       color: var(--primary);
     }
 
-    .nav a.active { font-weight: 700; border-left: 3px solid var(--primary); }
+    .nav a.active {
+      font-weight: 700;
+      border-left: 3px solid var(--primary);
+    }
 
     .logout-btn {
       margin-top: auto;
-      background: rgba(239,68,68,0.08);
+      background: rgba(239, 68, 68, 0.08);
       color: var(--danger);
-      border: 1px solid rgba(239,68,68,0.2);
+      border: 1px solid rgba(239, 68, 68, 0.2);
       padding: 12px;
       border-radius: 12px;
       cursor: pointer;
@@ -210,7 +231,10 @@
       transition: 0.3s;
     }
 
-    .logout-btn:hover { background: var(--danger); color: white; }
+    .logout-btn:hover {
+      background: var(--danger);
+      color: white;
+    }
 
     /* Main Content */
     .main {
@@ -711,8 +735,15 @@
     }
 
     @keyframes zoomIn {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      from {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     .scanner-card-header {
@@ -735,9 +766,17 @@
       border-radius: 50%;
     }
 
-    .scanner-dot-group .dot.red { background: #ef4444; }
-    .scanner-dot-group .dot.yellow { background: #f59e0b; }
-    .scanner-dot-group .dot.green { background: #22c55e; }
+    .scanner-dot-group .dot.red {
+      background: #ef4444;
+    }
+
+    .scanner-dot-group .dot.yellow {
+      background: #f59e0b;
+    }
+
+    .scanner-dot-group .dot.green {
+      background: #22c55e;
+    }
 
     .scanner-title {
       font-family: 'Outfit', sans-serif;
@@ -762,6 +801,7 @@
         grid-template-columns: 1fr;
         gap: 20px;
       }
+
       .scanner-card {
         max-width: 100%;
       }
@@ -792,7 +832,7 @@
     .scanner-grid {
       position: absolute;
       inset: 0;
-      background-image: 
+      background-image:
         linear-gradient(rgba(34, 197, 94, 0.08) 1px, transparent 1px),
         linear-gradient(90deg, rgba(34, 197, 94, 0.08) 1px, transparent 1px);
       background-size: 20px 20px;
@@ -814,9 +854,17 @@
     }
 
     @keyframes scanLineAnimation {
-      0% { top: 0%; }
-      50% { top: 100%; }
-      100% { top: 0%; }
+      0% {
+        top: 0%;
+      }
+
+      50% {
+        top: 100%;
+      }
+
+      100% {
+        top: 0%;
+      }
     }
 
     /* Viewfinder Corners */
@@ -835,23 +883,31 @@
     }
 
     .scanner-corners .corner.top-left {
-      top: 0; left: 0;
-      border-right: none; border-bottom: none;
+      top: 0;
+      left: 0;
+      border-right: none;
+      border-bottom: none;
     }
 
     .scanner-corners .corner.top-right {
-      top: 0; right: 0;
-      border-left: none; border-bottom: none;
+      top: 0;
+      right: 0;
+      border-left: none;
+      border-bottom: none;
     }
 
     .scanner-corners .corner.bottom-left {
-      bottom: 0; left: 0;
-      border-right: none; border-top: none;
+      bottom: 0;
+      left: 0;
+      border-right: none;
+      border-top: none;
     }
 
     .scanner-corners .corner.bottom-right {
-      bottom: 0; right: 0;
-      border-left: none; border-top: none;
+      bottom: 0;
+      right: 0;
+      border-left: none;
+      border-top: none;
     }
 
     /* Diagnostics & Progress */
@@ -892,8 +948,15 @@
     }
 
     @keyframes pulseText {
-      0%, 100% { opacity: 0.8; }
-      50% { opacity: 1; }
+
+      0%,
+      100% {
+        opacity: 0.8;
+      }
+
+      50% {
+        opacity: 1;
+      }
     }
 
     .scan-stages {
@@ -1588,7 +1651,7 @@
     }
 
     /* Upgraded Crop Scanner UI Styles */
-    
+
     /* Supported Crops Badge Row */
     .supported-crops-title {
       font-size: 13px;
@@ -1599,12 +1662,14 @@
       align-items: center;
       gap: 6px;
     }
+
     .supported-crops-grid {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 20px;
     }
+
     .crop-chip {
       background: rgba(34, 197, 94, 0.08);
       border: 1px solid rgba(34, 197, 94, 0.2);
@@ -1619,12 +1684,13 @@
       transition: all 0.3s ease;
       cursor: default;
     }
+
     .crop-chip:hover {
       background: rgba(34, 197, 94, 0.15);
       transform: translateY(-2px);
       box-shadow: 0 4px 10px rgba(34, 197, 94, 0.15);
     }
-    
+
     /* Drag & Drop Upload Zone */
     .scanner-dropzone {
       border: 2px dashed rgba(34, 197, 94, 0.3);
@@ -1643,14 +1709,18 @@
       gap: 12px;
       margin-bottom: 20px;
     }
-    .scanner-dropzone:hover, .scanner-dropzone.dragover {
+
+    .scanner-dropzone:hover,
+    .scanner-dropzone.dragover {
       border-color: var(--primary);
       background: rgba(34, 197, 94, 0.06);
       box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
     }
+
     .scanner-dropzone.dragover {
       transform: scale(0.99);
     }
+
     .dropzone-icon-box {
       width: 60px;
       height: 60px;
@@ -1663,23 +1733,26 @@
       font-size: 24px;
       transition: all 0.3s ease;
     }
+
     .scanner-dropzone:hover .dropzone-icon-box {
       transform: scale(1.1);
       background: var(--primary);
       color: #052e16;
       box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
     }
+
     .dropzone-text h4 {
       font-size: 15px;
       font-weight: 600;
       margin-bottom: 4px;
       color: var(--text);
     }
+
     .dropzone-text p {
       font-size: 12px;
       color: var(--text-muted);
     }
-    
+
     /* Viewfinder Preview before Scan */
     .viewfinder-preview-container {
       position: relative;
@@ -1689,16 +1762,19 @@
       border-radius: 12px;
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      display: none; /* hidden until selected */
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      display: none;
+      /* hidden until selected */
       animation: fadeIn 0.4s ease-out;
       margin-bottom: 10px;
     }
+
     .viewfinder-preview-container img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .viewfinder-clear-btn {
       position: absolute;
       top: 10px;
@@ -1707,7 +1783,7 @@
       height: 30px;
       border-radius: 50%;
       background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(255,255,255,0.2);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       color: #f1f5f9;
       display: flex;
       align-items: center;
@@ -1716,12 +1792,13 @@
       z-index: 10;
       transition: all 0.2s ease;
     }
+
     .viewfinder-clear-btn:hover {
       background: #ef4444;
       color: white;
       border-color: #ef4444;
     }
-    
+
     /* Two-Column Results Grid styling */
     .result-card.enhanced-layout {
       display: grid;
@@ -1731,14 +1808,14 @@
       align-items: start;
       background: rgba(15, 23, 42, 0.4);
     }
-    
+
     @media (max-width: 768px) {
       .result-card.enhanced-layout {
         grid-template-columns: 1fr;
         gap: 20px;
       }
     }
-    
+
     /* Result Image Viewfinder (for drawing boxes) */
     .result-image-viewfinder {
       position: relative;
@@ -1750,13 +1827,14 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     }
+
     .result-image-viewfinder img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
-    
+
     /* Blinking Bounding Boxes */
     .bounding-box {
       position: absolute;
@@ -1768,6 +1846,7 @@
       transition: transform 0.2s ease, background-color 0.2s ease;
       animation: boxBlink 2s infinite ease-in-out;
     }
+
     .bounding-box:hover {
       background: rgba(239, 68, 68, 0.35);
       border-color: #f43f5e;
@@ -1775,12 +1854,19 @@
       transform: scale(1.02);
       z-index: 6;
     }
-    
+
     @keyframes boxBlink {
-      0%, 100% { border-color: rgba(239, 68, 68, 0.9); }
-      50% { border-color: rgba(239, 68, 68, 0.4); }
+
+      0%,
+      100% {
+        border-color: rgba(239, 68, 68, 0.9);
+      }
+
+      50% {
+        border-color: rgba(239, 68, 68, 0.4);
+      }
     }
-    
+
     /* Bounding Box Tooltip */
     .bounding-box-tooltip {
       position: absolute;
@@ -1798,14 +1884,15 @@
       white-space: nowrap;
       pointer-events: none;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
       z-index: 10;
     }
+
     .bounding-box:hover .bounding-box-tooltip {
       opacity: 1;
       transform: translateX(-50%) scale(1);
     }
-    
+
     /* Pulse badge for disease status */
     .pulse-badge {
       display: inline-flex;
@@ -1823,6 +1910,7 @@
       box-shadow: 0 0 10px rgba(var(--result-rgb), 0.1);
       position: relative;
     }
+
     .pulse-badge::after {
       content: '';
       width: 6px;
@@ -1832,33 +1920,46 @@
       display: inline-block;
       animation: statusPulse 1.5s infinite ease-in-out;
     }
-    
+
     @keyframes statusPulse {
-      0%, 100% { opacity: 0.3; transform: scale(0.9); }
-      50% { opacity: 1; transform: scale(1.2); }
+
+      0%,
+      100% {
+        opacity: 0.3;
+        transform: scale(0.9);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
     }
-    
+
     /* Confidence radial progress upgrade */
     .confidence-ring-wrapper {
       display: flex;
       align-items: center;
       gap: 12px;
     }
+
     .confidence-radial {
       position: relative;
       width: 70px;
       height: 70px;
     }
+
     .confidence-radial svg {
       width: 100%;
       height: 100%;
       transform: rotate(-90deg);
     }
+
     .confidence-circle-bg {
       fill: none;
       stroke: rgba(255, 255, 255, 0.05);
       stroke-width: 4.5;
     }
+
     .confidence-circle-fill {
       fill: none;
       stroke: var(--result-color);
@@ -1868,6 +1969,7 @@
       stroke-dashoffset: 100;
       transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
     .confidence-radial-text {
       position: absolute;
       inset: 0;
@@ -1876,18 +1978,20 @@
       align-items: center;
       justify-content: center;
     }
+
     .confidence-radial-pct {
       font-size: 15px;
       font-weight: 800;
       color: var(--result-color);
     }
-    
+
     /* Result Actions Row */
     .result-actions-row {
       display: flex;
       gap: 12px;
       margin-top: 20px;
     }
+
     .result-actions-row .btn-secondary {
       flex: 1;
       background: rgba(255, 255, 255, 0.05);
@@ -1903,10 +2007,12 @@
       gap: 8px;
       transition: all 0.2s ease;
     }
+
     .result-actions-row .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.1);
       border-color: rgba(255, 255, 255, 0.2);
     }
+
     .result-actions-row .btn-secondary i {
       color: var(--primary);
     }
@@ -1917,25 +2023,31 @@
       border-color: rgba(0, 0, 0, 0.08);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     }
+
     body.light-theme .detail-box {
       background: rgba(0, 0, 0, 0.03);
       border: 1px solid rgba(0, 0, 0, 0.04);
     }
+
     body.light-theme .result-actions-row .btn-secondary {
       background: rgba(0, 0, 0, 0.02);
       border: 1px solid rgba(0, 0, 0, 0.1);
       color: var(--text);
     }
+
     body.light-theme .result-actions-row .btn-secondary:hover {
       background: rgba(0, 0, 0, 0.06);
       border-color: rgba(0, 0, 0, 0.15);
     }
+
     body.light-theme .result-image-viewfinder {
       border: 1px solid rgba(0, 0, 0, 0.1);
     }
+
     body.light-theme .confidence-circle-bg {
       stroke: rgba(0, 0, 0, 0.06);
     }
+
     body.light-theme .viewfinder-preview-container {
       border: 1px solid rgba(0, 0, 0, 0.1);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
@@ -1994,9 +2106,18 @@
     }
 
     @keyframes locationPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.15); text-shadow: 0 0 8px rgba(34, 197, 94, 0.8); }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.15);
+        text-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     .location-banner-text {
@@ -2067,14 +2188,17 @@
       border-color: rgba(34, 197, 94, 0.3);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 15px rgba(34, 197, 94, 0.1);
     }
+
     body.light-theme .location-banner-text h4 {
       color: #0f172a;
     }
+
     body.light-theme .btn-location-dismiss {
       background: rgba(0, 0, 0, 0.03);
       color: #0f172a;
       border-color: rgba(0, 0, 0, 0.08);
     }
+
     body.light-theme .btn-location-dismiss:hover {
       background: rgba(0, 0, 0, 0.06);
       border-color: rgba(0, 0, 0, 0.15);
@@ -2091,11 +2215,14 @@
       </div>
       <div class="location-banner-text">
         <h4 data-i18n="location_banner_title">Enable Location Services</h4>
-        <p data-i18n="location_banner_desc">Allow location permissions to get the latest weather info for crop recommendations.</p>
+        <p data-i18n="location_banner_desc">Allow location permissions to get the latest weather info for crop
+          recommendations.</p>
       </div>
       <div class="location-banner-actions">
-        <button class="btn-location-allow" onclick="requestLocationPermission()" data-i18n="location_banner_allow">Allow Location</button>
-        <button class="btn-location-dismiss" onclick="dismissLocationBanner()" data-i18n="location_banner_dismiss">Later</button>
+        <button class="btn-location-allow" onclick="requestLocationPermission()" data-i18n="location_banner_allow">Allow
+          Location</button>
+        <button class="btn-location-dismiss" onclick="dismissLocationBanner()"
+          data-i18n="location_banner_dismiss">Later</button>
       </div>
     </div>
   </div>
@@ -2106,8 +2233,12 @@
       <div class="spinner-inner"></div>
       <img src="AgroFast%20Logo.jpg" class="spinner-logo" alt="AgroFast">
     </div>
-    <div id="loaderPercent" style="font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 10px; font-family: monospace;">0%</div>
-    <p style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Initializing Farmly</p>
+    <div id="loaderPercent"
+      style="font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 10px; font-family: monospace;">0%
+    </div>
+    <p
+      style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">
+      Initializing Farmly</p>
   </div>
   <div class="loader-overlay" id="loader">
     <div class="scanner-card">
@@ -2119,7 +2250,7 @@
         </div>
         <div class="scanner-title">AGROFAST AI CROP DIAGNOSTIC UNIT</div>
       </div>
-      
+
       <div class="scanner-card-body">
         <!-- Left Column: The image scanner viewfinder -->
         <div class="scanner-viewfinder">
@@ -2133,14 +2264,14 @@
             <div class="corner bottom-right"></div>
           </div>
         </div>
-        
+
         <!-- Right Column: Status and Diagnostics -->
         <div class="scanner-diagnostics">
           <div class="hud-box">
             <div class="hud-label">SYSTEM STATUS</div>
             <div class="hud-value active-pulse">ANALYSIS IN PROGRESS...</div>
           </div>
-          
+
           <div class="scan-stages">
             <div class="scan-stage" id="stage1">
               <i class="far fa-circle stage-icon"></i>
@@ -2186,14 +2317,17 @@
         <span id="userLevel">Pro Farmer</span>
       </div>
       <nav class="nav">
-        <a href="dashboard.html" class="active"><i class="fas fa-home"></i> <span data-i18n="dashboard">Dashboard</span></a>
-        <a href="recommendations.html"><i class="fas fa-seedling"></i> <span data-i18n="recommendations">Recommendations</span></a>
+        <a href="dashboard.html" class="active"><i class="fas fa-home"></i> <span
+            data-i18n="dashboard">Dashboard</span></a>
+        <a href="recommendations.html"><i class="fas fa-seedling"></i> <span
+            data-i18n="recommendations">Recommendations</span></a>
         <a href="manage.html"><i class="fas fa-tractor"></i> <span data-i18n="manage_farms">Manage Farms</span></a>
         <a href="expenses.html"><i class="fas fa-wallet"></i> <span data-i18n="expenses">Expenses</span></a>
         <a href="dashboard.html"><i class="fas fa-expand"></i> <span data-i18n="crop_scanner">Crop Scanner</span></a>
         <a href="history.html"><i class="fas fa-history"></i> <span data-i18n="history">History</span></a>
         <a href="settings.html"><i class="fas fa-cog"></i> <span data-i18n="settings">Settings</span></a>
-        <a href="#" onclick="startTutorial()"><i class="fas fa-graduation-cap"></i> <span data-i18n="redo_tutorial">Redo Tutorial</span></a>
+        <a href="#" onclick="startTutorial()"><i class="fas fa-graduation-cap"></i> <span data-i18n="redo_tutorial">Redo
+            Tutorial</span></a>
       </nav>
       <button class="logout-btn" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i> <span data-i18n="logout">Logout</span>
@@ -2250,7 +2384,7 @@
             <span data-i18n="crop_scanner">Crop Health Scanner</span>
             <i class="fas fa-camera"></i>
           </div>
-          
+
           <!-- Supported crops badges grid -->
           <div class="supported-crops-title">
             <i class="fas fa-info-circle"></i> Supported Crops (High-Accuracy Models):
@@ -2286,9 +2420,10 @@
             </div>
           </div>
           <input type="file" id="imageInput" accept="image/*" capture="environment" style="display: none;">
-          
+
           <div class="scanner-controls" style="justify-content: flex-end; margin-top: -10px;">
-            <button class="btn-primary" id="analyzeBtn" onclick="scanCrop()" disabled style="opacity: 0.6; cursor: not-allowed;">
+            <button class="btn-primary" id="analyzeBtn" onclick="scanCrop()" disabled
+              style="opacity: 0.6; cursor: not-allowed;">
               <i class="fas fa-stethoscope"></i>
               <span data-i18n="analyze_now">Analyze Now</span>
             </button>
@@ -2296,183 +2431,202 @@
         </div>
 
         <div class="scan-results" id="scanResultsArea">
-            <div class="result-card enhanced-layout theme-healthy" id="resultCard">
-              <!-- Left Column: Visual Diagnosis Viewfinder -->
-              <div class="result-image-viewfinder" id="resultViewfinder">
-                <img id="resultImage" src="" alt="Visual Scan Diagnosis">
-                <!-- Bounding Boxes will be drawn here dynamically -->
-              </div>
-              
-              <!-- Right Column: Medical Diagnostic Report -->
-              <div style="display: flex; flex-direction: column; justify-content: space-between;">
-                <div>
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <div class="pulse-badge" id="statusBadge">
-                      <i class="fas fa-check-circle" id="statusIcon"></i>
-                      <span id="statusText">Analysis Complete</span>
-                    </div>
-                    
-                    <!-- Upgraded Radial Confidence Progress -->
-                    <div class="confidence-ring-wrapper">
-                      <div class="confidence-radial">
-                        <svg viewBox="0 0 36 36">
-                          <path class="confidence-circle-bg"
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                          <path class="confidence-circle-fill" id="confidenceRing" stroke-dasharray="0, 100"
-                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        </svg>
-                        <div class="confidence-radial-text">
-                          <span class="confidence-radial-pct" id="confidenceText">0%</span>
-                          <span style="font-size: 8px; color: var(--text-muted); font-weight: bold; text-transform: uppercase;">Confidence</span>
-                        </div>
+          <div class="result-card enhanced-layout theme-healthy" id="resultCard">
+            <!-- Left Column: Visual Diagnosis Viewfinder -->
+            <div class="result-image-viewfinder" id="resultViewfinder">
+              <img id="resultImage" src="" alt="Visual Scan Diagnosis">
+              <!-- Bounding Boxes will be drawn here dynamically -->
+            </div>
+
+            <!-- Right Column: Medical Diagnostic Report -->
+            <div style="display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                  <div class="pulse-badge" id="statusBadge">
+                    <i class="fas fa-check-circle" id="statusIcon"></i>
+                    <span id="statusText">Analysis Complete</span>
+                  </div>
+
+                  <!-- Upgraded Radial Confidence Progress -->
+                  <div class="confidence-ring-wrapper">
+                    <div class="confidence-radial">
+                      <svg viewBox="0 0 36 36">
+                        <path class="confidence-circle-bg"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="confidence-circle-fill" id="confidenceRing" stroke-dasharray="0, 100"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                      </svg>
+                      <div class="confidence-radial-text">
+                        <span class="confidence-radial-pct" id="confidenceText">0%</span>
+                        <span
+                          style="font-size: 8px; color: var(--text-muted); font-weight: bold; text-transform: uppercase;">Confidence</span>
                       </div>
                     </div>
                   </div>
-                  
-                  <div class="disease-name" id="diagnosisText" style="margin-bottom: 20px;">No Issue Detected</div>
-                  
-                  <!-- Crop scan report section -->
-                  <div id="cropReportSection">
-                    <div class="result-details-grid">
-                      <div class="detail-box">
-                        <div class="detail-icon"><i class="fas fa-leaf"></i></div>
-                        <div class="detail-info">
-                          <label>Detected Crop</label>
-                          <span id="cropText">Unknown</span>
-                        </div>
-                      </div>
-                      <div class="detail-box">
-                        <div class="detail-icon"><i class="fas fa-search-plus"></i></div>
-                        <div class="detail-info">
-                          <label>Scan Quality</label>
-                          <span id="scanQuality">High</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div class="treatment-section" style="margin-bottom: 15px;">
-                      <div class="treatment-header">
-                        <i class="fas fa-heartbeat"></i> Recommended Action
-                      </div>
-                      <div class="treatment-text" id="treatmentText">
-                        No action required. Your crop looks healthy!
-                      </div>
-                    </div>
+                </div>
 
-                    <!-- Crop soil requirements card -->
-                    <div id="cropSoilReqsContainer" style="margin-top: 15px; display: none;">
-                      <div style="font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-                        <i class="fas fa-seedling"></i> Ideal Soil Requirements
+                <div class="disease-name" id="diagnosisText" style="margin-bottom: 20px;">No Issue Detected</div>
+
+                <!-- Crop scan report section -->
+                <div id="cropReportSection">
+                  <div class="result-details-grid">
+                    <div class="detail-box">
+                      <div class="detail-icon"><i class="fas fa-leaf"></i></div>
+                      <div class="detail-info">
+                        <label>Detected Crop</label>
+                        <span id="cropText">Unknown</span>
                       </div>
-                      <div class="result-details-grid" style="grid-template-columns: 1fr; gap: 8px;">
-                        <div class="detail-box" style="padding: 10px;">
-                          <div class="detail-info">
-                            <label>Preferred Soil Types</label>
-                            <span id="cropPreferredSoils" style="font-size: 13px; font-weight: 600; color: var(--text);">—</span>
-                          </div>
-                        </div>
-                        <div class="detail-box" style="padding: 10px;">
-                          <div class="detail-info">
-                            <label>Ideal N-P-K Ratio</label>
-                            <span id="cropIdealNPK" style="font-size: 13px; font-weight: 600; color: var(--text);">—</span>
-                          </div>
-                        </div>
-                        <div class="detail-box" style="padding: 10px;">
-                          <div class="detail-info">
-                            <label>Ideal Soil pH Range</label>
-                            <span id="cropIdealPH" style="font-size: 13px; font-weight: 600; color: var(--text);">—</span>
-                          </div>
-                        </div>
+                    </div>
+                    <div class="detail-box">
+                      <div class="detail-icon"><i class="fas fa-search-plus"></i></div>
+                      <div class="detail-info">
+                        <label>Scan Quality</label>
+                        <span id="scanQuality">High</span>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Soil scan report section -->
-                  <div id="soilReportSection" style="display: none; flex-direction: column; gap: 15px;">
-                    <!-- NPK levels progress indicators -->
-                    <div>
-                      <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
-                        Soil Nutrient Levels (NPK)
+                  <div class="treatment-section" style="margin-bottom: 15px;">
+                    <div class="treatment-header">
+                      <i class="fas fa-heartbeat"></i> Recommended Action
+                    </div>
+                    <div class="treatment-text" id="treatmentText">
+                      No action required. Your crop looks healthy!
+                    </div>
+                  </div>
+
+                  <!-- Crop soil requirements card -->
+                  <div id="cropSoilReqsContainer" style="margin-top: 15px; display: none;">
+                    <div
+                      style="font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                      <i class="fas fa-seedling"></i> Ideal Soil Requirements
+                    </div>
+                    <div class="result-details-grid" style="grid-template-columns: 1fr; gap: 8px;">
+                      <div class="detail-box" style="padding: 10px;">
+                        <div class="detail-info">
+                          <label>Preferred Soil Types</label>
+                          <span id="cropPreferredSoils"
+                            style="font-size: 13px; font-weight: 600; color: var(--text);">—</span>
+                        </div>
                       </div>
-                      <div style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;">
-                        <!-- Nitrogen -->
-                        <div>
-                          <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 3px;">
-                            <span>Nitrogen (N)</span>
-                            <span id="soilNVal" style="color: var(--primary);">Low (25%)</span>
-                          </div>
-                          <div class="progress-bar-bg" style="margin-top: 0; background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px;">
-                            <div id="soilNBar" class="progress-bar-fill" style="width: 25%; background: #f59e0b;"></div>
-                          </div>
+                      <div class="detail-box" style="padding: 10px;">
+                        <div class="detail-info">
+                          <label>Ideal N-P-K Ratio</label>
+                          <span id="cropIdealNPK"
+                            style="font-size: 13px; font-weight: 600; color: var(--text);">—</span>
                         </div>
-                        <!-- Phosphorus -->
-                        <div>
-                          <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 3px;">
-                            <span>Phosphorus (P)</span>
-                            <span id="soilPVal" style="color: var(--primary);">Medium (45%)</span>
-                          </div>
-                          <div class="progress-bar-bg" style="margin-top: 0; background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px;">
-                            <div id="soilPBar" class="progress-bar-fill" style="width: 45%; background: var(--primary);"></div>
-                          </div>
-                        </div>
-                        <!-- Potassium -->
-                        <div>
-                          <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 3px;">
-                            <span>Potassium (K)</span>
-                            <span id="soilKVal" style="color: var(--primary);">High (75%)</span>
-                          </div>
-                          <div class="progress-bar-bg" style="margin-top: 0; background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px;">
-                            <div id="soilKBar" class="progress-bar-fill" style="width: 75%; background: #3b82f6;"></div>
-                          </div>
+                      </div>
+                      <div class="detail-box" style="padding: 10px;">
+                        <div class="detail-info">
+                          <label>Ideal Soil pH Range</label>
+                          <span id="cropIdealPH" style="font-size: 13px; font-weight: 600; color: var(--text);">—</span>
                         </div>
                       </div>
                     </div>
+                  </div>
+                </div>
 
-                    <!-- Acidity (pH) meter -->
-                    <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+                <!-- Soil scan report section -->
+                <div id="soilReportSection" style="display: none; flex-direction: column; gap: 15px;">
+                  <!-- NPK levels progress indicators -->
+                  <div>
+                    <div
+                      style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                      Soil Nutrient Levels (NPK)
+                    </div>
+                    <div
+                      style="display: flex; flex-direction: column; gap: 10px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px;">
+                      <!-- Nitrogen -->
                       <div>
-                        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">Soil Acidity</div>
-                        <div id="soilPHLabel" style="font-size: 15px; font-weight: 600; color: var(--text);">6.8 (Neutral)</div>
+                        <div
+                          style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 3px;">
+                          <span>Nitrogen (N)</span>
+                          <span id="soilNVal" style="color: var(--primary);">Low (25%)</span>
+                        </div>
+                        <div class="progress-bar-bg"
+                          style="margin-top: 0; background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px;">
+                          <div id="soilNBar" class="progress-bar-fill" style="width: 25%; background: #f59e0b;"></div>
+                        </div>
                       </div>
-                      <div style="text-align: right; background: rgba(34, 197, 94, 0.1); border: 1px solid var(--primary); padding: 6px 14px; border-radius: 20px; color: var(--primary); font-weight: 800; font-size: 18px;">
-                        pH <span id="soilPHVal">6.8</span>
+                      <!-- Phosphorus -->
+                      <div>
+                        <div
+                          style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 3px;">
+                          <span>Phosphorus (P)</span>
+                          <span id="soilPVal" style="color: var(--primary);">Medium (45%)</span>
+                        </div>
+                        <div class="progress-bar-bg"
+                          style="margin-top: 0; background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px;">
+                          <div id="soilPBar" class="progress-bar-fill" style="width: 45%; background: var(--primary);">
+                          </div>
+                        </div>
                       </div>
-                    </div>
-
-                    <!-- Suitable crops grid -->
-                    <div>
-                      <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
-                        Recommended Crops for this Soil
-                      </div>
-                      <div id="soilSuitableCrops" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                        <!-- Crop chips injected dynamically -->
-                      </div>
-                    </div>
-
-                    <!-- Balancing advice section -->
-                    <div class="treatment-section">
-                      <div class="treatment-header" style="color: var(--warning);">
-                        <i class="fas fa-balance-scale"></i> NPK & pH Balancing Advice
-                      </div>
-                      <div class="treatment-text" id="soilBalancingText">
-                        Advice loading...
+                      <!-- Potassium -->
+                      <div>
+                        <div
+                          style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 3px;">
+                          <span>Potassium (K)</span>
+                          <span id="soilKVal" style="color: var(--primary);">High (75%)</span>
+                        </div>
+                        <div class="progress-bar-bg"
+                          style="margin-top: 0; background: rgba(255,255,255,0.05); height: 8px; border-radius: 4px;">
+                          <div id="soilKBar" class="progress-bar-fill" style="width: 75%; background: #3b82f6;"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  <!-- Acidity (pH) meter -->
+                  <div
+                    style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+                    <div>
+                      <div
+                        style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                        Soil Acidity</div>
+                      <div id="soilPHLabel" style="font-size: 15px; font-weight: 600; color: var(--text);">6.8 (Neutral)
+                      </div>
+                    </div>
+                    <div
+                      style="text-align: right; background: rgba(34, 197, 94, 0.1); border: 1px solid var(--primary); padding: 6px 14px; border-radius: 20px; color: var(--primary); font-weight: 800; font-size: 18px;">
+                      pH <span id="soilPHVal">6.8</span>
+                    </div>
+                  </div>
+
+                  <!-- Suitable crops grid -->
+                  <div>
+                    <div
+                      style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                      Recommended Crops for this Soil
+                    </div>
+                    <div id="soilSuitableCrops" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                      <!-- Crop chips injected dynamically -->
+                    </div>
+                  </div>
+
+                  <!-- Balancing advice section -->
+                  <div class="treatment-section">
+                    <div class="treatment-header" style="color: var(--warning);">
+                      <i class="fas fa-balance-scale"></i> NPK & pH Balancing Advice
+                    </div>
+                    <div class="treatment-text" id="soilBalancingText">
+                      Advice loading...
+                    </div>
+                  </div>
                 </div>
-                
-                <!-- Action buttons row -->
-                <div class="result-actions-row">
-                  <button class="btn-secondary" id="askAIBtn" onclick="queryChatbotForDisease()" type="button">
-                    <i class="fas fa-robot"></i> Ask Farmly
-                  </button>
-                  <button class="btn-secondary" onclick="resetScanner()" type="button">
-                    <i class="fas fa-redo"></i> Scan Another
-                  </button>
-                </div>
+              </div>
+
+              <!-- Action buttons row -->
+              <div class="result-actions-row">
+                <button class="btn-secondary" id="askAIBtn" onclick="queryChatbotForDisease()" type="button">
+                  <i class="fas fa-robot"></i> Ask Farmly
+                </button>
+                <button class="btn-secondary" onclick="resetScanner()" type="button">
+                  <i class="fas fa-redo"></i> Scan Another
+                </button>
               </div>
             </div>
           </div>
+        </div>
 
         <!-- Weather -->
         <div class="glass-card weather-widget">
@@ -2831,7 +2985,7 @@
               locName = `${ipData.city}, ${ipData.country_name}`;
             }
           }
-        } catch(e) {
+        } catch (e) {
           try {
             const ipres = await fetch('https://ipapi.co/json/');
             const ipData = await ipres.json();
@@ -2840,7 +2994,7 @@
               lon = ipData.longitude;
               locName = `${ipData.city}, ${ipData.country_name}`;
             }
-          } catch(ipErr) {
+          } catch (ipErr) {
             // Keep defaults
           }
         }
@@ -2884,7 +3038,7 @@
         };
 
         const [desc, icon, color] = weatherCodes[current.weather_code] || ["Cloudy", "fa-cloud", "#94a3b8"];
-        
+
         // Tomorrow forecast info
         const tomorrowCode = daily.weather_code[1];
         const [tomorrowDesc, tomorrowIcon, tomorrowColor] = weatherCodes[tomorrowCode] || ["Cloudy", "fa-cloud", "#94a3b8"];
@@ -3127,13 +3281,13 @@
           statusIcon.className = "fas fa-search-plus";
           statusText.textContent = "Soil Identified";
           diagnosisText.textContent = data.soil_type || "Soil Scan";
-          
+
           // Populate NPK
           const npk = data.npk_status || {};
           const nVal = npk.N || "Low (0%)";
           const pVal = npk.P || "Low (0%)";
           const kVal = npk.K || "Low (0%)";
-          
+
           document.getElementById('soilNVal').textContent = nVal;
           document.getElementById('soilPVal').textContent = pVal;
           document.getElementById('soilKVal').textContent = kVal;
@@ -3254,7 +3408,7 @@
         // Show live preview
         viewfinderImg.src = URL.createObjectURL(file);
         viewfinderPreviewContainer.style.display = "block";
-        
+
         // Enable analyze button
         analyzeBtn.disabled = false;
         analyzeBtn.style.opacity = "1";
@@ -3299,7 +3453,7 @@
 
     // Drawing Bounding Boxes dynamically on the image
     let activeBoxes = [];
-    
+
     window.drawBoundingBoxes = (boxes, imgElement, containerElement) => {
       // Clear previous boxes
       const oldBoxes = containerElement.querySelectorAll('.bounding-box');
@@ -3314,7 +3468,7 @@
 
         const naturalW = imgElement.naturalWidth || imgElement.width;
         const naturalH = imgElement.naturalHeight || imgElement.height;
-        
+
         if (naturalW === 0 || naturalH === 0) return;
 
         boxes.forEach((box) => {
@@ -3365,7 +3519,7 @@
       if (imageInput) imageInput.value = "";
       if (viewfinderPreviewContainer) viewfinderPreviewContainer.style.display = "none";
       if (viewfinderImg) viewfinderImg.src = "";
-      
+
       if (analyzeBtn) {
         analyzeBtn.disabled = true;
         analyzeBtn.style.opacity = "0.6";
@@ -3373,7 +3527,7 @@
       }
 
       if (scanResultsArea) scanResultsArea.style.display = "none";
-      
+
       if (resultViewfinder) {
         const oldBoxes = resultViewfinder.querySelectorAll('.bounding-box');
         oldBoxes.forEach(b => b.remove());
@@ -3385,14 +3539,14 @@
     window.queryChatbotForDisease = () => {
       const crop = document.getElementById('cropText').textContent;
       const disease = document.getElementById('diagnosisText').textContent;
-      
+
       if (!crop || crop === "Unknown" || !disease) {
         alert("Please run a crop scan first!");
         return;
       }
 
       const isHealthy = !disease || disease.toLowerCase().includes('healthy') || disease.toLowerCase().includes('no issue');
-      
+
       let promptText = "";
       if (isHealthy) {
         promptText = `My ${crop} crop was scanned and diagnosed as Healthy. What are the best preventive and maintenance practices to keep it healthy and maximize harvest yield?`;

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "agrofast-backend",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["backend/main.py"],
+      "port": 5500
+    },
+    {
+      "name": "agrofast-desktop",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "offline_build", "start"],
+      "port": 5500
+    }
+  ]
+}
