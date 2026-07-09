@@ -545,7 +545,7 @@
             <img src="AgroFast%20Logo.jpg" class="spinner-logo" alt="AgroFast">
         </div>
         <div id="loaderPercent" style="font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 10px; font-family: monospace;">0%</div>
-        <p style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Initializing AgroFast AI</p>
+        <p style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Initializing Farmly</p>
     </div>
     <div class="container">
         <aside class="sidebar">
@@ -635,7 +635,7 @@
         import { getDatabase, ref, get, onValue, remove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
         import { applyTranslations } from "./translations.js";
         import { checkTutorial } from "./tutorial.js";
-        import { initTheme } from "./theme.js";
+        import { initTheme, escapeHtml } from "./theme.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA9-wQyYDIlQIzE1BcdmnOF9Q0FLXBX030",
@@ -751,10 +751,10 @@
 
                     row.innerHTML = `
                         <td>${date}</td>
-                        <td style="font-weight: 600;">${item.crop}</td>
+                        <td style="font-weight: 600;">${escapeHtml(item.crop)}</td>
                         <td>
                           <span class="status-pill ${isHealthy ? 'status-healthy' : 'status-infected'}">
-                            ${item.disease}
+                            ${escapeHtml(item.disease)}
                           </span>
                         </td>
                         <td>${item.confidence}</td>

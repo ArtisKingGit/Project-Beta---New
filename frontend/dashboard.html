@@ -2107,7 +2107,7 @@
       <img src="AgroFast%20Logo.jpg" class="spinner-logo" alt="AgroFast">
     </div>
     <div id="loaderPercent" style="font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 10px; font-family: monospace;">0%</div>
-    <p style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Initializing AgroFast AI</p>
+    <p style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Initializing Farmly</p>
   </div>
   <div class="loader-overlay" id="loader">
     <div class="scanner-card">
@@ -2464,7 +2464,7 @@
                 <!-- Action buttons row -->
                 <div class="result-actions-row">
                   <button class="btn-secondary" id="askAIBtn" onclick="queryChatbotForDisease()" type="button">
-                    <i class="fas fa-robot"></i> Ask AgroFast AI
+                    <i class="fas fa-robot"></i> Ask Farmly
                   </button>
                   <button class="btn-secondary" onclick="resetScanner()" type="button">
                     <i class="fas fa-redo"></i> Scan Another
@@ -2649,7 +2649,7 @@
     import { getDatabase, ref, get, set, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
     import { applyTranslations } from "./translations.js";
     import { checkTutorial } from "./tutorial.js";
-    import { initTheme, formatPrice } from "./theme.js";
+    import { initTheme, formatPrice, escapeHtml } from "./theme.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA9-wQyYDIlQIzE1BcdmnOF9Q0FLXBX030",
@@ -2846,6 +2846,7 @@
         }
 
         const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`);
+        if (!res.ok) throw new Error(`Weather API responded with ${res.status}`);
         const data = await res.json();
 
         const current = data.current;
@@ -2899,7 +2900,7 @@
               <div style="display: flex; align-items: center; justify-content: space-around; padding: 5px 0;">
                 <div style="text-align: left;">
                   <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
-                    <i class="fas fa-map-marker-alt" style="color: var(--primary)"></i> <span>${locName}</span>
+                    <i class="fas fa-map-marker-alt" style="color: var(--primary)"></i> <span>${escapeHtml(locName)}</span>
                   </div>
                   <div class="temp">${temp}°C</div>
                   <span style="font-size: 13px; font-weight: 600; color: var(--text);">${desc}</span>
@@ -3442,7 +3443,7 @@
           li.className = "task-item";
           li.innerHTML = `
             <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} onclick="toggleTask('${id}', ${t.completed})">
-            <span class="task-text ${t.completed ? 'completed' : ''}">${t.text}</span>
+            <span class="task-text ${t.completed ? 'completed' : ''}">${escapeHtml(t.text)}</span>
             <i class="fas fa-trash delete-task" onclick="deleteTask('${id}')"></i>
           `;
           taskList.appendChild(li);
@@ -3518,9 +3519,9 @@
             <div style="display: flex; align-items: center; gap: 12px;">
               <i class="fas fa-trash" style="font-size: 12px; cursor: pointer; color: #ef4444; opacity: 0.5" onclick="deleteInventory('${id}')"></i>
               <div class="inventory-emoji">${emoji}</div>
-              <span>${item.name}</span>
+              <span>${escapeHtml(item.name)}</span>
             </div>
-            <span class="stock-pill stock-${item.level}">${item.qty}</span>
+            <span class="stock-pill stock-${item.level}">${escapeHtml(item.qty)}</span>
           `;
           inventoryList.appendChild(div);
         });

@@ -1,8 +1,9 @@
 import os
-import json
+import json     
+# pyrefly: ignore [missing-import]
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.applications import MobileNetV2 # pyrefly: ignore [missing-import]
 from tensorflow.keras.layers import (
     Dense, GlobalAveragePooling2D, Dropout, BatchNormalization
 )

@@ -730,7 +730,7 @@
             <img src="AgroFast%20Logo.jpg" class="spinner-logo" alt="AgroFast">
         </div>
         <div id="loaderPercent" style="font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 10px; font-family: monospace;">0%</div>
-        <p style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Initializing AgroFast AI</p>
+        <p style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Initializing Farmly</p>
     </div>
 
     <div class="container">
@@ -1036,7 +1036,7 @@
         import { getStorage, ref as sRef, uploadBytes, getDownloadURL, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-storage.js";
         import { applyTranslations, convertUnit, translations } from "./translations.js";
         import { checkTutorial } from "./tutorial.js";
-        import { initTheme, formatPrice } from "./theme.js";
+        import { initTheme, formatPrice, escapeHtml } from "./theme.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA9-wQyYDIlQIzE1BcdmnOF9Q0FLXBX030",
@@ -1198,7 +1198,6 @@
                 let imageUrl = "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&q=80&w=300";
 
                 if (file) {
-                    console.log("Diagnostic: Starting upload check...");
                     try {
                         const storagePath = `farms/${user.uid}/${Date.now()}_${file.name}`;
                         const storageRef = sRef(storage, storagePath);
@@ -1214,7 +1213,6 @@
                         );
 
                         const snapshot = await Promise.race([uploadPromise, timeoutPromise]);
-                        console.log("Upload resolved!");
 
                         addFarmBtn.style.setProperty('--progress', '85%');
                         addFarmBtn.querySelector('span').innerText = "Success! 85%";
@@ -1299,7 +1297,7 @@
                     const budgetFormatted = farm.budget ? formatPrice(farm.budget, currentCurrency) : "N/A";
 
                     card.innerHTML = `
-                        <div style="height: 180px; background: url('${farm.imageUrl || farm.image}') center/cover; border-radius: 16px; margin-bottom: 20px; position: relative; overflow: hidden; border: 1px solid var(--border);">
+                        <div style="height: 180px; background: url('${escapeHtml(farm.imageUrl || farm.image)}') center/cover; border-radius: 16px; margin-bottom: 20px; position: relative; overflow: hidden; border: 1px solid var(--border);">
                             <div style="position: absolute; top: 12px; left: 12px;">
                                 <span class="status-badge ${statusClass}">${farm.status || 'Growing'}</span>
                             </div>
@@ -1312,8 +1310,8 @@
                                 </button>
                             </div>
                             <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 20px 15px 12px;">
-                                <div class="farm-name" style="color: white; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${farm.name}</div>
-                                <div class="farm-location" style="color: rgba(255,255,255,0.8); font-size: 13px;"><i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> ${farm.location}</div>
+                                <div class="farm-name" style="color: white; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${escapeHtml(farm.name)}</div>
+                                <div class="farm-location" style="color: rgba(255,255,255,0.8); font-size: 13px;"><i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> ${escapeHtml(farm.location)}</div>
                             </div>
                         </div>
                         

@@ -198,7 +198,7 @@ window.startTutorial = (isNew = false) => {
             content = `
                 <div class="tutorial-card">
                     <div class="tutorial-icon"><i class="fas fa-robot"></i></div>
-                    <h2 class="tutorial-title">${t.tutorial.tour_assistant || 'AgroFast AI Assistant'}</h2>
+                    <h2 class="tutorial-title">${t.tutorial.tour_assistant || 'Farmly'}</h2>
                     <p class="tutorial-desc">${t.tutorial.tour_assistant_desc || 'Need instant crop or financial advice? Chat with our AI assistant here at any time.'}</p>
                     <div class="tutorial-btns">
                         <button class="btn-tutorial btn-next" onclick="window.finishTutorial(${isNew})">${t.tutorial.finish}</button>
@@ -523,7 +523,7 @@ window.startLoginTutorial = () => {
                 <div class="tutorial-card">
                     <div class="tutorial-icon"><i class="fas fa-list-check"></i></div>
                     <h2 class="tutorial-title">${selectedLang === 'sw' ? 'Sifa Kuu' : selectedLang === 'zu' ? 'Izici Eziyinhloko' : selectedLang === 've' ? 'Zwithu zha Ndeme' : selectedLang === 'af' ? 'Kernkenmerke' : 'Core Capabilities'}</h2>
-                    <p class="tutorial-desc">${selectedLang === 'sw' ? 'Chunguza sifa kuu: skana ya majani, mshauri wa AI, na udhibiti wa matumizi.' : selectedLang === 'zu' ? 'Hlola izici eziyinhloko: isikena sezitshalo, umsizi we-AI, nokuphathwa kwezimali.' : selectedLang === 've' ? 'Sedza zwithu zha ndeme: tshisikeni, mufuda we AI na u langula tshelede.' : selectedLang === 'af' ? 'Ontdek ons primêre gereedskap: die gewasskandeerder, AI-assistent en uitgawebestuurder.' : 'Discover our primary tools: AI Diagnostic Leaf Scanner, AgroFast AI advisor, and Farm Expense Manager.'}</p>
+                    <p class="tutorial-desc">${selectedLang === 'sw' ? 'Chunguza sifa kuu: skana ya majani, mshauri wa AI, na udhibiti wa matumizi.' : selectedLang === 'zu' ? 'Hlola izici eziyinhloko: isikena sezitshalo, umsizi we-AI, nokuphathwa kwezimali.' : selectedLang === 've' ? 'Sedza zwithu zha ndeme: tshisikeni, mufuda we AI na u langula tshelede.' : selectedLang === 'af' ? 'Ontdek ons primêre gereedskap: die gewasskandeerder, AI-assistent en uitgawebestuurder.' : 'Discover our primary tools: AI Diagnostic Leaf Scanner, Farmly AI advisor, and Farm Expense Manager.'}</p>
                     <div class="tutorial-btns">
                         <button class="btn-tutorial btn-next" onclick="window.nextLoginTutorialStep()">${t.tutorial.next}</button>
                     </div>

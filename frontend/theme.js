@@ -20,6 +20,9 @@ export const applyTheme = (theme) => {
     localStorage.setItem('agrofast-theme', theme || 'dark');
 };
 
+const HTML_ESCAPE_MAP = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+export const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => HTML_ESCAPE_MAP[ch]);
+
 export const formatPrice = (priceInKES, currency = 'KES') => {
     const rates = {
         'KES': { rate: 1, symbol: 'KSh' },

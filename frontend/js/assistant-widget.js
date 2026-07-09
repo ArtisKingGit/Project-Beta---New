@@ -3,14 +3,14 @@
 
     const widgetHTML = `
     <div class="ai-assistant-widget">
-        <button class="ai-assistant-toggle" id="aiToggleBtn" title="Chat with AgroFast AI">
+        <button class="ai-assistant-toggle" id="aiToggleBtn" title="Chat with Farmly">
             <i class="fas fa-robot"></i>
         </button>
         
         <div class="ai-assistant-window" id="aiChatWindow">
             <div class="ai-window-header">
                 <div class="ai-window-header-title">
-                    <i class="fas fa-sparkles"></i> AgroFast AI
+                    <i class="fas fa-sparkles"></i> Farmly
                 </div>
                 <div class="ai-window-actions">
                     <button class="ai-header-btn" id="aiNewChatBtn" title="New Chat"><i class="fas fa-plus"></i></button>
@@ -24,11 +24,11 @@
                     <div class="ai-welcome-icon">
                         <i class="fas fa-robot"></i>
                     </div>
-                    <h3>Hi there! I am AgroFast AI.</h3>
+                    <h3>Hi there! I am Farmly.</h3>
                     <p>I'm here to help you with crop management, disease prevention, and best farming practices.</p>
                     <div class="ai-suggested-prompts">
                         <button class="ai-prompt-btn" data-prompt="What features does AgroFast offer?">
-                            <i class="fas fa-info-circle"></i> What is AgroFast?
+                            <i class="fas fa-info-circle"></i> What is Farmly?
                         </button>
                         <button class="ai-prompt-btn" data-prompt="How do I treat tomato blight?">
                             <i class="fas fa-leaf"></i> How do I treat tomato blight?
@@ -217,12 +217,19 @@
                 const isActive = id === currentChatId;
 
                 const item = document.createElement("div");
-                item.className = `ai-history-item \${isActive ? 'active' : ''}`;
-                
-                item.innerHTML = `
-                    <div class="ai-history-title">\${meta.title}</div>
-                    <div class="ai-history-date"><i class="far fa-clock"></i> \${dateStr}</div>
-                `;
+                item.className = `ai-history-item ${isActive ? 'active' : ''}`;
+
+                const titleDiv = document.createElement("div");
+                titleDiv.className = "ai-history-title";
+                titleDiv.textContent = meta.title;
+
+                const dateDiv = document.createElement("div");
+                dateDiv.className = "ai-history-date";
+                dateDiv.innerHTML = '<i class="far fa-clock"></i> ';
+                dateDiv.appendChild(document.createTextNode(dateStr));
+
+                item.appendChild(titleDiv);
+                item.appendChild(dateDiv);
                 item.addEventListener("click", () => {
                     loadChat(id);
                     historyPanel.classList.remove("active");
@@ -377,7 +384,7 @@
             }
 
             const wrapperDiv = document.createElement('div');
-            wrapperDiv.className = `ai-message-wrapper \${sender}`;
+            wrapperDiv.className = `ai-message-wrapper ${sender}`;
 
             const avatarDiv = document.createElement('div');
             avatarDiv.className = 'ai-avatar';
@@ -388,7 +395,7 @@
             }
 
             const msgDiv = document.createElement('div');
-            msgDiv.className = `ai-message \${sender}`;
+            msgDiv.className = `ai-message ${sender}`;
 
             if (isMarkdown && sender === 'ai' && typeof marked !== 'undefined') {
                 msgDiv.innerHTML = marked.parse(text);

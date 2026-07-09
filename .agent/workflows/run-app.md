@@ -10,7 +10,7 @@ AgroFast now runs on a unified server. Simply run:
 ```bash
 python backend/main.py
 ```
-*Then visit `http://localhost:8000` in your browser.*
+*Then visit `http://localhost:5500` in your browser.*
 
 ### 🚜 Features
 - **Smart Auth**: Register and log in with your farm profile.

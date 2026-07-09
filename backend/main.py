@@ -84,13 +84,13 @@ async def chat_endpoint(request: ChatRequest):
     
     try:
         system_instruction = (
-            "You are an expert agricultural AI assistant named AgroFast AI. "
+            "You are an expert agricultural AI assistant named Farmly. "
             "Provide helpful, accurate, brief, and highly effective advice to farmers regarding crops, diseases, pests, and farm management. "
             "CRITICAL: Always detect the language of the user's query and respond in that exact language (the application supports and translates to English, Swahili, Zulu, Venda, and Afrikaans). "
             "Keep your responses concise, direct, action-oriented, and easy to read. Avoid long paragraphs; use brief bullet points or short sentences. "
             "Base your answers on best farming practices. Format your responses using Markdown for better readability.\n\n"
             "You also have comprehensive knowledge about AgroFast (this application) and can explain its features to users if they ask. "
-            "Key features of AgroFast include:\n"
+            "Key features of AgroFast (the app you power as Farmly) include:\n"
             "1. **Smart Auth**: Secure registration and login using Firebase, with customized farm profiles.\n"
             "2. **Manage Farms**: Add, edit, or delete multiple farm plots, specifying soil type, irrigation type, water source, planting dates, and soil nutrients (NPK % values) which can be updated live from the cards.\n"
             "3. **AI Leaf Diagnostics (AI Scanner / Crop Scanner)**: Scan crop leaf photos to detect diseases. It runs on a trained convolutional neural network (achieving a validation accuracy of 91% across 58 agricultural classes, covering apple, pepper, maize, mango, potato, tomato, coffee, cassava, rice, tea, and wheat leaf categories).\n"
@@ -157,5 +157,4 @@ async def read_index():
 app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 
 if __name__ == "__main__":
-    # Standardized port to 5500 as per user requirements for dashboard compatibility
-    uvicorn.run(app, host="::", port=5500)
+    uvicorn.run(app, host="127.0.0.1", port=5500)

@@ -897,7 +897,7 @@
             <img src="AgroFast%20Logo.jpg" class="spinner-logo" alt="AgroFast">
         </div>
         <div id="loaderPercent" style="font-size: 20px; font-weight: 700; color: var(--primary); margin-top: 10px; font-family: monospace;">0%</div>
-        <p style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Initializing AgroFast AI</p>
+        <p style="color: var(--text-muted); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Initializing Farmly</p>
     </div>
 
     <div class="container">
@@ -1092,7 +1092,7 @@
         import { getDatabase, ref, push, set, update, onValue, remove, get } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
         import { applyTranslations } from "./translations.js";
         import { checkTutorial } from "./tutorial.js";
-        import { initTheme, formatPrice } from "./theme.js";
+        import { initTheme, formatPrice, escapeHtml } from "./theme.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA9-wQyYDIlQIzE1BcdmnOF9Q0FLXBX030",
@@ -1433,9 +1433,9 @@
                     row.className = 'expense-item';
                     row.innerHTML = `
                         <td style="font-size: 13px; color: var(--text-muted);">${exp.date}</td>
-                        <td style="font-weight: 600;">${exp.name}</td>
-                        <td><span class="category-pill cat-${exp.category.toLowerCase()}">${exp.category}</span></td>
-                        <td style="font-size: 13px;">${exp.farmName || 'General'}</td>
+                        <td style="font-weight: 600;">${escapeHtml(exp.name)}</td>
+                        <td><span class="category-pill cat-${exp.category.toLowerCase()}">${escapeHtml(exp.category)}</span></td>
+                        <td style="font-size: 13px;">${escapeHtml(exp.farmName || 'General')}</td>
                         <td style="font-weight: 700; color: var(--primary);">${formatPrice(exp.amount, userCurrency)}</td>
                         <td>
                             <button class="delete-btn" onclick="deleteExpense('${exp.id}')">

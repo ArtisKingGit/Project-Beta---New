@@ -372,7 +372,7 @@ export const translations = {
             "tour_actions_desc": "Finyelela izici ezibalulekile ngokushesha - engeza izindleko, buka isabelomali, phatha amapulazi.",
             "tour_inventory": "Umniningwane Wepulazi",
             "tour_inventory_desc": "Phatha imbewu yakho, omanyolo, nezinto zokusebenza endaweni eyodwa.",
-            "tour_assistant": "AgroFast AI Assistant",
+            "tour_assistant": "Farmly",
             "tour_assistant_desc": "Udinga iseluleko sezitshalo noma sezimali? Xoxa nomsizi wethu we-AI lapha nganoma yisiphi isikhathi.",
             "next": "Okulandelayo",
             "finish": "Qala Uhambo"
@@ -505,7 +505,7 @@ export const translations = {
             "tour_actions_desc": "Dzhena kha zwithu zha ndeme nga u tavhanya - tshelede, mugaganyagwama, mabulasi.",
             "tour_inventory": "Inventari ya Bulasi",
             "tour_inventory_desc": "Langula mbeu, manyolo na zwiya-fhethu fhethu huthihi.",
-            "tour_assistant": "AgroFast AI Assistant",
+            "tour_assistant": "Farmly",
             "tour_assistant_desc": "U khou toda nyeletshedzo dza zwitshalo kana dza tshelede? Khumbela u amba na AI Assistant yashu arali na toda.",
             "next": "Okulandelayo",
             "finish": "Kha ri thome"
@@ -638,7 +638,7 @@ export const translations = {
             "tour_actions_desc": "Verkry onmiddellik toegang tot belangrike funksies - voeg uitgawes by, bekyk begrotings.",
             "tour_inventory": "Plaasvoorraad",
             "tour_inventory_desc": "Bestuur u sade, kunsmis en toerusting alles op een plek.",
-            "tour_assistant": "AgroFast AI Assistant",
+            "tour_assistant": "Farmly",
             "tour_assistant_desc": "Het u gewas- of finansiële advies nodig? Gesels hier te eniger tyd met ons AI-assistent.",
             "next": "Volgende",
             "finish": "Begin Nou"
