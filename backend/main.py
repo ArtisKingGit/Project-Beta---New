@@ -146,15 +146,25 @@ async def chat_endpoint(request: ChatRequest):
         print(f"Error in chat: {str(e)}")
         return JSONResponse(status_code=500, content={"error": "The AI assistant is temporarily unavailable. Please try again."})
 
-# Serve Static Files
+# Serve Static Files (only present when running alongside the frontend locally;
+# a backend-only deploy, e.g. a Docker/cloud host, won't have this directory)
 frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
 
-@app.get("/")
-async def read_index():
-    return FileResponse(os.path.join(frontend_path, "login.html"))
+if os.path.isdir(frontend_path):
+    @app.get("/")
+    async def read_index():
+        return FileResponse(os.path.join(frontend_path, "login.html"))
 
-# Mount frontend at root BUT after specific API routes to ensure they take precedence
-app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+    # Mount frontend at root BUT after specific API routes to ensure they take precedence
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
+else:
+    @app.get("/")
+    async def read_index():
+        return {"status": "AgroFast backend is running"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=5500)
+    # HOST/PORT are set by cloud hosts (e.g. Hugging Face Spaces needs 0.0.0.0:7860);
+    # defaults to 127.0.0.1:5500 locally to match the dashboard's compatibility checks.
+    host = os.getenv("HOST", "127.0.0.1")
+    port = int(os.getenv("PORT", 5500))
+    uvicorn.run(app, host=host, port=port)

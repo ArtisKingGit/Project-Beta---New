@@ -1,0 +1,11 @@
+frontend/
+offline_build/
+backend/ai/datasets/
+backend/.env
+.venv/
+.git/
+.claude/
+.vscode/
+**/__pycache__/
+*.pyc
+.DS_Store

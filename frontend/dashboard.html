@@ -3204,17 +3204,8 @@
       const formData = new FormData();
       formData.append("image", file);
 
-      const getApiUrl = () => {
-        // Automatically detect if we are on the same host and port (e.g. served by FastAPI)
-        if (window.location.port === "5500" || window.location.port === "50544" || window.location.port === "49888") {
-          return window.location.origin;
-        }
-        // Fallback for when running via Live Server or other environments
-        return "http://localhost:5500";
-      };
-
       try {
-        const res = await fetch(`${getApiUrl()}/predict`, {
+        const res = await fetch(`${window.getBackendUrl()}/predict`, {
           method: "POST",
           body: formData
         });
@@ -4043,6 +4034,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="js/custom-select.js"></script>
+  <script src="js/api-config.js"></script>
   <script src="js/assistant-widget.js"></script>
 </body>
 

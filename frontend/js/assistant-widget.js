@@ -429,7 +429,7 @@
             scrollToBottom();
 
             try {
-                const response = await fetch('/chat', {
+                const response = await fetch(`${window.getBackendUrl()}/chat`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
