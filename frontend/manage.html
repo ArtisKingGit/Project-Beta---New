@@ -459,6 +459,21 @@
                 transform: translateX(0);
             }
 
+            /* Mobile Menu Button — must be visible at the SAME breakpoint the
+               sidebar collapses (max-width:1024px) so tablet widths (769–1024px)
+               are never a dead zone with the sidebar hidden and no way to open it.
+               !important defeats the base ".mobile-menu-btn{display:none}" rule,
+               which appears LATER in source order and would otherwise win at equal
+               specificity (see mobile audit). */
+            .mobile-menu-btn {
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                min-width: 44px;
+                min-height: 44px;
+                padding: 10px;
+            }
+
             .main {
                 padding: 20px;
             }
