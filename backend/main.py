@@ -36,7 +36,20 @@ socket.getaddrinfo = _ipv4_only_getaddrinfo
 os.environ.setdefault("NO_GCE_CHECK", "true")
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+def _clean_api_key(raw):
+    """Tolerate a misconfigured key/secret: strip whitespace/newlines, an
+    accidentally-included 'GEMINI_API_KEY=' prefix (e.g. when the whole .env
+    line is pasted as a Hugging Face secret value), and surrounding quotes.
+    A newline or '=' in the value otherwise crashes the REST auth header."""
+    if not raw:
+        return raw
+    key = raw.strip().strip('"').strip("'").strip()
+    if key.startswith("GEMINI_API_KEY="):
+        key = key.split("=", 1)[1].strip().strip('"').strip("'").strip()
+    return key
+
+GEMINI_API_KEY = _clean_api_key(os.getenv("GEMINI_API_KEY"))
 if GEMINI_API_KEY:
     # transport="rest" avoids the gRPC C-core transport, which has multiple
     # open upstream reports of indefinite socket stalls with no exception

@@ -588,6 +588,11 @@
     .task-input-group input,
     .task-input-group select {
       flex: 1;
+      /* min-width: 0 lets these flex children shrink below their intrinsic
+         content width on narrow screens; without it the row can't fit and
+         pushes the add button off-screen, causing page-wide horizontal scroll
+         on mobile. Harmless on desktop (there's room, so they never shrink). */
+      min-width: 0;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border);
       padding: 12px;
