@@ -500,10 +500,13 @@
             border: 1px solid var(--border);
             border-radius: 20px;
             padding: 22px;
-            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s, box-shadow 0.3s;
             position: relative;
             overflow: hidden;
             animation: cardIn 0.4s ease both;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
         }
 
         @keyframes cardIn {
@@ -515,17 +518,162 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(34,197,94,0.06) 0%, transparent 60%);
+            background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(34,197,94,0.08) 0%, transparent 65%);
             opacity: 0;
             transition: opacity 0.3s;
+            pointer-events: none;
         }
 
         .crop-card:hover::before { opacity: 1; }
 
         .crop-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(34,197,94,0.25);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+            transform: translateY(-8px) scale(1.015);
+            border-color: rgba(34,197,94,0.4);
+            box-shadow: 0 16px 36px rgba(0,0,0,0.35), 0 0 20px var(--primary-glow);
+        }
+
+        /* ── EXPANDABLE CROP DETAILS (CLICK ANIMATION) ──────── */
+        .crop-card.expanded {
+            border-color: rgba(34, 197, 94, 0.45);
+            box-shadow: 0 16px 36px rgba(0,0,0,0.35), 0 0 24px var(--primary-glow);
+        }
+
+        .crop-expand-wrapper {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .crop-card.expanded .crop-expand-wrapper {
+            grid-template-rows: 1fr;
+        }
+
+        .crop-expand-inner {
+            min-height: 0;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.35s ease 0.1s, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
+            padding-top: 14px;
+            margin-top: 14px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .crop-card.expanded .crop-expand-inner {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .crop-desc-text {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid var(--primary);
+            padding: 8px 12px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .crop-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .crop-detail-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
+        }
+
+        .crop-detail-box .detail-title {
+            font-size: 10px;
+            color: var(--primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .crop-detail-box .detail-val {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 3px;
+        }
+
+        .crop-tip-box {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 11.5px;
+            color: var(--text);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .crop-tip-box i {
+            color: var(--primary);
+            font-size: 13px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .crop-hover-hint {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .crop-hover-hint i {
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .crop-card:hover .crop-hover-hint,
+        .crop-card.expanded .crop-hover-hint {
+            color: var(--primary);
+            border-color: transparent;
+        }
+
+        .crop-card.expanded .crop-hover-hint i {
+            transform: rotate(180deg);
+        }
+
+        :root.light-theme .crop-desc-text {
+            background: rgba(0, 0, 0, 0.03);
+            color: #475569;
+        }
+        :root.light-theme .crop-detail-box {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.08);
+        }
+        :root.light-theme .crop-detail-box .detail-val {
+            color: #0f172a;
+        }
+        :root.light-theme .crop-tip-box {
+            background: rgba(34, 197, 94, 0.1);
+            color: #0f172a;
+        }
+        :root.light-theme .crop-expand-inner {
+            border-top-color: rgba(0, 0, 0, 0.1);
         }
 
         /* Rank badge */
@@ -1064,31 +1212,31 @@
 
         // ── CROP DATABASE ──────────────────────────────────────────
         const CROP_DATA = [
-            { name:"Maize",       icon:"🌽", idealTemp:24, idealHum:60, growthCycle:90,  seasons:["Long Rains","Short Rains"], price:450,  waterNeeds:"Medium", profitPerAcre:85000  },
-            { name:"Beans",       icon:"🫘", idealTemp:22, idealHum:70, growthCycle:65,  seasons:["Long Rains"],               price:1200, waterNeeds:"Low",    profitPerAcre:72000  },
-            { name:"Wheat",       icon:"🌾", idealTemp:18, idealHum:50, growthCycle:120, seasons:["Long Rains"],               price:550,  waterNeeds:"Medium", profitPerAcre:55000  },
-            { name:"Rice",        icon:"🍚", idealTemp:28, idealHum:80, growthCycle:110, seasons:["Short Rains"],              price:950,  waterNeeds:"High",   profitPerAcre:90000  },
-            { name:"Potatoes",    icon:"🥔", idealTemp:18, idealHum:65, growthCycle:80,  seasons:["Any"],                      price:350,  waterNeeds:"Medium", profitPerAcre:60000  },
-            { name:"Tomatoes",    icon:"🍅", idealTemp:24, idealHum:60, growthCycle:75,  seasons:["Any"],                      price:1500, waterNeeds:"Medium", profitPerAcre:120000 },
-            { name:"Coffee",      icon:"☕", idealTemp:22, idealHum:75, growthCycle:365, seasons:["Perennial"],                price:5000, waterNeeds:"Medium", profitPerAcre:350000 },
-            { name:"Tea",         icon:"🍵", idealTemp:20, idealHum:85, growthCycle:365, seasons:["Perennial"],                price:4200, waterNeeds:"High",   profitPerAcre:280000 },
-            { name:"Cabbage",     icon:"🥬", idealTemp:18, idealHum:70, growthCycle:85,  seasons:["Short Rains","Any"],        price:250,  waterNeeds:"Medium", profitPerAcre:40000  },
-            { name:"Spinach",     icon:"🍃", idealTemp:16, idealHum:75, growthCycle:45,  seasons:["Any"],                      price:300,  waterNeeds:"Low",    profitPerAcre:48000  },
-            { name:"Sukuma Wiki", icon:"🌿", idealTemp:20, idealHum:70, growthCycle:60,  seasons:["Any"],                      price:150,  waterNeeds:"Low",    profitPerAcre:30000  },
-            { name:"Onions",      icon:"🧅", idealTemp:22, idealHum:60, growthCycle:100, seasons:["Dry/Hot"],                  price:850,  waterNeeds:"Low",    profitPerAcre:68000  },
-            { name:"Garlic",      icon:"🧄", idealTemp:20, idealHum:55, growthCycle:150, seasons:["Dry/Cold"],                 price:2500, waterNeeds:"Low",    profitPerAcre:95000  },
-            { name:"Carrots",     icon:"🥕", idealTemp:18, idealHum:65, growthCycle:75,  seasons:["Any"],                      price:400,  waterNeeds:"Medium", profitPerAcre:52000  },
-            { name:"Peppers",     icon:"🫑", idealTemp:25, idealHum:65, growthCycle:90,  seasons:["Dry/Hot"],                  price:1200, waterNeeds:"Medium", profitPerAcre:88000  },
-            { name:"Avocados",    icon:"🥑", idealTemp:24, idealHum:70, growthCycle:1095,seasons:["Perennial"],                price:800,  waterNeeds:"Low",    profitPerAcre:200000 },
-            { name:"Bananas",     icon:"🍌", idealTemp:27, idealHum:80, growthCycle:300, seasons:["Perennial"],                price:250,  waterNeeds:"High",   profitPerAcre:120000 },
-            { name:"Mangoes",     icon:"🥭", idealTemp:28, idealHum:60, growthCycle:365, seasons:["Perennial"],                price:600,  waterNeeds:"Low",    profitPerAcre:150000 },
-            { name:"Strawberries",icon:"🍓", idealTemp:20, idealHum:70, growthCycle:120, seasons:["Dry/Cold"],                 price:3500, waterNeeds:"Medium", profitPerAcre:180000 },
-            { name:"Sunflower",   icon:"🌻", idealTemp:24, idealHum:50, growthCycle:100, seasons:["Dry/Hot"],                  price:600,  waterNeeds:"Low",    profitPerAcre:55000  },
-            { name:"Cotton",      icon:"🌾", idealTemp:30, idealHum:45, growthCycle:180, seasons:["Dry/Hot"],                  price:850,  waterNeeds:"Medium", profitPerAcre:65000  },
-            { name:"Sorghum",     icon:"🌾", idealTemp:30, idealHum:40, growthCycle:110, seasons:["Dry/Hot"],                  price:450,  waterNeeds:"Low",    profitPerAcre:42000  },
-            { name:"Cassava",     icon:"🎋", idealTemp:28, idealHum:65, growthCycle:240, seasons:["Any"],                      price:300,  waterNeeds:"Low",    profitPerAcre:35000  },
-            { name:"Sweet Potato",icon:"🍠", idealTemp:26, idealHum:65, growthCycle:100, seasons:["Any"],                      price:400,  waterNeeds:"Medium", profitPerAcre:50000  },
-            { name:"Pumpkin",     icon:"🎃", idealTemp:22, idealHum:60, growthCycle:90,  seasons:["Any"],                      price:350,  waterNeeds:"Low",    profitPerAcre:45000  }
+            { name:"Maize",       icon:"🌽", idealTemp:24, idealHum:60, growthCycle:90,  seasons:["Long Rains","Short Rains"], price:450,  waterNeeds:"Medium", profitPerAcre:85000,  desc:"High-yielding staple cereal. Requires nitrogen-rich soil and steady moisture during flowering.", soil:"Loamy (pH 6.0 - 7.2)", spacing:"75cm x 25cm", tip:"Mulch roots and fertilize at 4-6 weeks for maximum cob fill." },
+            { name:"Beans",       icon:"🫘", idealTemp:22, idealHum:70, growthCycle:65,  seasons:["Long Rains"],               price:1200, waterNeeds:"Low",    profitPerAcre:72000,  desc:"Fast-maturing legume that enriches soil with nitrogen. Ideal crop for rotation.", soil:"Well-drained (pH 6.0 - 7.0)", spacing:"45cm x 15cm", tip:"Avoid waterlogging; harvest pods when dry for longest storage life." },
+            { name:"Wheat",       icon:"🌾", idealTemp:18, idealHum:50, growthCycle:120, seasons:["Long Rains"],               price:550,  waterNeeds:"Medium", profitPerAcre:55000,  desc:"Cool-season cereal crop best suited for elevated regions with moderate rainfall.", soil:"Clay Loam (pH 6.0 - 7.5)", spacing:"20cm rows", tip:"Ensure early weed control and apply balanced NPK fertilizer." },
+            { name:"Rice",        icon:"🍚", idealTemp:28, idealHum:80, growthCycle:110, seasons:["Short Rains"],              price:950,  waterNeeds:"High",   profitPerAcre:90000,  desc:"High moisture crop producing strong yields in flooded paddy fields or saturated soils.", soil:"Clay Heavy (pH 5.5 - 6.5)", spacing:"20cm x 20cm", tip:"Maintain 5cm water layer during grain fill; drain 2 weeks before harvest." },
+            { name:"Potatoes",    icon:"🥔", idealTemp:18, idealHum:65, growthCycle:80,  seasons:["Any"],                      price:350,  waterNeeds:"Medium", profitPerAcre:60000,  desc:"High-energy tuber crop requiring loose, aerated soil to allow unrestricted tuber expansion.", soil:"Sandy Loam (pH 5.2 - 6.4)", spacing:"75cm x 30cm", tip:"Earth up soil around stems twice to prevent greening of tubers." },
+            { name:"Tomatoes",    icon:"🍅", idealTemp:24, idealHum:60, growthCycle:75,  seasons:["Any"],                      price:1500, waterNeeds:"Medium", profitPerAcre:120000, desc:"High-value horticultural crop with strong local market demand year-round.", soil:"Rich Loam (pH 6.0 - 6.8)", spacing:"60cm x 45cm", tip:"Prune suckers and stake vines early to protect against fungal blights." },
+            { name:"Coffee",      icon:"☕", idealTemp:22, idealHum:75, growthCycle:365, seasons:["Perennial"],                price:5000, waterNeeds:"Medium", profitPerAcre:350000, desc:"Premium perennial export crop. Requires high altitude, cool temperatures, and shade.", soil:"Deep Volcanic (pH 5.3 - 6.0)", spacing:"2.7m x 2.7m", tip:"Prune annually after main harvest and maintain organic mulch around base." },
+            { name:"Tea",         icon:"🍵", idealTemp:20, idealHum:85, growthCycle:365, seasons:["Perennial"],                price:4200, waterNeeds:"High",   profitPerAcre:280000, desc:"Highland cash crop harvested continuously. Prefers high humidity and acidic soil.", soil:"Acidic Clay (pH 4.5 - 5.6)", spacing:"1.2m x 0.75m", tip:"Pluck top 2 leaves and bud every 7-14 days for top quality tea." },
+            { name:"Cabbage",     icon:"🥬", idealTemp:18, idealHum:70, growthCycle:85,  seasons:["Short Rains","Any"],        price:250,  waterNeeds:"Medium", profitPerAcre:40000,  desc:"Nutrient-dense head vegetable. Heavy feeder needing organic compost and steady irrigation.", soil:"Fertile Loam (pH 6.5 - 7.5)", spacing:"50cm x 50cm", tip:"Watch for diamondback moths; apply neem extract or netting as needed." },
+            { name:"Spinach",     icon:"🍃", idealTemp:16, idealHum:75, growthCycle:45,  seasons:["Any"],                      price:300,  waterNeeds:"Low",    profitPerAcre:48000,  desc:"Quick-growing leafy green with rapid return on investment. Harvest leaves continuously.", soil:"Moist Loam (pH 6.4 - 7.0)", spacing:"30cm x 15cm", tip:"Harvest outer leaves first; keep soil evenly moist to prevent bolting." },
+            { name:"Sukuma Wiki", icon:"🌿", idealTemp:20, idealHum:70, growthCycle:60,  seasons:["Any"],                      price:150,  waterNeeds:"Low",    profitPerAcre:30000,  desc:"Resilient kale variety staple in East Africa. Highly drought tolerant with steady yields.", soil:"Adaptable Loam (pH 6.0 - 7.5)", spacing:"45cm x 30cm", tip:"Pick lower leaves weekly; add poultry manure for dark green leaves." },
+            { name:"Onions",      icon:"🧅", idealTemp:22, idealHum:60, growthCycle:100, seasons:["Dry/Hot"],                  price:850,  waterNeeds:"Low",    profitPerAcre:68000,  desc:"High market value bulb crop. Requires dry conditions during bulb curing.", soil:"Sandy Loam (pH 6.0 - 7.0)", spacing:"30cm x 10cm", tip:"Withhold watering 3 weeks before harvest to prevent bulb rot." },
+            { name:"Garlic",      icon:"🧄", idealTemp:20, idealHum:55, growthCycle:150, seasons:["Dry/Cold"],                 price:2500, waterNeeds:"Low",    profitPerAcre:95000,  desc:"High profit density crop. Low water requirement and extended post-harvest shelf life.", soil:"Friable Loam (pH 6.0 - 7.0)", spacing:"15cm x 10cm", tip:"Plant cloves root-down 5cm deep; cure in shade for 2 weeks post-harvest." },
+            { name:"Carrots",     icon:"🥕", idealTemp:18, idealHum:65, growthCycle:75,  seasons:["Any"],                      price:400,  waterNeeds:"Medium", profitPerAcre:52000,  desc:"Popular root vegetable needing stone-free soil to develop long, straight taproots.", soil:"Deep Sandy (pH 5.8 - 6.8)", spacing:"25cm x 5cm", tip:"Thin seedlings early to avoid crowded, misshapen roots." },
+            { name:"Peppers",     icon:"🫑", idealTemp:25, idealHum:65, growthCycle:90,  seasons:["Dry/Hot"],                  price:1200, waterNeeds:"Medium", profitPerAcre:88000,  desc:"Warm-season cash crop (Bell & Chili). Yields continuously over several months.", soil:"Well-drained (pH 6.0 - 6.8)", spacing:"60cm x 45cm", tip:"Support heavy plants with stakes; harvest mature green or red for top prices." },
+            { name:"Avocados",    icon:"🥑", idealTemp:24, idealHum:70, growthCycle:1095,seasons:["Perennial"],                price:800,  waterNeeds:"Low",    profitPerAcre:200000, desc:"High-value perennial tree crop (Hass/Fuerte). Booming export market and low maintenance.", soil:"Deep Well-Drained (pH 5.5 - 6.5)", spacing:"6m x 6m", tip:"Ensure excellent root drainage; graft certified scions for early fruiting." },
+            { name:"Bananas",     icon:"🍌", idealTemp:27, idealHum:80, growthCycle:300, seasons:["Perennial"],                price:250,  waterNeeds:"High",   profitPerAcre:120000, desc:"Fast-fruiting tropical crop. Demands heavy organic mulching and wind protection.", soil:"Rich Alluvial (pH 5.5 - 7.0)", spacing:"3m x 3m", tip:"Keep only 3-4 suckers per stool to maximize bunch size and weight." },
+            { name:"Mangoes",     icon:"🥭", idealTemp:28, idealHum:60, growthCycle:365, seasons:["Perennial"],                price:600,  waterNeeds:"Low",    profitPerAcre:150000, desc:"Drought-resilient fruit tree. Generates high returns once established in dry areas.", soil:"Deep Sandy Loam (pH 5.5 - 7.5)", spacing:"8m x 8m", tip:"Prune canopy center to allow sunlight and reduce fruit fly infestation." },
+            { name:"Strawberries",icon:"🍓", idealTemp:20, idealHum:70, growthCycle:120, seasons:["Dry/Cold"],                 price:3500, waterNeeds:"Medium", profitPerAcre:180000, desc:"Premium berry crop yielding high profit per square meter. Best grown on raised beds.", soil:"Rich Sandy Loam (pH 5.5 - 6.5)", spacing:"30cm x 30cm", tip:"Use straw mulch to keep berries clean and install drip fertigation." },
+            { name:"Sunflower",   icon:"🌻", idealTemp:24, idealHum:50, growthCycle:100, seasons:["Dry/Hot"],                  price:600,  waterNeeds:"Low",    profitPerAcre:55000,  desc:"Drought-hardy oilseed crop. Attracts beneficial insects and restores soil health.", soil:"Tolerant All (pH 6.0 - 7.5)", spacing:"75cm x 30cm", tip:"Harvest when head back turns yellow-brown; dry seeds before oil extraction." },
+            { name:"Cotton",      icon:"🌾", idealTemp:30, idealHum:45, growthCycle:180, seasons:["Dry/Hot"],                  price:850,  waterNeeds:"Medium", profitPerAcre:65000,  desc:"Industrial fiber cash crop suited for hot, semi-arid plains with low rainfall.", soil:"Deep Clay Loam (pH 6.0 - 8.0)", spacing:"90cm x 30cm", tip:"Monitor for bollworms during flowering; harvest when bolls open fully." },
+            { name:"Sorghum",     icon:"🌾", idealTemp:30, idealHum:40, growthCycle:110, seasons:["Dry/Hot"],                  price:450,  waterNeeds:"Low",    profitPerAcre:42000,  desc:"Exceptional drought-resistant grain. Reliable harvest even in extreme dry spells.", soil:"Poor Soil Tolerant (pH 5.0 - 8.5)", spacing:"75cm x 15cm", tip:"Protect grain heads from birds; high market demand from commercial breweries." },
+            { name:"Cassava",     icon:"🎋", idealTemp:28, idealHum:65, growthCycle:240, seasons:["Any"],                      price:300,  waterNeeds:"Low",    profitPerAcre:35000,  desc:"Ultimate climate-resilient root crop. Stores safely in ground up to 24 months.", soil:"Light Sandy (pH 5.5 - 7.0)", spacing:"1m x 1m", tip:"Plant 30cm stem cuttings horizontally or slanted at a 45° angle." },
+            { name:"Sweet Potato",icon:"🍠", idealTemp:26, idealHum:65, growthCycle:100, seasons:["Any"],                      price:400,  waterNeeds:"Medium", profitPerAcre:50000,  desc:"Nutritious vine tuber crop. Provides ground cover to suppress weeds effectively.", soil:"Sandy Loam (pH 5.5 - 6.8)", spacing:"80cm x 30cm", tip:"Plant vine cuttings on mounds or ridges for easy harvesting and high yields." },
+            { name:"Pumpkin",     icon:"🎃", idealTemp:22, idealHum:60, growthCycle:90,  seasons:["Any"],                      price:350,  waterNeeds:"Low",    profitPerAcre:45000,  desc:"Vigorous vine vegetable with exceptional post-harvest shelf life (3-6 months).", soil:"Fertile Loam (pH 6.0 - 7.5)", spacing:"2m x 2m", tip:"Pinch vine tips after 4-5 fruits form to direct energy into larger pumpkins." }
         ];
 
         // ── SEASONAL CLIMATE PROFILES (Kenya-based) ────────────────
@@ -1561,7 +1709,43 @@
                             <div class="progress-fill" style="width:${crop.combinedScore}%; background: linear-gradient(90deg, #22c55e, #fbbf24);"></div>
                         </div>
                     </div>
+
+                    <div class="crop-hover-hint">
+                        <span>Click for planting guide</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+
+                    <div class="crop-expand-wrapper">
+                        <div class="crop-expand-inner">
+                            <div class="crop-desc-text">
+                                ${crop.desc || 'High-yielding crop suited for seasonal farming.'}
+                            </div>
+                            <div class="crop-details-grid">
+                                <div class="crop-detail-box">
+                                    <div class="detail-title"><i class="fas fa-mountain"></i> Soil Type</div>
+                                    <div class="detail-val">${crop.soil || 'Loamy soil'}</div>
+                                </div>
+                                <div class="crop-detail-box">
+                                    <div class="detail-title"><i class="fas fa-arrows-alt"></i> Spacing</div>
+                                    <div class="detail-val">${crop.spacing || 'Standard'}</div>
+                                </div>
+                            </div>
+                            <div class="crop-tip-box">
+                                <i class="fas fa-lightbulb"></i>
+                                <span><strong>Farming Tip:</strong> ${crop.tip || 'Maintain proper irrigation and soil fertility.'}</span>
+                            </div>
+                        </div>
+                    </div>
                 `;
+
+                // Toggle expansion on click
+                card.addEventListener('click', () => {
+                    const isExpanded = card.classList.toggle('expanded');
+                    const hintSpan = card.querySelector('.crop-hover-hint span');
+                    if (hintSpan) {
+                        hintSpan.textContent = isExpanded ? 'Click to collapse guide' : 'Click for planting guide';
+                    }
+                });
 
                 // Mouse glow effect
                 card.addEventListener('mousemove', e => {
