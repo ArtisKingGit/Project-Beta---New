@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroFast - Smart Farming Solution</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #052e16;
+      color: #22c55e;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(34, 197, 94, 0.2);
+      border-top-color: #22c55e;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .loading-container {
+      text-align: center;
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA9-wQyYDIlQIzE1BcdmnOF9Q0FLXBX030",
+      authDomain: "project-beta-7f0a3.firebaseapp.com",
+      databaseURL: "https://project-beta-7f0a3-default-rtdb.firebaseio.com",
+      projectId: "project-beta-7f0a3",
+      storageBucket: "project-beta-7f0a3.firebasestorage.app",
+      messagingSenderId: "240282480318",
+      appId: "1:240282480318:web:7335fc94bb7dbb061cb8ef"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.replace("dashboard.html");
+      } else {
+        window.location.replace("login.html");
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading AgroFast...</p>
+  </div>
+</body>
+</html>

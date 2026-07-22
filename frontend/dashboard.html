@@ -2732,10 +2732,16 @@
         </div>
 
         <!-- Weather -->
-        <div class="glass-card weather-widget">
-          <div class="card-title">
-            <span data-i18n="weather_info">Local Weather</span>
-            <i class="fas fa-cloud-sun"></i>
+        <div class="glass-card weather-widget" id="weatherWidgetCard" title="Click to toggle 7-Day Weather Forecast">
+          <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span data-i18n="weather_info">Local Weather</span>
+              <i class="fas fa-cloud-sun"></i>
+            </div>
+            <div class="weather-expand-pill" id="weatherExpandBadge" style="font-size: 11px; font-weight: 600; color: var(--primary); background: rgba(34, 197, 94, 0.1); padding: 3px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px; transition: all 0.3s ease;">
+              <span>7-Day Forecast</span>
+              <i class="fas fa-chevron-down" id="weatherChevron" style="transition: transform 0.3s ease;"></i>
+            </div>
           </div>
           <div class="weather-info" id="weatherInfo">
             <i class="fas fa-spinner fa-spin" style="font-size: 40px; color: var(--primary)"></i>
@@ -3148,6 +3154,31 @@
         const tomorrowMax = Math.round(daily.temperature_2m_max[1]);
         const tomorrowMin = Math.round(daily.temperature_2m_min[1]);
 
+        // Build 7-day forecast items
+        let forecast7DaysHTML = '';
+        if (daily && daily.time && daily.time.length) {
+          const daysCount = Math.min(daily.time.length, 7);
+          for (let i = 0; i < daysCount; i++) {
+            const dateObj = new Date(daily.time[i] + 'T00:00:00');
+            const dayLabel = i === 0 ? 'Today' : (i === 1 ? 'Tomorrow' : dateObj.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }));
+            const code = daily.weather_code[i];
+            const [fDesc, fIcon, fColor] = weatherCodes[code] || ["Cloudy", "fa-cloud", "#94a3b8"];
+            const maxT = Math.round(daily.temperature_2m_max[i]);
+            const minT = Math.round(daily.temperature_2m_min[i]);
+
+            forecast7DaysHTML += `
+              <div class="weather-forecast-row" style="margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                <div class="weather-forecast-info" style="display: flex; align-items: center; gap: 8px;">
+                  <span style="width: 75px; font-weight: 700; font-size: 11px; color: var(--text-muted); text-transform: uppercase;">${dayLabel}</span>
+                  <i class="fas ${fIcon}" style="color: ${fColor}; font-size: 15px; width: 18px; text-align: center;"></i>
+                  <span class="weather-forecast-desc" style="font-size: 12px; font-weight: 600;">${fDesc}</span>
+                </div>
+                <span class="weather-forecast-temps" style="font-size: 12px; font-weight: 700;">${maxT}° <span style="color: var(--text-muted); font-weight: 400;">/ ${minT}°C</span></span>
+              </div>
+            `;
+          }
+        }
+
         const weatherInfo = document.getElementById('weatherInfo');
         if (weatherInfo) {
           weatherInfo.classList.add('weather-fade-in');
@@ -3197,21 +3228,62 @@
                 </div>
               </div>
 
-              <!-- Tomorrow Prediction Forecast panel -->
-              <div class="weather-forecast-panel">
-                <div class="weather-forecast-title">
-                  <i class="fas fa-calendar-day"></i> Tomorrow's Prediction
+              <!-- Forecast section with click expand -->
+              <div class="weather-forecast-panel" id="weatherForecastPanel" style="cursor: pointer;">
+                <div class="weather-forecast-title" style="display: flex; justify-content: space-between; align-items: center;">
+                  <span><i class="fas fa-calendar-alt" style="color: var(--primary); margin-right: 4px;"></i> <span id="forecastTitleText">Tomorrow's Prediction</span></span>
+                  <span style="font-size: 11px; text-transform: none; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 4px;" id="toggleHintText">
+                    <span id="hintWord">Expand 7-Day</span> <i class="fas fa-chevron-down" id="inlineChevron" style="transition: transform 0.3s ease;"></i>
+                  </span>
                 </div>
-                <div class="weather-forecast-row">
-                  <div class="weather-forecast-info">
-                    <i class="fas ${tomorrowIcon}" style="color: ${tomorrowColor}; font-size: 16px;"></i>
-                    <span class="weather-forecast-desc">${tomorrowDesc}</span>
+                
+                <div id="weatherCompactRow">
+                  <div class="weather-forecast-row">
+                    <div class="weather-forecast-info">
+                      <i class="fas ${tomorrowIcon}" style="color: ${tomorrowColor}; font-size: 16px;"></i>
+                      <span class="weather-forecast-desc">${tomorrowDesc}</span>
+                    </div>
+                    <span class="weather-forecast-temps">${tomorrowMax}° / ${tomorrowMin}°C</span>
                   </div>
-                  <span class="weather-forecast-temps">${tomorrowMax}° / ${tomorrowMin}°C</span>
+                </div>
+
+                <div id="weatherExpandedList" style="display: none; margin-top: 8px;">
+                  ${forecast7DaysHTML}
                 </div>
               </div>
             </div>
           `;
+
+          // Click handler to toggle 7-day forecast expansion
+          const weatherWidgetCard = document.getElementById('weatherWidgetCard');
+          const weatherExpandedList = document.getElementById('weatherExpandedList');
+          const weatherCompactRow = document.getElementById('weatherCompactRow');
+          const weatherChevron = document.getElementById('weatherChevron');
+          const inlineChevron = document.getElementById('inlineChevron');
+          const forecastTitleText = document.getElementById('forecastTitleText');
+          const hintWord = document.getElementById('hintWord');
+
+          if (weatherWidgetCard) {
+            weatherWidgetCard.onclick = () => {
+              if (!weatherExpandedList) return;
+              const isExpanded = weatherExpandedList.style.display !== 'none';
+              if (isExpanded) {
+                weatherExpandedList.style.display = 'none';
+                weatherCompactRow.style.display = 'block';
+                if (weatherChevron) weatherChevron.style.transform = 'rotate(0deg)';
+                if (inlineChevron) inlineChevron.style.transform = 'rotate(0deg)';
+                if (forecastTitleText) forecastTitleText.textContent = "Tomorrow's Prediction";
+                if (hintWord) hintWord.textContent = 'Expand 7-Day';
+              } else {
+                weatherExpandedList.style.display = 'block';
+                weatherCompactRow.style.display = 'none';
+                if (weatherChevron) weatherChevron.style.transform = 'rotate(180deg)';
+                if (inlineChevron) inlineChevron.style.transform = 'rotate(180deg)';
+                if (forecastTitleText) forecastTitleText.textContent = "7-Day Extended Forecast";
+                if (hintWord) hintWord.textContent = 'Collapse';
+              }
+            };
+          }
         }
       } catch (err) {
         console.error(err);

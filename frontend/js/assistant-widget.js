@@ -62,10 +62,21 @@
                 </div>
             </div>
             
+            <div class="ai-voice-status" id="aiVoiceStatus" style="display: none;">
+                <div class="ai-voice-indicator">
+                    <span class="ai-voice-pulse"></span>
+                    <span id="aiVoiceText">Listening... Speak now</span>
+                </div>
+                <button class="ai-voice-cancel" id="aiVoiceCancel" title="Cancel voice input"><i class="fas fa-times"></i></button>
+            </div>
+
             <div class="ai-input-area">
                 <div class="ai-input-wrapper">
                     <textarea class="ai-chat-input" id="aiChatInput" placeholder="Ask anything about farming..." rows="1"></textarea>
                 </div>
+                <button class="ai-mic-btn" id="aiMicBtn" title="Voice Input (Click to speak)">
+                    <i class="fas fa-microphone"></i>
+                </button>
                 <button class="ai-send-btn" id="aiSendBtn" disabled>
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -90,7 +101,120 @@
         const typingIndicator = document.getElementById('aiTypingIndicator');
         const welcomeBanner = document.getElementById('aiWelcomeBanner');
 
-        // New UI Elements
+        // Voice Recognition Elements & State
+        const micBtn = document.getElementById('aiMicBtn');
+        const voiceStatus = document.getElementById('aiVoiceStatus');
+        const voiceText = document.getElementById('aiVoiceText');
+        const voiceCancel = document.getElementById('aiVoiceCancel');
+
+        let recognition = null;
+        let isListening = false;
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+
+            const getLanguageCode = () => {
+                const lang = localStorage.getItem('selectedLanguage') || localStorage.getItem('agrofast_lang') || 'en';
+                const langMap = {
+                    'en': 'en-US',
+                    'sw': 'sw-KE',
+                    'af': 'af-ZA',
+                    'zu': 'zu-ZA',
+                    've': 'en-ZA'
+                };
+                return langMap[lang] || 'en-US';
+            };
+
+            recognition.onstart = () => {
+                isListening = true;
+                if (micBtn) {
+                    micBtn.classList.add('recording');
+                    micBtn.setAttribute('title', 'Stop listening');
+                    micBtn.innerHTML = '<i class="fas fa-square"></i>';
+                }
+                if (voiceStatus) voiceStatus.style.display = 'flex';
+                if (voiceText) voiceText.textContent = 'Listening... Speak now';
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+
+                const currentText = finalTranscript || interimTranscript;
+                if (currentText && chatInput) {
+                    chatInput.value = currentText;
+                    autoGrow();
+                    if (voiceText) voiceText.textContent = `"${currentText}"`;
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.warn('Speech recognition error:', event.error);
+                stopListening();
+                if (event.error === 'not-allowed') {
+                    appendMessage("Microphone permission was denied. Please allow microphone access in your browser to use voice input.", 'error');
+                } else if (event.error !== 'no-speech' && event.error !== 'aborted') {
+                    appendMessage(`Voice recognition error: ${event.error}`, 'error');
+                }
+            };
+
+            recognition.onend = () => {
+                stopListening();
+            };
+        }
+
+        function startListening() {
+            if (!recognition) {
+                appendMessage("Voice recognition is not supported in this browser. Please use Chrome, Edge, or Safari.", 'error');
+                return;
+            }
+            try {
+                const lang = localStorage.getItem('selectedLanguage') || 'en';
+                const langMap = { 'en': 'en-US', 'sw': 'sw-KE', 'af': 'af-ZA', 'zu': 'zu-ZA' };
+                recognition.lang = langMap[lang] || 'en-US';
+                recognition.start();
+            } catch (err) {
+                console.error("Error starting speech recognition:", err);
+                stopListening();
+            }
+        }
+
+        function stopListening() {
+            isListening = false;
+            if (micBtn) {
+                micBtn.classList.remove('recording');
+                micBtn.setAttribute('title', 'Voice Input (Click to speak)');
+                micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            }
+            if (voiceStatus) voiceStatus.style.display = 'none';
+            if (recognition) {
+                try { recognition.stop(); } catch (e) {}
+            }
+        }
+
+        if (micBtn) {
+            micBtn.addEventListener('click', () => {
+                if (isListening) {
+                    stopListening();
+                } else {
+                    startListening();
+                }
+            });
+        }
+
+        // History & New Chat Elements
         const newChatBtn = document.getElementById('aiNewChatBtn');
         const historyBtn = document.getElementById('aiHistoryBtn');
         const historyPanel = document.getElementById('aiHistoryPanel');
@@ -401,6 +525,60 @@
                 msgDiv.innerHTML = marked.parse(text);
             } else {
                 msgDiv.textContent = text;
+            }
+
+            if (sender === 'ai') {
+                const speakBtn = document.createElement('button');
+                speakBtn.className = 'ai-speak-btn';
+                speakBtn.title = 'Listen to response';
+                speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+
+                let isSpeaking = false;
+                speakBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if ('speechSynthesis' in window) {
+                        if (isSpeaking || window.speechSynthesis.speaking) {
+                            window.speechSynthesis.cancel();
+                            isSpeaking = false;
+                            speakBtn.classList.remove('speaking');
+                            speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                            return;
+                        }
+
+                        // Strip markdown / html formatting for clean text reading
+                        const cleanText = msgDiv.innerText || msgDiv.textContent;
+                        const utterance = new SpeechSynthesisUtterance(cleanText);
+                        
+                        const lang = localStorage.getItem('selectedLanguage') || localStorage.getItem('agrofast_lang') || 'en';
+                        const langMap = {
+                            'en': 'en-US',
+                            'sw': 'sw-KE',
+                            'af': 'af-ZA',
+                            'zu': 'zu-ZA',
+                            've': 'en-ZA'
+                        };
+                        utterance.lang = langMap[lang] || 'en-US';
+                        utterance.rate = 0.95;
+
+                        utterance.onstart = () => {
+                            isSpeaking = true;
+                            speakBtn.classList.add('speaking');
+                            speakBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                        };
+
+                        utterance.onend = utterance.onerror = () => {
+                            isSpeaking = false;
+                            speakBtn.classList.remove('speaking');
+                            speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                        };
+
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        alert("Text-to-speech is not supported in your browser.");
+                    }
+                });
+
+                msgDiv.appendChild(speakBtn);
             }
 
             wrapperDiv.appendChild(avatarDiv);
