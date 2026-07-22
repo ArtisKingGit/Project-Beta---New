@@ -987,7 +987,12 @@
                     </button>
                     <h1 data-i18n="finances">Farm Finances</h1>
                 </div>
-                <div id="currentTime" style="color: var(--text-muted)"></div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button class="btn-primary" style="padding: 8px 14px; font-size: 13px; border-radius: 10px;" onclick="exportExpensesCSV()">
+                        <i class="fas fa-file-csv"></i> Export Statement
+                    </button>
+                    <div id="currentTime" style="color: var(--text-muted)"></div>
+                </div>
             </header>
 
             <div class="stats-grid">
@@ -1017,6 +1022,17 @@
                         <label>Top Category</label>
                         <div id="topCategoryText" class="value">N/A</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Expense Category Breakdown Progress Bars -->
+            <div class="glass-card" style="padding: 20px; margin-bottom: 25px;">
+                <h3 style="font-size: 15px; margin: 0 0 15px 0; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
+                    <span><i class="fas fa-chart-bar" style="color: var(--primary); margin-right: 6px;"></i> Category Expense Breakdown</span>
+                    <span style="font-size: 12px; font-weight: 500; color: var(--text-muted);" id="categoryTotalLabel">Total Spent: KSh 0</span>
+                </h3>
+                <div id="categoryProgressContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                    <p style="color: var(--text-muted); font-size: 13px; text-align: center;">No expense categories recorded yet.</p>
                 </div>
             </div>
 
@@ -1452,6 +1468,61 @@
             }
         };
 
+        let globalAllExpenses = [];
+
+        window.exportExpensesCSV = () => {
+            if (!globalAllExpenses || globalAllExpenses.length === 0) {
+                alert("No expense data available to export.");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,Date,Item Name,Category,Farm,Amount\n";
+            globalAllExpenses.forEach(e => {
+                const date = `"${(e.date || '').replace(/"/g, '""')}"`;
+                const name = `"${(e.name || '').replace(/"/g, '""')}"`;
+                const cat = `"${(e.category || '').replace(/"/g, '""')}"`;
+                const farm = `"${(e.farmName || 'General').replace(/"/g, '""')}"`;
+                const amt = `"${(e.amount || 0)}"`;
+                csvContent += `${date},${name},${cat},${farm},${amt}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `AgroFast_Financial_Statement_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        function renderCategoryBreakdown(categoryCounts, totalSpent) {
+            const container = document.getElementById('categoryProgressContainer');
+            const totalLabel = document.getElementById('categoryTotalLabel');
+            if (totalLabel) totalLabel.textContent = `Total Spent: ${formatPrice(totalSpent, userCurrency)}`;
+            if (!container) return;
+
+            const entries = Object.entries(categoryCounts);
+            if (entries.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); font-size: 13px; text-align: center;">No expense categories recorded yet.</p>';
+                return;
+            }
+
+            entries.sort((a, b) => b[1] - a[1]);
+
+            container.innerHTML = entries.map(([cat, amount]) => {
+                const percent = totalSpent > 0 ? Math.round((amount / totalSpent) * 100) : 0;
+                return `
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; font-weight: 600;">
+                            <span>${escapeHtml(cat)}</span>
+                            <span>${formatPrice(amount, userCurrency)} (${percent}%)</span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden;">
+                            <div style="width: ${percent}%; height: 100%; background: linear-gradient(90deg, var(--primary), #60a5fa); border-radius: 4px; transition: width 0.4s ease;"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function loadExpenses(uid) {
             onValue(ref(db, `users/${uid}/expenses`), snap => {
                 const expenses = snap.val();
@@ -1462,19 +1533,20 @@
                 const categoryCounts = {};
 
                 if (!expenses) {
+                    globalAllExpenses = [];
                     list.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">No expenses recorded yet.</td></tr>';
                     farmExpenseMap = {};
-                    farmExpenseMap = {};
+                    renderCategoryBreakdown({}, 0);
                     updateBudgetStats();
                     renderBudgetCards();
                     return;
                 }
 
-                const sortedExpenses = Object.entries(expenses)
+                globalAllExpenses = Object.entries(expenses)
                     .map(([id, data]) => ({ id, ...data }))
                     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                sortedExpenses.forEach(exp => {
+                globalAllExpenses.forEach(exp => {
                     const amt = parseFloat(exp.amount) || 0;
                     currentMonthExpenses += amt;
                     categoryCounts[exp.category] = (categoryCounts[exp.category] || 0) + amt;
@@ -1498,6 +1570,12 @@
                     `;
                     list.appendChild(row);
                 });
+
+                renderCategoryBreakdown(categoryCounts, currentMonthExpenses);
+                updateBudgetStats();
+                renderBudgetCards();
+            });
+        }
 
                 document.getElementById('totalExpenses').textContent = formatPrice(currentMonthExpenses, userCurrency);
 

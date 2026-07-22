@@ -953,7 +953,20 @@
 
             <!-- Farms List -->
             <div class="glass-card">
-                <h3 style="margin-bottom: 20px;" data-i18n="your_farms">Your Farms</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 0;" data-i18n="your_farms">Your Farms</h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; flex: 1; max-width: 450px; justify-content: flex-end;">
+                        <div style="position: relative; flex: 1; min-width: 180px;">
+                            <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
+                            <input type="text" id="farmSearchInput" placeholder="Search farm or crop..." style="width: 100%; padding: 8px 12px 8px 34px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; outline: none;">
+                        </div>
+                        <select id="farmSortSelect" style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; outline: none; cursor: pointer;">
+                            <option value="newest" style="background: #0f172a; color: #fff;">Newest First</option>
+                            <option value="size" style="background: #0f172a; color: #fff;">Largest Acreage</option>
+                            <option value="crop" style="background: #0f172a; color: #fff;">Sort by Crop</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="farms-grid" id="farmsList">
                     <!-- Farm cards will be injected here -->
                     <p style="color: var(--text-muted);">Loading farms...</p>
@@ -1336,6 +1349,214 @@
             }
         };
 
+        let allRawFarmsList = [];
+
+        function calculateCropEstimates(crop, acres) {
+            const size = parseFloat(acres) || 1;
+            const c = (crop || '').toLowerCase();
+            let estYieldStr = `${Math.round(size * 2)} Tons`;
+            let estRevenueVal = size * 100000;
+
+            if (c.includes('maize') || c.includes('corn')) {
+                const bags = Math.round(size * 25);
+                estYieldStr = `${bags} Bags (${bags * 90} kg)`;
+                estRevenueVal = bags * 3500;
+            } else if (c.includes('tomato')) {
+                const tons = Math.round(size * 12);
+                estYieldStr = `${tons} Tons`;
+                estRevenueVal = tons * 45000;
+            } else if (c.includes('potato')) {
+                const tons = Math.round(size * 10);
+                estYieldStr = `${tons} Tons`;
+                estRevenueVal = tons * 35000;
+            } else if (c.includes('bean')) {
+                const bags = Math.round(size * 12);
+                estYieldStr = `${bags} Bags (${bags * 90} kg)`;
+                estRevenueVal = bags * 7000;
+            } else if (c.includes('rice') || c.includes('wheat')) {
+                const bags = Math.round(size * 20);
+                estYieldStr = `${bags} Bags`;
+                estRevenueVal = bags * 4000;
+            }
+
+            return { estYieldStr, estRevenueStr: formatPrice(estRevenueVal, currentCurrency) };
+        }
+
+        function calculateGrowthStage(crop, plantingDate) {
+            const pDate = plantingDate ? new Date(plantingDate) : new Date(Date.now() - 30 * 86400000);
+            const now = new Date();
+            const daysElapsed = Math.max(0, Math.floor((now - pDate) / (1000 * 60 * 60 * 24)));
+
+            const c = (crop || '').toLowerCase();
+            let totalDays = 90;
+            if (c.includes('maize') || c.includes('corn')) totalDays = 120;
+            if (c.includes('tomato')) totalDays = 80;
+            if (c.includes('potato')) totalDays = 100;
+            if (c.includes('bean')) totalDays = 65;
+
+            const growthPercent = Math.min(100, Math.round((daysElapsed / totalDays) * 100));
+            const daysRemaining = Math.max(0, totalDays - daysElapsed);
+
+            let growthStageLabel = "Germination / Seedling";
+            if (growthPercent > 20 && growthPercent <= 50) growthStageLabel = "Vegetative Growth";
+            else if (growthPercent > 50 && growthPercent <= 80) growthStageLabel = "Flowering & Podding";
+            else if (growthPercent > 80) growthStageLabel = "Ready for Harvest";
+
+            return { growthPercent, daysRemaining, growthStageLabel };
+        }
+
+        function renderFarmsGrid(farmsListItems) {
+            const container = document.getElementById('farmsList');
+            container.innerHTML = "";
+
+            if (!farmsListItems || farmsListItems.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center;">No matching farms found.</p>';
+                return;
+            }
+
+            const unitLabel = translations[currentLang]?.units[currentUnit] || (currentUnit === 'acres' ? 'Acres' : 'Hectares');
+
+            farmsListItems.forEach(({ id, ...farm }) => {
+                const displaySize = farm.size !== "N/A" ? convertUnit(farm.size, 'acres', currentUnit) : "N/A";
+                const card = document.createElement('div');
+                card.className = 'farm-card';
+
+                const statusClass = `status-${(farm.status || 'growing').toLowerCase()}`;
+                const budgetFormatted = farm.budget ? formatPrice(farm.budget, currentCurrency) : "N/A";
+
+                const { growthPercent, daysRemaining, growthStageLabel } = calculateGrowthStage(farm.crop, farm.plantingDate);
+                const { estYieldStr, estRevenueStr } = calculateCropEstimates(farm.crop, farm.size);
+
+                card.innerHTML = `
+                    <div style="height: 180px; background: url('${escapeHtml(farm.imageUrl || farm.image)}') center/cover; border-radius: 16px; margin-bottom: 20px; position: relative; overflow: hidden; border: 1px solid var(--border);">
+                        <div style="position: absolute; top: 12px; left: 12px;">
+                            <span class="status-badge ${statusClass}">${farm.status || 'Growing'}</span>
+                        </div>
+                        <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 8px;">
+                            <button class="edit-btn" onclick="openEditFarmModal('${id}')" style="background: rgba(59, 130, 246, 0.85); backdrop-filter: blur(4px); color: white; border: none; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-btn" onclick="confirmDeleteFarm('${id}')" style="background: rgba(239, 68, 68, 0.85); backdrop-filter: blur(4px); color: white; border: none; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 20px 15px 12px;">
+                            <div class="farm-name" style="color: white; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${escapeHtml(farm.name)}</div>
+                            <div class="farm-location" style="color: rgba(255,255,255,0.8); font-size: 13px;"><i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> ${escapeHtml(farm.location)}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 6px; color: var(--text-muted); border: 1px solid var(--border);">
+                            <i class="fas fa-seedling"></i> ${escapeHtml(farm.crop)}
+                        </span>
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 6px; color: var(--text-muted); border: 1px solid var(--border);">
+                            <i class="fas fa-ruler-combined"></i> ${displaySize} ${unitLabel}
+                        </span>
+                        <span style="font-size: 11px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 6px; color: var(--text-muted); border: 1px solid var(--border);">
+                            <i class="fas fa-tint"></i> ${escapeHtml(farm.irrigation || 'Rainfed')}
+                        </span>
+                    </div>
+
+                    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        ${escapeHtml(farm.description || 'No description provided.')}
+                    </p>
+
+                    <!-- Growth Stage & Harvest Tracker -->
+                    <div style="margin-bottom: 15px; background: rgba(34, 197, 94, 0.05); padding: 12px; border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.15);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 6px;">
+                            <span><i class="fas fa-leaf" style="color: var(--primary)"></i> ${growthStageLabel}</span>
+                            <span style="color: var(--primary);">${daysRemaining > 0 ? daysRemaining + ' days to harvest' : 'Ready to Harvest!'}</span>
+                        </div>
+                        <div style="width: 100%; height: 7px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; margin-bottom: 10px;">
+                            <div style="width: ${growthPercent}%; height: 100%; background: linear-gradient(90deg, var(--primary), #22c55e); border-radius: 4px;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+                            <span>Est. Yield: <b style="color: var(--text);">${estYieldStr}</b></span>
+                            <span>Est. Value: <b style="color: var(--primary);">${estRevenueStr}</b></span>
+                        </div>
+                    </div>
+
+                    <div class="farm-details-grid">
+                        <div class="detail-mini-card">
+                            <label>Soil Type</label>
+                            <div class="value" style="color: #fbbf24;"><i class="fas fa-mountain"></i> ${escapeHtml(farm.soilType || 'Loamy')}</div>
+                        </div>
+                        <div class="detail-mini-card">
+                            <label>Budget</label>
+                            <div class="value" style="color: var(--primary);">${budgetFormatted}</div>
+                        </div>
+                    </div>
+
+                    <div class="soil-npk" style="margin-top: 15px; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
+                        <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <span>Soil Nutrients (NPK)</span>
+                            <button class="btn-primary" onclick="toggleEditNPK('${id}')" style="padding: 4px 8px; font-size: 10px; width: auto; margin-bottom: 0; border-radius: 6px;">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                        <div id="npk-display-${id}" style="display: flex; gap: 8px;">
+                            <div class="npk-item"><label>N</label><div class="val">${farm.soil?.n || 45}%</div></div>
+                            <div class="npk-item"><label>P</label><div class="val">${farm.soil?.p || 30}%</div></div>
+                            <div class="npk-item"><label>K</label><div class="val">${farm.soil?.k || 25}%</div></div>
+                        </div>
+                        <div id="npk-edit-${id}" style="display: none; flex-direction: column; gap: 8px; margin-top: 8px;">
+                            <div style="display: flex; gap: 8px;">
+                                <div style="flex: 1; text-align: center;">
+                                    <label style="font-size: 9px; color: var(--text-muted); display: block; margin-bottom: 2px;">N</label>
+                                    <input type="number" id="edit-n-${id}" value="${farm.soil?.n || 45}" style="padding: 6px; font-size: 12px; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; color: white; width: 100%;" min="0" max="100">
+                                </div>
+                                <div style="flex: 1; text-align: center;">
+                                    <label style="font-size: 9px; color: var(--text-muted); display: block; margin-bottom: 2px;">P</label>
+                                    <input type="number" id="edit-p-${id}" value="${farm.soil?.p || 30}" style="padding: 6px; font-size: 12px; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; color: white; width: 100%;" min="0" max="100">
+                                </div>
+                                <div style="flex: 1; text-align: center;">
+                                    <label style="font-size: 9px; color: var(--text-muted); display: block; margin-bottom: 2px;">K</label>
+                                    <input type="number" id="edit-k-${id}" value="${farm.soil?.k || 25}" style="padding: 6px; font-size: 12px; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; color: white; width: 100%;" min="0" max="100">
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 4px;">
+                                <button class="btn-primary" onclick="saveNPK('${id}', this)" style="padding: 6px; font-size: 11px; flex: 1; border-radius: 6px;">
+                                    Save
+                                </button>
+                                <button class="btn-cancel" onclick="toggleEditNPK('${id}')" style="padding: 6px; font-size: 11px; border-radius: 6px;">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterAndRenderFarms() {
+            const query = (document.getElementById('farmSearchInput')?.value || '').toLowerCase().trim();
+            const sortBy = document.getElementById('farmSortSelect')?.value || 'newest';
+
+            let filtered = allRawFarmsList.filter(item => {
+                const nameMatch = (item.name || '').toLowerCase().includes(query);
+                const cropMatch = (item.crop || '').toLowerCase().includes(query);
+                const locMatch = (item.location || '').toLowerCase().includes(query);
+                return nameMatch || cropMatch || locMatch;
+            });
+
+            if (sortBy === 'size') {
+                filtered.sort((a, b) => (parseFloat(b.size) || 0) - (parseFloat(a.size) || 0));
+            } else if (sortBy === 'crop') {
+                filtered.sort((a, b) => (a.crop || '').localeCompare(b.crop || ''));
+            } else {
+                filtered.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            }
+
+            renderFarmsGrid(filtered);
+        }
+
+        const farmSearchInput = document.getElementById('farmSearchInput');
+        const farmSortSelect = document.getElementById('farmSortSelect');
+        if (farmSearchInput) farmSearchInput.addEventListener('input', filterAndRenderFarms);
+        if (farmSortSelect) farmSortSelect.addEventListener('change', filterAndRenderFarms);
+
         function loadFarms() {
             const farmsRef = ref(db, `users/${user.uid}/farms`);
             onValue(farmsRef, (snapshot) => {
@@ -1344,98 +1565,15 @@
                 container.innerHTML = "";
 
                 if (!farms) {
+                    allRawFarmsList = [];
                     container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center;">No farms added yet.</p>';
                     return;
                 }
 
-                const unitLabel = translations[currentLang]?.units[currentUnit] || (currentUnit === 'acres' ? 'Acres' : 'Hectares');
-
-                Object.entries(farms).forEach(([id, farm]) => {
-                    const displaySize = farm.size !== "N/A" ? convertUnit(farm.size, 'acres', currentUnit) : "N/A";
-
-                    const card = document.createElement('div');
-                    card.className = 'farm-card';
-
-                    const statusClass = `status-${(farm.status || 'growing').toLowerCase()}`;
-                    const budgetFormatted = farm.budget ? formatPrice(farm.budget, currentCurrency) : "N/A";
-
-                    card.innerHTML = `
-                        <div style="height: 180px; background: url('${escapeHtml(farm.imageUrl || farm.image)}') center/cover; border-radius: 16px; margin-bottom: 20px; position: relative; overflow: hidden; border: 1px solid var(--border);">
-                            <div style="position: absolute; top: 12px; left: 12px;">
-                                <span class="status-badge ${statusClass}">${farm.status || 'Growing'}</span>
-                            </div>
-                            <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 8px;">
-                                <button class="edit-btn" onclick="openEditFarmModal('${id}')" style="background: rgba(59, 130, 246, 0.85); backdrop-filter: blur(4px); color: white; border: none; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="delete-btn" onclick="confirmDeleteFarm('${id}')" style="background: rgba(239, 68, 68, 0.85); backdrop-filter: blur(4px); color: white; border: none; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.8)); padding: 20px 15px 12px;">
-                                <div class="farm-name" style="color: white; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${escapeHtml(farm.name)}</div>
-                                <div class="farm-location" style="color: rgba(255,255,255,0.8); font-size: 13px;"><i class="fas fa-map-marker-alt" style="color: var(--primary);"></i> ${escapeHtml(farm.location)}</div>
-                            </div>
-                        </div>
-                        
-                        <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;">
-                            <span style="font-size: 11px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 6px; color: var(--text-muted); border: 1px solid var(--border);">
-                                <i class="fas fa-seedling"></i> ${farm.crop}
-                            </span>
-                            <span style="font-size: 11px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 6px; color: var(--text-muted); border: 1px solid var(--border);">
-                                <i class="fas fa-ruler-combined"></i> ${displaySize} ${unitLabel}
-                            </span>
-                             <span style="font-size: 11px; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 6px; color: var(--text-muted); border: 1px solid var(--border);">
-                                <i class="fas fa-tint"></i> ${farm.irrigation || 'Rainfed'}
-                            </span>
-                        </div>
-
-                        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                            ${farm.description || 'No description provided.'}
-                        </p>
-
-                        <div class="farm-details-grid">
-                            <div class="detail-mini-card">
-                                <label>Soil Type</label>
-                                <div class="value" style="color: #fbbf24;"><i class="fas fa-mountain"></i> ${farm.soilType || 'Loamy'}</div>
-                            </div>
-                            <div class="detail-mini-card">
-                                <label>Budget</label>
-                                <div class="value" style="color: var(--primary);">${budgetFormatted}</div>
-                            </div>
-                        </div>
-
-                        <div class="soil-npk" style="margin-top: 15px; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; border: 1px solid var(--border);">
-                            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                                <span>Soil Nutrients (NPK)</span>
-                                <button class="btn-primary" onclick="toggleEditNPK('${id}')" style="padding: 4px 8px; font-size: 10px; width: auto; margin-bottom: 0; border-radius: 6px;">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                            </div>
-                            <div id="npk-display-${id}" style="display: flex; gap: 8px;">
-                                <div class="npk-item"><label>N</label><div class="val">${farm.soil?.n || 45}%</div></div>
-                                <div class="npk-item"><label>P</label><div class="val">${farm.soil?.p || 30}%</div></div>
-                                <div class="npk-item"><label>K</label><div class="val">${farm.soil?.k || 25}%</div></div>
-                            </div>
-                            <div id="npk-edit-${id}" style="display: none; flex-direction: column; gap: 8px; margin-top: 8px;">
-                                <div style="display: flex; gap: 8px;">
-                                    <div style="flex: 1; text-align: center;">
-                                        <label style="font-size: 9px; color: var(--text-muted); display: block; margin-bottom: 2px;">N</label>
-                                        <input type="number" id="edit-n-${id}" value="${farm.soil?.n || 45}" style="padding: 6px; font-size: 12px; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; color: white; width: 100%;" min="0" max="100">
-                                    </div>
-                                    <div style="flex: 1; text-align: center;">
-                                        <label style="font-size: 9px; color: var(--text-muted); display: block; margin-bottom: 2px;">P</label>
-                                        <input type="number" id="edit-p-${id}" value="${farm.soil?.p || 30}" style="padding: 6px; font-size: 12px; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; color: white; width: 100%;" min="0" max="100">
-                                    </div>
-                                    <div style="flex: 1; text-align: center;">
-                                        <label style="font-size: 9px; color: var(--text-muted); display: block; margin-bottom: 2px;">K</label>
-                                        <input type="number" id="edit-k-${id}" value="${farm.soil?.k || 25}" style="padding: 6px; font-size: 12px; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 6px; color: white; width: 100%;" min="0" max="100">
-                                    </div>
-                                </div>
-                                <div style="display: flex; gap: 8px; margin-top: 4px;">
-                                    <button class="btn-primary" onclick="saveNPK('${id}', this)" style="padding: 6px; font-size: 11px; flex: 1; border-radius: 6px;">
-                                        Save
-                                    </button>
+                allRawFarmsList = Object.entries(farms).map(([id, data]) => ({ id, ...data }));
+                filterAndRenderFarms();
+            });
+        }
                                     <button class="btn-cancel" onclick="toggleEditNPK('${id}')" style="padding: 6px; font-size: 11px; flex: 1; border-radius: 6px; font-weight: 700; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border);">
                                         Cancel
                                     </button>

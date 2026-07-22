@@ -635,12 +635,59 @@
                     <h1 data-i18n="history">Scan History</h1>
                 </div>
                 <div class="header-actions">
+                    <button class="clear-all-btn" style="background: rgba(34, 197, 94, 0.15); color: var(--primary); border-color: rgba(34, 197, 94, 0.3); margin-right: 8px;" onclick="exportHistoryCSV()">
+                        <i class="fas fa-file-csv"></i> Export CSV
+                    </button>
                     <button class="clear-all-btn" onclick="openBulkDeleteModal()">
                         <i class="fas fa-trash-alt"></i> Clear All
                     </button>
                     <div id="currentTime" style="color: var(--text-muted)">Monday, 2 Feb 2026</div>
                 </div>
             </header>
+
+            <!-- Analytics Summary Cards -->
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div class="glass-card" style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(34, 197, 94, 0.15); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Total Scans</div>
+                        <div style="font-size: 22px; font-weight: 700; color: var(--text);" id="statTotalScans">0</div>
+                    </div>
+                </div>
+                <div class="glass-card" style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        <i class="fas fa-shield-heart"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Healthy Ratio</div>
+                        <div style="font-size: 22px; font-weight: 700; color: var(--text);" id="statHealthyRatio">100%</div>
+                    </div>
+                </div>
+                <div class="glass-card" style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        <i class="fas fa-bug"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Top Condition</div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text);" id="statTopIssue">None</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="glass-card" style="padding: 14px 20px; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; position: relative; min-width: 220px;">
+                    <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
+                    <input type="text" id="historySearchInput" placeholder="Search by crop or disease name..." style="width: 100%; padding: 9px 12px 9px 36px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; outline: none;">
+                </div>
+                <select id="historyStatusFilter" style="padding: 9px 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; outline: none; cursor: pointer;">
+                    <option value="all" style="background: #0f172a; color: #fff;">All Statuses</option>
+                    <option value="healthy" style="background: #0f172a; color: #fff;">Healthy Only</option>
+                    <option value="infected" style="background: #0f172a; color: #fff;">Diseased / Infected</option>
+                </select>
+            </div>
 
             <div class="glass-card">
                 <table class="history-table">
@@ -776,48 +823,142 @@
             loadHistory();
         });
 
+        let allRawHistoryItems = [];
+
+        window.exportHistoryCSV = () => {
+            if (!allRawHistoryItems || allRawHistoryItems.length === 0) {
+                alert("No scan history data to export.");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,Date,Crop,Diagnosis,Confidence\n";
+            allRawHistoryItems.forEach(item => {
+                const dateStr = new Date(item.time).toISOString().replace(/T/, ' ').replace(/\..+/, '');
+                const crop = `"${(item.crop || '').replace(/"/g, '""')}"`;
+                const disease = `"${(item.disease || '').replace(/"/g, '""')}"`;
+                const conf = `"${(item.confidence || '').replace(/"/g, '""')}"`;
+                csvContent += `${dateStr},${crop},${disease},${conf}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `AgroFast_Scan_History_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        function renderHistoryRows(items) {
+            historyList.innerHTML = "";
+            if (!items || items.length === 0) {
+                historyList.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">No matching scan records found.</td></tr>';
+                return;
+            }
+
+            items.forEach(item => {
+                const row = document.createElement("tr");
+                row.className = "history-item";
+                const date = new Date(item.time).toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const isHealthy = (item.disease || '').toLowerCase().includes('healthy');
+
+                row.innerHTML = `
+                    <td>${date}</td>
+                    <td style="font-weight: 600;">${escapeHtml(item.crop)}</td>
+                    <td>
+                      <span class="status-pill ${isHealthy ? 'status-healthy' : 'status-infected'}">
+                        ${escapeHtml(item.disease)}
+                      </span>
+                    </td>
+                    <td>${item.confidence}</td>
+                    <td>
+                        <button class="view-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                        <button class="delete-btn" onclick="deleteHistoryItem('${item.id}')" title="Delete record"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                historyList.appendChild(row);
+            });
+        }
+
+        function filterAndRenderHistory() {
+            const query = (document.getElementById('historySearchInput')?.value || '').toLowerCase().trim();
+            const statusFilter = document.getElementById('historyStatusFilter')?.value || 'all';
+
+            const filtered = allRawHistoryItems.filter(item => {
+                const cropMatch = (item.crop || '').toLowerCase().includes(query);
+                const diseaseMatch = (item.disease || '').toLowerCase().includes(query);
+                const matchesQuery = cropMatch || diseaseMatch;
+
+                const isHealthy = (item.disease || '').toLowerCase().includes('healthy');
+                let matchesStatus = true;
+                if (statusFilter === 'healthy') matchesStatus = isHealthy;
+                if (statusFilter === 'infected') matchesStatus = !isHealthy;
+
+                return matchesQuery && matchesStatus;
+            });
+
+            renderHistoryRows(filtered);
+        }
+
+        const searchInput = document.getElementById('historySearchInput');
+        const statusFilterSelect = document.getElementById('historyStatusFilter');
+        if (searchInput) searchInput.addEventListener('input', filterAndRenderHistory);
+        if (statusFilterSelect) statusFilterSelect.addEventListener('change', filterAndRenderHistory);
+
+        function updateHistoryStats(items) {
+            const total = items.length;
+            const healthyCount = items.filter(i => (i.disease || '').toLowerCase().includes('healthy')).length;
+            const ratio = total > 0 ? Math.round((healthyCount / total) * 100) : 100;
+
+            // Find top issue
+            const diseaseCounts = {};
+            items.forEach(i => {
+                const d = i.disease;
+                if (d && !d.toLowerCase().includes('healthy')) {
+                    diseaseCounts[d] = (diseaseCounts[d] || 0) + 1;
+                }
+            });
+
+            let topIssue = "None";
+            let maxCount = 0;
+            Object.entries(diseaseCounts).forEach(([disease, count]) => {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topIssue = disease;
+                }
+            });
+
+            const statTotalScans = document.getElementById('statTotalScans');
+            const statHealthyRatio = document.getElementById('statHealthyRatio');
+            const statTopIssue = document.getElementById('statTopIssue');
+
+            if (statTotalScans) statTotalScans.textContent = total;
+            if (statHealthyRatio) statHealthyRatio.textContent = `${ratio}%`;
+            if (statTopIssue) statTopIssue.textContent = topIssue.length > 18 ? topIssue.substring(0, 18) + '...' : topIssue;
+        }
+
         function loadHistory() {
             const historyRef = ref(db, `users/${user.uid}/history`);
             onValue(historyRef, (snapshot) => {
                 const historyData = snapshot.val();
                 historyList.innerHTML = "";
                 if (!historyData) {
+                    allRawHistoryItems = [];
+                    updateHistoryStats([]);
                     historyList.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">No scan history yet. Start scanning!</td></tr>';
                     return;
                 }
 
-                const items = Object.entries(historyData)
+                allRawHistoryItems = Object.entries(historyData)
                     .map(([id, data]) => ({ id, ...data }))
                     .sort((a, b) => new Date(b.time) - new Date(a.time));
 
-                items.forEach(item => {
-                    const row = document.createElement("tr");
-                    row.className = "history-item";
-                    const date = new Date(item.time).toLocaleString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-
-                    const isHealthy = item.disease.toLowerCase().includes('healthy');
-
-                    row.innerHTML = `
-                        <td>${date}</td>
-                        <td style="font-weight: 600;">${escapeHtml(item.crop)}</td>
-                        <td>
-                          <span class="status-pill ${isHealthy ? 'status-healthy' : 'status-infected'}">
-                            ${escapeHtml(item.disease)}
-                          </span>
-                        </td>
-                        <td>${item.confidence}</td>
-                        <td>
-                            <button class="view-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                            <button class="delete-btn" onclick="deleteHistoryItem('${item.id}')" title="Delete record"><i class="fas fa-trash"></i></button>
-                        </td>
-                    `;
-                    historyList.appendChild(row);
-                });
+                updateHistoryStats(allRawHistoryItems);
+                filterAndRenderHistory();
             });
         }
 
