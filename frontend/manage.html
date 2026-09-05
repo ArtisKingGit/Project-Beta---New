@@ -1154,13 +1154,14 @@
         const farmBudget = document.getElementById('farmBudget');
 
         // Hide Loader on Load with Percentage
-        window.addEventListener('load', () => {
+        function initPageLoader() {
             const loader = document.getElementById('pageLoader');
+            if (!loader || loader.classList.contains('hidden')) return;
             const percentText = document.getElementById('loaderPercent');
             let progress = 0;
 
             const interval = setInterval(() => {
-                progress += Math.random() * 20;
+                progress += Math.random() * 25 + 15;
                 if (progress > 100) progress = 100;
                 if (percentText) percentText.innerText = `${Math.round(progress)}%`;
 
@@ -1170,8 +1171,15 @@
                         if (loader) loader.classList.add('hidden');
                     }, 300);
                 }
-            }, 100);
-        });
+            }, 80);
+        }
+
+        if (document.readyState === 'complete') {
+            initPageLoader();
+        } else {
+            window.addEventListener('load', initPageLoader);
+            setTimeout(initPageLoader, 3000);
+        }
 
         // Loading Feedback Helper
         async function simulateProgress(btn, targetText = "Working...") {
@@ -1572,17 +1580,6 @@
 
                 allRawFarmsList = Object.entries(farms).map(([id, data]) => ({ id, ...data }));
                 filterAndRenderFarms();
-            });
-        }
-                                    <button class="btn-cancel" onclick="toggleEditNPK('${id}')" style="padding: 6px; font-size: 11px; flex: 1; border-radius: 6px; font-weight: 700; background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border);">
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
             });
         }
 
