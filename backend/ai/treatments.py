@@ -96,6 +96,42 @@ PLANTVILLAGE_TREATMENTS = {
         "crop": "Tomato",
         "disease": "Tomato Mosaic Virus (ToMV)",
         "treatment": "No chemical cure. Remove and burn infected plants. Wash hands and tools with soap and water after handling. Plant resistant seeds."
+    },
+    "Tomato_Spider_mites_Two_spotted_spider_mite": {
+        "crop": "Tomato",
+        "disease": "Two-Spotted Spider Mites (Tetranychus urticae)",
+        "treatment": "Spray with insecticidal soap, neem oil, or sulfur. In severe cases, apply an approved miticide (e.g. Abamectin). Spray the undersides of leaves where mites feed.",
+        "is_pest": True,
+        "causes": ["Hot, dry weather (<50% humidity)", "Dusty farm roads and dry field winds", "Excessive nitrogen promoting tender foliage"],
+        "recommended_steps": [
+            "Wash undersides of foliage with steady water jet to knock down colonies",
+            "Apply neem oil or insecticidal soap early morning or evening",
+            "Keep soil evenly watered to reduce heat stress and dust"
+        ]
+    },
+    "Coffee__red_spider_mite": {
+        "crop": "Coffee",
+        "disease": "Coffee Red Spider Mite (Oligonychus coffeae)",
+        "treatment": "Spray wettable sulfur or mineral oil formulations. Ensure thorough coverage of both leaf surfaces. Maintain shade trees to reduce heat stress.",
+        "is_pest": True,
+        "causes": ["Extended dry periods", "Lack of canopy shade over coffee bushes", "High ambient temperatures"],
+        "recommended_steps": [
+            "Inspect bronze-tinted upper leaves for mite activity",
+            "Apply horticultural oil or wettable sulfur",
+            "Maintain organic soil mulch around bush base"
+        ]
+    },
+    "Rice__hispa": {
+        "crop": "Rice",
+        "disease": "Rice Hispa Beetle (Dicladispa armigera)",
+        "treatment": "Clip leaf tips of seedlings before transplanting to destroy deposited eggs. Net and destroy adult beetles. Apply registered systemic sprays if >15% leaves damaged.",
+        "is_pest": True,
+        "causes": ["Dense planting in nursery beds", "Over-application of nitrogen fertilizer", "Prolonged warm, cloudy weather"],
+        "recommended_steps": [
+            "Clip top 2-3 inches of nursery seedlings prior to transplanting",
+            "Use sweep nets across paddy fields to capture adult beetles",
+            "Avoid excessive urea / nitrogen applications"
+        ]
     }
 }
 
@@ -524,24 +560,29 @@ def get_treatment(crop_or_class, health_status=None):
 
     # Case 1: Single argument lookup (PlantVillage or custom class name)
     if health_status is None:
-        # Standardize and parse the input class name
-        crop, disease = parse_class_name(crop_or_class)
-        
-        # Check standard dictionary first by looking for a matching parsed representation
         matched_val = None
-        for key, value in PLANTVILLAGE_TREATMENTS.items():
-            pv_crop, pv_disease = parse_class_name(key)
-            if pv_crop.lower() == crop.lower() and (pv_disease.lower() in disease.lower() or disease.lower() in pv_disease.lower()):
-                matched_val = value.copy()
-                break
-        
-        if matched_val:
+        # Check exact key match first
+        if crop_or_class in PLANTVILLAGE_TREATMENTS:
+            matched_val = PLANTVILLAGE_TREATMENTS[crop_or_class].copy()
             crop = matched_val["crop"]
             disease = matched_val["disease"]
             treatment = matched_val["treatment"]
         else:
-            # Parse dynamically
-            treatment = get_dynamic_treatment(crop, disease)
+            # Standardize and parse the input class name
+            crop, disease = parse_class_name(crop_or_class)
+            for key, value in PLANTVILLAGE_TREATMENTS.items():
+                pv_crop, pv_disease = parse_class_name(key)
+                if pv_crop.lower() == crop.lower() and (pv_disease.lower() in disease.lower() or disease.lower() in pv_disease.lower()):
+                    matched_val = value.copy()
+                    break
+            
+            if matched_val:
+                crop = matched_val["crop"]
+                disease = matched_val["disease"]
+                treatment = matched_val["treatment"]
+            else:
+                # Parse dynamically
+                treatment = get_dynamic_treatment(crop, disease)
             
         # Format user-friendly disease name
         if disease.lower() == "healthy":
@@ -551,11 +592,19 @@ def get_treatment(crop_or_class, health_status=None):
         else:
             user_friendly_disease = disease
 
+        is_pest = bool(matched_val and matched_val.get("is_pest")) or ("mite" in disease.lower() or "hispa" in disease.lower() or "pest" in disease.lower())
+        causes = matched_val.get("causes", []) if matched_val else []
+        recommended_steps = matched_val.get("recommended_steps", []) if matched_val else []
+
         return {
             "crop": crop,
             "disease": user_friendly_disease,
-            "treatment": treatment
+            "treatment": treatment,
+            "is_pest": is_pest,
+            "causes": causes,
+            "recommended_steps": recommended_steps
         }
+
 
     # Case 2: Legacy two-argument lookup (Crop Name + Health Status)
     crop = crop_or_class.lower()

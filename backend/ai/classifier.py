@@ -13,6 +13,8 @@ import io
 # pyrefly: ignore [missing-import]
 import cv2
 from .treatments import get_treatment, CROP_SOIL_REQUIREMENTS
+from .quality import check_image_quality
+
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -88,7 +90,17 @@ def analyze_health(image_bytes):
     
     return "Healthy"
 
-def predict_crop(image_bytes):
+def predict_crop(image_bytes: bytes, skip_quality_check: bool = False):
+    # 1. Pre-flight Quality Verification
+    if not skip_quality_check:
+        quality = check_image_quality(image_bytes)
+        if not quality.get("suitable", True):
+            return {
+                "quality_issue": True,
+                "error": quality.get("reason", "Photo quality is unsuitable for diagnostic analysis."),
+                "metrics": quality.get("metrics", {})
+            }
+
     # Ensure model and classes are loaded
     load_ai_model()
 
@@ -101,15 +113,12 @@ def predict_crop(image_bytes):
     preds = model.predict(arr)[0]
     idx = np.argmax(preds)
     predicted_class = CLASSES[idx]
-    confidence = preds[idx]
+    confidence = float(preds[idx])
 
     # Check if the class is soil
     if "soil" in predicted_class.lower():
-        # Soil scan lookup
         diagnosis_data = get_treatment(predicted_class)
-    # Check if the class is one of the trained classes
     elif "__" in predicted_class or "___" in predicted_class or predicted_class in CLASSES:
-        # Use direct class mapping
         diagnosis_data = get_treatment(predicted_class)
     else:
         # Legacy fallback using simple crop + HSV check
@@ -117,14 +126,68 @@ def predict_crop(image_bytes):
         health_status = analyze_health(image_bytes)
         diagnosis_data = get_treatment(crop_name, health_status)
 
+    crop_name = diagnosis_data.get("crop", predicted_class)
+    disease_name = diagnosis_data.get("disease", "Unknown Disease")
+    is_soil = bool(diagnosis_data.get("is_soil"))
+    is_healthy = "healthy" in disease_name.lower() or (disease_name == "Healthy")
+    is_pest = bool(diagnosis_data.get("is_pest")) or ("mite" in predicted_class.lower() or "hispa" in predicted_class.lower())
+
+    if is_soil:
+        detection_type = "soil"
+    elif is_pest:
+        detection_type = "pest"
+    elif is_healthy:
+        detection_type = "healthy"
+    else:
+        detection_type = "disease"
+
+    # Transparent "Why AgroFast thinks this" explanation
+    conf_pct = round(confidence * 100, 1)
+    if is_soil:
+        explanation = f"Colorimetry and texture analysis matched {crop_name} features with {conf_pct}% confidence."
+    elif is_healthy:
+        explanation = f"The deep learning vision model identified normal, uniform leaf pigmentation and venation for {crop_name} without visible necrotic lesions ({conf_pct}% confidence)."
+    elif is_pest:
+        explanation = f"Visual pattern analysis matched leaf stippling and damage characteristic of {disease_name} ({conf_pct}% confidence)."
+    else:
+        explanation = f"The CNN vision backbone detected irregular discoloration, spot lesions, or chlorotic margins matching {disease_name} with {conf_pct}% statistical confidence."
+
+    # Causes and recommended steps
+    causes = diagnosis_data.get("causes") or []
+    if not causes:
+        if is_healthy:
+            causes = ["Proper nutrient balance", "Adequate moisture management", "Absence of pathogen spore clusters"]
+        elif is_pest:
+            causes = ["Warm, dry seasonal conditions", "Dust drift on foliage", "Favorable temperature for insect proliferation"]
+        else:
+            causes = ["High canopy humidity", "Fungal spore dispersal from rain splash or wind", "Overhead irrigation keeping leaves wet"]
+
+    recommended_steps = diagnosis_data.get("recommended_steps") or []
+    if not recommended_steps:
+        if is_healthy:
+            recommended_steps = ["Continue routine irrigation schedule", "Maintain balanced NPK fertilization", "Monitor foliage weekly"]
+        elif is_pest:
+            recommended_steps = ["Inspect leaf undersides with magnifying glass", "Apply neem oil or labeled organic miticide/insecticide", "Avoid dusty road dust buildup on plants"]
+        else:
+            recommended_steps = ["Prune severely infected lower leaves", "Avoid overhead sprinkler irrigation", "Apply labeled protective or curative fungicide"]
+
     res = {
-        "crop": diagnosis_data.get("crop", predicted_class),
-        "confidence": f"{confidence*100:.2f}%",
-        "disease": diagnosis_data.get("disease", "Unknown Disease"),
-        "treatment": diagnosis_data.get("treatment", "Consult an agronomist.")
+        "crop": crop_name,
+        "confidence": f"{conf_pct}%",
+        "confidence_val": round(confidence, 4),
+        "disease": disease_name,
+        "treatment": diagnosis_data.get("treatment", "Consult an agronomist."),
+        "detection_type": detection_type,
+        "is_pest": is_pest,
+        "is_healthy": is_healthy,
+        "model_version": "AgroFast Vision v1.1",
+        "why_agrofast_thinks_this": explanation,
+        "possible_causes": causes,
+        "recommended_steps": recommended_steps,
+        "scan_again_days": 3 if (is_pest or not is_healthy) else 10
     }
 
-    if diagnosis_data.get("is_soil"):
+    if is_soil:
         res["is_soil"] = True
         res["soil_type"] = diagnosis_data.get("soil_type")
         res["npk_status"] = diagnosis_data.get("npk_status")
@@ -134,8 +197,6 @@ def predict_crop(image_bytes):
         res["balancing_advice"] = diagnosis_data.get("balancing_advice")
     else:
         res["is_soil"] = False
-        # Add crop-specific soil requirements
-        crop_name = res["crop"]
         reqs = None
         for key, req_val in CROP_SOIL_REQUIREMENTS.items():
             if key.lower() in crop_name.lower() or crop_name.lower() in key.lower():
@@ -145,6 +206,7 @@ def predict_crop(image_bytes):
             res["soil_requirements"] = reqs
 
     return res
+
 
 # Initialize on import
 try:

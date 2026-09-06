@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/assistant-widget.css">
     <link rel="stylesheet" href="css/custom-select.css">
     <link rel="stylesheet" href="tutorial.css">
+    <script src="js/intelligence.js"></script>
 
     <style>
         :root {
@@ -845,8 +846,17 @@
                         <input type="text" id="farmName" placeholder="e.g. Green Valley Farm">
                     </div>
                     <div class="form-group">
-                        <label>Location</label>
-                        <input type="text" id="farmLocation" placeholder="e.g. Nairobi, Kenya">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Location</span>
+                            <button type="button" onclick="detectFarmCoords('add')" style="background: none; border: none; color: var(--primary); font-size: 11px; cursor: pointer; font-weight: 700;">
+                                <i class="fas fa-crosshairs"></i> Use GPS
+                            </button>
+                        </label>
+                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px;">
+                            <input type="text" id="farmLocation" placeholder="e.g. Nairobi, Kenya">
+                            <input type="number" step="0.0001" id="farmLat" placeholder="Lat">
+                            <input type="number" step="0.0001" id="farmLng" placeholder="Lng">
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Size (Acres)</label>
@@ -951,6 +961,26 @@
                 </button>
             </div>
 
+            <!-- ── MULTI-FARM SIDE-BY-SIDE COMPARISON ── -->
+            <div class="glass-card" id="farmComparisonSection" style="display: none; margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="margin-bottom: 0; font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-balance-scale" style="color: var(--primary);"></i> Multi-Farm Side-by-Side Comparison
+                        </h3>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                            Compare health scores, disease risk levels, budget utilization, and nutrient profiles across all your plots.
+                        </p>
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);">
+                        <i class="fas fa-mouse-pointer"></i> Click farm to focus
+                    </span>
+                </div>
+                <div id="farmComparisonGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+
             <!-- Farms List -->
             <div class="glass-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
@@ -1004,8 +1034,17 @@
                     <input type="text" id="editFarmName" style="width:100%; padding:10px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text);">
                 </div>
                 <div class="form-group">
-                    <label>Location</label>
-                    <input type="text" id="editFarmLocation" style="width:100%; padding:10px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text);">
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Location</span>
+                        <button type="button" onclick="detectFarmCoords('edit')" style="background: none; border: none; color: var(--primary); font-size: 11px; cursor: pointer; font-weight: 700;">
+                            <i class="fas fa-crosshairs"></i> Use GPS
+                        </button>
+                    </label>
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px;">
+                        <input type="text" id="editFarmLocation" style="width:100%; padding:10px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text);">
+                        <input type="number" step="0.0001" id="editFarmLat" placeholder="Lat" style="width:100%; padding:10px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text);">
+                        <input type="number" step="0.0001" id="editFarmLng" placeholder="Lng" style="width:100%; padding:10px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid var(--border); color:var(--text);">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Size (Acres)</label>
@@ -1313,10 +1352,14 @@
                 const nVal = parseInt(document.getElementById('farmSoilN').value) || 45;
                 const pVal = parseInt(document.getElementById('farmSoilP').value) || 30;
                 const kVal = parseInt(document.getElementById('farmSoilK').value) || 25;
+                const latVal = parseFloat(document.getElementById('farmLat').value) || null;
+                const lngVal = parseFloat(document.getElementById('farmLng').value) || null;
 
                 const newFarm = {
                     name,
                     location: loc,
+                    lat: latVal,
+                    lng: lngVal,
                     size,
                     crop,
                     soilType: farmSoil.value,
@@ -1338,6 +1381,8 @@
                 // Clear form
                 farmName.value = '';
                 farmLocation.value = '';
+                document.getElementById('farmLat').value = '';
+                document.getElementById('farmLng').value = '';
                 farmSize.value = '';
                 farmCrop.value = '';
                 farmSoil.value = '';
@@ -1566,9 +1611,106 @@
         if (farmSearchInput) farmSearchInput.addEventListener('input', filterAndRenderFarms);
         if (farmSortSelect) farmSortSelect.addEventListener('change', filterAndRenderFarms);
 
+        async function renderFarmComparison(farms, historyList, expensesList) {
+            const compSection = document.getElementById('farmComparisonSection');
+            const compGrid = document.getElementById('farmComparisonGrid');
+            if (!compSection || !compGrid) return;
+
+            if (!farms || farms.length === 0) {
+                compSection.style.display = 'none';
+                return;
+            }
+
+            compSection.style.display = 'block';
+
+            const allScans = historyList || [];
+            const allExpenses = expensesList || [];
+
+            compGrid.innerHTML = farms.map(f => {
+                const farmScans = allScans.filter(s => s.farmId === f.id || (s.crop && f.crop && s.crop.toLowerCase() === f.crop.toLowerCase()));
+                const farmExpenses = allExpenses.filter(e => e.farmId === f.id || (e.farmName && f.name && e.farmName.toLowerCase() === f.name.toLowerCase()));
+                const totalSpent = farmExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+                const budgetVal = parseFloat(f.budget) || 0;
+                const budgetPct = budgetVal > 0 ? Math.round((totalSpent / budgetVal) * 100) : null;
+
+                const health = window.AgroIntelligence ? window.AgroIntelligence.calculateFarmHealthScore({
+                    farm: f,
+                    scans: farmScans,
+                    weather: window.currentWeather
+                }) : { score: 85, rating: 'Good', ratingColor: '#22c55e' };
+
+                const risk = window.AgroIntelligence ? window.AgroIntelligence.calculateDiseaseRisk({
+                    farm: f,
+                    weather: window.currentWeather,
+                    recentScans: farmScans
+                }) : { score: 25, level: 'LOW', color: '#22c55e' };
+
+                const latestScan = farmScans.sort((a,b) => (b.time || 0) - (a.time || 0))[0];
+                const recentActivity = latestScan ? `${latestScan.disease || 'Scan'} (${latestScan.confidence || 90}%)` : 'No recent scans';
+
+                return `
+                    <div class="farm-card" style="margin-bottom:0; cursor:pointer; border: 1px solid var(--border); transition: transform 0.25s, border-color 0.25s;" onclick="focusFarmCard('${f.id}')">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                            <div>
+                                <h4 style="font-size:17px; font-weight:800; color:var(--text); margin-bottom:2px;">${escapeHtml(f.name)}</h4>
+                                <span style="font-size:12px; color:var(--text-muted);"><i class="fas fa-map-marker-alt" style="color:var(--primary);"></i> ${escapeHtml(f.location || 'Plot')} • ${f.size || 1} acres</span>
+                            </div>
+                            <span class="status-badge" style="background:rgba(34,197,94,0.15); color:var(--primary);">${escapeHtml(f.crop || 'Crop')}</span>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:10px; text-align:center;">
+                                <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Health Score</div>
+                                <div style="font-size:18px; font-weight:800; color:${health.ratingColor}; margin-top:2px;">${health.score}/100</div>
+                                <div style="font-size:10px; color:${health.ratingColor}; font-weight:700;">${health.rating}</div>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:10px; text-align:center;">
+                                <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Disease Risk</div>
+                                <div style="font-size:18px; font-weight:800; color:${risk.color}; margin-top:2px;">${risk.score}%</div>
+                                <div style="font-size:10px; color:${risk.color}; font-weight:700;">${risk.level}</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:12px; background:rgba(255,255,255,0.02); padding:8px 10px; border-radius:10px; border:1px solid var(--border);">
+                            <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:4px;">
+                                <span>Budget Utilization</span>
+                                <span style="font-weight:700; color:${budgetPct > 90 ? '#ef4444' : budgetPct > 75 ? '#f59e0b' : 'var(--primary)'};">
+                                    ${budgetPct !== null ? budgetPct + '%' : 'No budget set'}
+                                </span>
+                            </div>
+                            <div style="height:5px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden;">
+                                <div style="height:100%; width:${Math.min(100, budgetPct || 0)}%; background:${budgetPct > 90 ? '#ef4444' : budgetPct > 75 ? '#f59e0b' : 'var(--primary)'}; border-radius:4px;"></div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); padding-top:8px; border-top:1px dashed var(--border);">
+                            <span><i class="fas fa-tint" style="color:#60a5fa;"></i> ${escapeHtml(f.irrigation || 'Rainfed')}</span>
+                            <span>NPK: <b style="color:var(--text);">${f.soil?.n || 45}-${f.soil?.p || 30}-${f.soil?.k || 25}</b></span>
+                        </div>
+
+                        <div style="margin-top:12px; display:flex; gap:8px;">
+                            <button onclick="event.stopPropagation(); openEditFarmModal('${f.id}')" class="btn-primary" style="padding:7px 12px; font-size:11px; border-radius:8px; width:100%; display:flex; align-items:center; justify-content:center; gap:6px;">
+                                <i class="fas fa-edit"></i> Edit Farm Details
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.focusFarmCard = (farmId) => {
+            const el = document.getElementById('farmSearchInput');
+            const farm = allRawFarmsList.find(f => f.id === farmId);
+            if (farm && el) {
+                el.value = farm.name;
+                filterAndRenderFarms();
+                document.getElementById('farmsList')?.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
         function loadFarms() {
             const farmsRef = ref(db, `users/${user.uid}/farms`);
-            onValue(farmsRef, (snapshot) => {
+            onValue(farmsRef, async (snapshot) => {
                 const farms = snapshot.val();
                 const container = document.getElementById('farmsList');
                 container.innerHTML = "";
@@ -1576,11 +1718,25 @@
                 if (!farms) {
                     allRawFarmsList = [];
                     container.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center;">No farms added yet.</p>';
+                    renderFarmComparison([], [], []);
                     return;
                 }
 
                 allRawFarmsList = Object.entries(farms).map(([id, data]) => ({ id, ...data }));
                 filterAndRenderFarms();
+
+                // Fetch scans and expenses for comparison calculations
+                try {
+                    const [histSnap, expSnap] = await Promise.all([
+                        get(ref(db, `users/${user.uid}/history`)),
+                        get(ref(db, `users/${user.uid}/expenses`))
+                    ]);
+                    const histData = histSnap.exists() ? Object.values(histSnap.val()) : [];
+                    const expData = expSnap.exists() ? Object.values(expSnap.val()) : [];
+                    renderFarmComparison(allRawFarmsList, histData, expData);
+                } catch(e) {
+                    renderFarmComparison(allRawFarmsList, [], []);
+                }
             });
         }
 
@@ -1645,6 +1801,34 @@
             }
         };
 
+        window.detectFarmCoords = (mode) => {
+            if (!navigator.geolocation) return alert("Geolocation is not supported by your browser");
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                if (mode === 'edit') {
+                    document.getElementById('editFarmLat').value = lat.toFixed(4);
+                    document.getElementById('editFarmLng').value = lng.toFixed(4);
+                } else {
+                    document.getElementById('farmLat').value = lat.toFixed(4);
+                    document.getElementById('farmLng').value = lng.toFixed(4);
+                }
+                try {
+                    const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+                    if (geo.ok) {
+                        const data = await geo.json();
+                        const place = data.address?.city || data.address?.town || data.address?.county || data.display_name?.split(',')[0];
+                        if (place) {
+                            const target = mode === 'edit' ? document.getElementById('editFarmLocation') : document.getElementById('farmLocation');
+                            if (target && !target.value) target.value = place;
+                        }
+                    }
+                } catch(e) {}
+            }, (err) => {
+                alert("Could not retrieve GPS coordinates: " + err.message);
+            });
+        };
+
         window.openEditFarmModal = async (farmId) => {
             const user = auth.currentUser;
             if (!user) return;
@@ -1658,6 +1842,8 @@
                 document.getElementById('editFarmId').value = farmId;
                 document.getElementById('editFarmName').value = farm.name || '';
                 document.getElementById('editFarmLocation').value = farm.location || '';
+                document.getElementById('editFarmLat').value = farm.lat || '';
+                document.getElementById('editFarmLng').value = farm.lng || '';
                 document.getElementById('editFarmSize').value = farm.size || '';
                 document.getElementById('editFarmCrop').value = farm.crop || '';
                 document.getElementById('editFarmSoil').value = farm.soilType || 'Loamy';
@@ -1700,7 +1886,8 @@
             const status = document.getElementById('editFarmStatus').value;
             const budget = parseFloat(document.getElementById('editFarmBudget').value) || 0;
             const plantDate = document.getElementById('editFarmPlantDate').value;
-            const desc = document.getElementById('editFarmDesc').value;
+            const lat = parseFloat(document.getElementById('editFarmLat').value) || null;
+            const lng = parseFloat(document.getElementById('editFarmLng').value) || null;
             
             const nVal = parseInt(document.getElementById('editFarmSoilN').value) || 45;
             const pVal = parseInt(document.getElementById('editFarmSoilP').value) || 30;
@@ -1752,6 +1939,8 @@
                     ...currentFarm,
                     name,
                     location: loc,
+                    lat,
+                    lng,
                     size,
                     crop,
                     soilType,

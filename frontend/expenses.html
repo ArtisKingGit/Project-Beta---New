@@ -421,6 +421,21 @@
             color: #94a3b8;
         }
 
+        .cat-irrigation {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+        }
+
+        .cat-pesticides {
+            background: rgba(244, 63, 94, 0.2);
+            color: #f43f5e;
+        }
+
+        .cat-transport {
+            background: rgba(20, 184, 166, 0.2);
+            color: #14b8a6;
+        }
+
         .delete-btn {
             background: none;
             border: none;
@@ -1025,14 +1040,41 @@
                 </div>
             </div>
 
-            <!-- Expense Category Breakdown Progress Bars -->
-            <div class="glass-card" style="padding: 20px; margin-bottom: 25px;">
-                <h3 style="font-size: 15px; margin: 0 0 15px 0; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
-                    <span><i class="fas fa-chart-bar" style="color: var(--primary); margin-right: 6px;"></i> Category Expense Breakdown</span>
-                    <span style="font-size: 12px; font-weight: 500; color: var(--text-muted);" id="categoryTotalLabel">Total Spent: KSh 0</span>
-                </h3>
-                <div id="categoryProgressContainer" style="display: flex; flex-direction: column; gap: 12px;">
-                    <p style="color: var(--text-muted); font-size: 13px; text-align: center;">No expense categories recorded yet.</p>
+            <!-- Expense Analytics Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 25px;">
+                <!-- Category Expense Breakdown Progress Bars -->
+                <div class="glass-card" style="padding: 20px;">
+                    <h3 style="font-size: 15px; margin: 0 0 15px 0; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fas fa-chart-pie" style="color: var(--primary); margin-right: 6px;"></i> Category Expense Breakdown</span>
+                        <span style="font-size: 12px; font-weight: 500; color: var(--text-muted);" id="categoryTotalLabel">Total Spent: KSh 0</span>
+                    </h3>
+                    <div id="categoryProgressContainer" style="display: flex; flex-direction: column; gap: 12px;">
+                        <p style="color: var(--text-muted); font-size: 13px; text-align: center;">No expense categories recorded yet.</p>
+                    </div>
+                </div>
+
+                <!-- Financial Intelligence & Run-Rate -->
+                <div class="glass-card" style="padding: 20px;">
+                    <h3 style="font-size: 15px; margin: 0 0 15px 0; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
+                        <span><i class="fas fa-calculator" style="color: #60a5fa; margin-right: 6px;"></i> Spending Intelligence & Run-Rate</span>
+                        <span style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;" id="budgetWarningPill" class="category-pill cat-seeds">Healthy</span>
+                    </h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px;">
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Average Daily Burn</div>
+                            <div style="font-size: 18px; font-weight: 700; color: var(--text);" id="intelDailyBurn">KSh 0</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px;">
+                            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Projected 30-Day Total</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #fbbf24;" id="intelProjectedTotal">KSh 0</div>
+                        </div>
+                    </div>
+                    <div id="budgetWarningAlertBox" style="display: none; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 10px 14px; color: #f87171; font-size: 12px; line-height: 1.4;">
+                        <i class="fas fa-triangle-exclamation" style="margin-right: 6px;"></i> <span id="budgetWarningAlertText">Warning: High budget burn rate.</span>
+                    </div>
+                    <div id="spendingTrendText" style="margin-top: 10px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+                        Tracking operational expenditures and monthly allocations.
+                    </div>
                 </div>
             </div>
 
@@ -1080,7 +1122,10 @@
                                 <option value="Seeds">Seeds</option>
                                 <option value="Fertilizer">Fertilizer</option>
                                 <option value="Labor">Labor</option>
+                                <option value="Irrigation">Irrigation</option>
+                                <option value="Pesticides">Pesticides</option>
                                 <option value="Equipment">Equipment</option>
+                                <option value="Transport">Transport</option>
                                 <option value="Other">Other</option>
                             </select>
                         </div>
@@ -1598,18 +1643,62 @@
             document.getElementById('meterFill').style.width = `${cappedPercent}%`;
 
             const statusBox = document.getElementById('budgetStatus');
+            const warningBox = document.getElementById('budgetWarningAlertBox');
+            const warningText = document.getElementById('budgetWarningAlertText');
+            const warningPill = document.getElementById('budgetWarningPill');
+
             if (percent > 100) {
                 statusBox.textContent = "Over Budget";
                 statusBox.style.color = "var(--danger)";
                 document.getElementById('meterFill').style.background = "var(--danger)";
+                if (warningPill) {
+                    warningPill.textContent = "Over Budget";
+                    warningPill.className = "category-pill cat-other";
+                    warningPill.style.background = "rgba(239, 68, 68, 0.2)";
+                    warningPill.style.color = "#ef4444";
+                }
+                if (warningBox && warningText) {
+                    warningBox.style.display = "block";
+                    warningText.textContent = `Critical Budget Alert: Farm expenditures have reached ${Math.round(percent)}% of the allocated seasonal budget. Review non-essential costs.`;
+                }
             } else if (percent > 80) {
                 statusBox.textContent = "Warning";
                 statusBox.style.color = "var(--warning)";
                 document.getElementById('meterFill').style.background = "var(--warning)";
+                if (warningPill) {
+                    warningPill.textContent = "Caution (80%+)";
+                    warningPill.className = "category-pill cat-labor";
+                }
+                if (warningBox && warningText) {
+                    warningBox.style.display = "block";
+                    warningText.textContent = `Caution: You have utilized ${Math.round(percent)}% of your operational budget. Ensure funds remain for harvest & post-harvest needs.`;
+                }
             } else {
                 statusBox.textContent = "Healthy";
                 statusBox.style.color = "var(--primary)";
                 document.getElementById('meterFill').style.background = "linear-gradient(90deg, var(--primary), #fbbf24)";
+                if (warningPill) {
+                    warningPill.textContent = "Optimal";
+                    warningPill.className = "category-pill cat-seeds";
+                }
+                if (warningBox) warningBox.style.display = "none";
+            }
+
+            // Update Financial Intelligence (Daily Burn & Projected 30-Day)
+            const daysInMonth = 30;
+            const currentDayOfMonth = Math.max(new Date().getDate(), 1);
+            const dailyBurn = currentMonthExpenses / currentDayOfMonth;
+            const projectedTotal = Math.round(dailyBurn * daysInMonth);
+
+            const intelBurnEl = document.getElementById('intelDailyBurn');
+            const intelProjEl = document.getElementById('intelProjectedTotal');
+            const intelTrendEl = document.getElementById('spendingTrendText');
+
+            if (intelBurnEl) intelBurnEl.textContent = formatPrice(Math.round(dailyBurn), userCurrency) + "/day";
+            if (intelProjEl) intelProjEl.textContent = formatPrice(projectedTotal, userCurrency);
+            if (intelTrendEl) {
+                const runwayDays = dailyBurn > 0 ? Math.round(Math.max(totalBudget - currentMonthExpenses, 0) / dailyBurn) : '∞';
+                intelTrendEl.innerHTML = `At current spending rates (${formatPrice(Math.round(dailyBurn), userCurrency)}/day), estimated budget runway is <strong>${runwayDays} days</strong>. Total remaining allocation: <strong>${formatPrice(Math.max(totalBudget - currentMonthExpenses, 0), userCurrency)}</strong>.`;
             }
 
             // Update summary bar

@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="css/assistant-widget.css">
     <link rel="stylesheet" href="css/custom-select.css">
     <link rel="stylesheet" href="tutorial.css">
+    <script src="js/intelligence.js"></script>
 
     <style>
         :root {
@@ -1128,6 +1129,118 @@
                 </div>
             </div>
 
+            <!-- ── INTERACTIVE PROFIT SIMULATOR & CROP COMPARISON ── -->
+            <div class="glass-card" style="margin-bottom: 24px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+                    <div>
+                        <h3 style="font-size:18px; font-weight:700; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-chart-line" style="color:var(--primary)"></i> Interactive Crop Profit Simulator
+                        </h3>
+                        <p style="font-size:13px; color:var(--text-muted); margin-top:3px;">
+                            Simulate projected yield, revenue, input costs, and break-even points across different crops. Clearly labeled as agronomic decision estimates.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <span style="font-size:12px; color:var(--text-muted); background:rgba(255,255,255,0.05); padding:6px 14px; border-radius:20px; border:1px solid var(--border);">
+                            <i class="fas fa-info-circle" style="color:var(--info);"></i> Regional baseline data
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Simulation Inputs Grid -->
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:14px; margin-bottom: 18px;">
+                    <div class="control-group">
+                        <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Crop to Simulate</label>
+                        <select id="simCropSelect" onchange="window.updateSimCropDefaults()">
+                            <option value="Maize">Maize 🌽</option>
+                            <option value="Tomatoes">Tomatoes 🍅</option>
+                            <option value="Potatoes">Potatoes 🥔</option>
+                            <option value="Beans">Beans 🫘</option>
+                            <option value="Rice">Rice 🍚</option>
+                            <option value="Wheat">Wheat 🌾</option>
+                            <option value="Coffee">Coffee ☕</option>
+                            <option value="Cabbage">Cabbage 🥬</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Farm Size (Acres)</label>
+                        <input type="number" id="simAcreage" value="1.0" min="0.1" step="0.1" oninput="window.calculateSimulation()" style="width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:10px 14px; border-radius:12px; color:var(--text); outline:none;">
+                    </div>
+                    <div class="control-group">
+                        <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Est. Yield (kg / Acre)</label>
+                        <input type="number" id="simYield" value="2200" min="10" step="50" oninput="window.calculateSimulation()" style="width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:10px 14px; border-radius:12px; color:var(--text); outline:none;">
+                    </div>
+                    <div class="control-group">
+                        <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Market Price (per kg)</label>
+                        <input type="number" id="simPrice" value="45" min="1" step="1" oninput="window.calculateSimulation()" style="width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:10px 14px; border-radius:12px; color:var(--text); outline:none;">
+                    </div>
+                </div>
+
+                <!-- Expenses breakdown accordion -->
+                <details style="margin-bottom:18px; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:14px; padding:12px 16px;">
+                    <summary style="font-size:12px; font-weight:700; color:var(--primary); cursor:pointer; outline:none;">
+                        <i class="fas fa-sliders-h"></i> Customize Detailed Costs (Seed, Fertilizer, Labor, Irrigation, Other)
+                    </summary>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:12px; margin-top:14px;">
+                        <div class="control-group">
+                            <label style="font-size:11px; color:var(--text-muted);">Seeds (Total)</label>
+                            <input type="number" id="simSeedCost" value="4500" min="0" oninput="window.calculateSimulation()" style="background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:8px 12px; border-radius:10px; color:var(--text);">
+                        </div>
+                        <div class="control-group">
+                            <label style="font-size:11px; color:var(--text-muted);">Fertilizer</label>
+                            <input type="number" id="simFertCost" value="9500" min="0" oninput="window.calculateSimulation()" style="background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:8px 12px; border-radius:10px; color:var(--text);">
+                        </div>
+                        <div class="control-group">
+                            <label style="font-size:11px; color:var(--text-muted);">Labor</label>
+                            <input type="number" id="simLaborCost" value="8000" min="0" oninput="window.calculateSimulation()" style="background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:8px 12px; border-radius:10px; color:var(--text);">
+                        </div>
+                        <div class="control-group">
+                            <label style="font-size:11px; color:var(--text-muted);">Irrigation</label>
+                            <input type="number" id="simIrrigCost" value="2500" min="0" oninput="window.calculateSimulation()" style="background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:8px 12px; border-radius:10px; color:var(--text);">
+                        </div>
+                        <div class="control-group">
+                            <label style="font-size:11px; color:var(--text-muted);">Other Expenses</label>
+                            <input type="number" id="simOtherCost" value="2000" min="0" oninput="window.calculateSimulation()" style="background:rgba(255,255,255,0.04); border:1px solid var(--border); padding:8px 12px; border-radius:10px; color:var(--text);">
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Simulation Results Cards -->
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;">
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; padding:14px;">
+                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Est. Gross Revenue</div>
+                        <div id="simResRev" style="font-size:20px; font-weight:800; color:var(--primary); margin-top:4px;">KES 0</div>
+                        <div id="simResRevAcre" style="font-size:11px; color:var(--text-muted); margin-top:2px;">KES 0 / acre</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; padding:14px;">
+                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Est. Total Costs</div>
+                        <div id="simResCost" style="font-size:20px; font-weight:800; color:#ef4444; margin-top:4px;">KES 0</div>
+                        <div id="simResCostAcre" style="font-size:11px; color:var(--text-muted); margin-top:2px;">KES 0 / acre</div>
+                    </div>
+                    <div style="background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.3); border-radius:14px; padding:14px;">
+                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Projected Net Profit</div>
+                        <div id="simResProfit" style="font-size:20px; font-weight:800; color:var(--primary); margin-top:4px;">KES 0</div>
+                        <div id="simResMargin" style="font-size:11px; color:var(--primary); font-weight:600; margin-top:2px;">0% Margin</div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; padding:14px;">
+                        <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase;">Break-Even Target</div>
+                        <div id="simResBreakEven" style="font-size:16px; font-weight:700; color:var(--text); margin-top:4px;">0 kg</div>
+                        <div id="simResBreakPrice" style="font-size:11px; color:var(--text-muted); margin-top:2px;">Min KES 0/kg to break even</div>
+                    </div>
+                </div>
+
+                <!-- Multi-Crop Side-by-Side Comparison -->
+                <div style="margin-top:14px; border-top:1px dashed var(--border); padding-top:16px;">
+                    <div style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                        <span><i class="fas fa-balance-scale" style="color:var(--primary);"></i> Side-by-Side Crop Comparison (<span id="compAcreageLabel">1</span> acre scale)</span>
+                        <span style="font-size:11px; text-transform:none; font-weight:400; color:var(--text-muted);">*Regional agronomic benchmark estimates</span>
+                    </div>
+                    <div id="cropComparisonGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                        <!-- Injected by script -->
+                    </div>
+                </div>
+            </div>
+
             <!-- ── CONTROLS BAR ──────────────── -->
             <div class="controls-bar">
                 <div class="control-group" style="flex:1; min-width: 200px;">
@@ -1309,7 +1422,9 @@
                 document.getElementById('userLevel').textContent = d.scans > 20 ? 'Master Farmer' : 'Expert Farmer';
             });
 
-            loadUserFarms();
+            loadUserFarms().then(() => {
+                window.updateSimCropDefaults();
+            });
         });
 
         // ── FORECAST STRIP ─────────────────────────────────────────
@@ -1544,13 +1659,16 @@
         }
 
         // ── LOAD USER FARMS ────────────────────────────────────────
+        let userFarmsMap = {};
         window.loadUserFarms = async () => {
             if (!user) return;
             const snap = await get(ref(db, `users/${user.uid}/farms`));
             const sel = document.getElementById('farmSelector');
             sel.innerHTML = '<option value="all">General Market</option>';
+            userFarmsMap = {};
             if (snap.exists()) {
                 Object.entries(snap.val()).forEach(([id, farm]) => {
+                    userFarmsMap[id] = farm;
                     const opt = document.createElement('option');
                     opt.value = id;
                     opt.textContent = `${farm.name} (${farm.location})`;
@@ -1558,6 +1676,124 @@
                 });
             }
         };
+
+        // ── SIMULATOR LOGIC ─────────────────────────────────────────
+        window.updateSimCropDefaults = () => {
+            const crop = document.getElementById('simCropSelect').value;
+            const acreage = parseFloat(document.getElementById('simAcreage').value) || 1.0;
+            const baselines = window.AgroIntelligence?.CROP_BASELINE_COSTS || {};
+            const b = baselines[crop] || baselines['Maize'] || {
+                yieldPerAcre: 2000, pricePerKg: 40, seeds: 4000, fert: 8000, labor: 7000, irrig: 2000, other: 1500
+            };
+
+            document.getElementById('simYield').value = b.yieldPerAcre;
+            document.getElementById('simPrice').value = b.pricePerKg;
+            document.getElementById('simSeedCost').value = Math.round(b.seeds * acreage);
+            document.getElementById('simFertCost').value = Math.round(b.fert * acreage);
+            document.getElementById('simLaborCost').value = Math.round(b.labor * acreage);
+            document.getElementById('simIrrigCost').value = Math.round(b.irrig * acreage);
+            document.getElementById('simOtherCost').value = Math.round(b.other * acreage);
+
+            window.calculateSimulation();
+        };
+
+        window.calculateSimulation = () => {
+            const crop = document.getElementById('simCropSelect').value;
+            const acreage = parseFloat(document.getElementById('simAcreage').value) || 1.0;
+            const yieldPerAcre = parseFloat(document.getElementById('simYield').value) || 0;
+            const price = parseFloat(document.getElementById('simPrice').value) || 0;
+            const seeds = parseFloat(document.getElementById('simSeedCost').value) || 0;
+            const fert = parseFloat(document.getElementById('simFertCost').value) || 0;
+            const labor = parseFloat(document.getElementById('simLaborCost').value) || 0;
+            const irrig = parseFloat(document.getElementById('simIrrigCost').value) || 0;
+            const other = parseFloat(document.getElementById('simOtherCost').value) || 0;
+
+            const sim = window.AgroIntelligence ? window.AgroIntelligence.simulateCropProfit({
+                crop,
+                acreage,
+                estimatedYieldPerAcre: yieldPerAcre,
+                marketPricePerKg: price,
+                seedCost: seeds,
+                fertilizerCost: fert,
+                laborCost: labor,
+                irrigationCost: irrig,
+                otherExpenses: other
+            }) : {
+                totalRevenue: yieldPerAcre * acreage * price,
+                costs: { totalCost: seeds + fert + labor + irrig + other },
+                netProfit: (yieldPerAcre * acreage * price) - (seeds + fert + labor + irrig + other),
+                profitMarginPct: 0,
+                revPerAcre: yieldPerAcre * price,
+                costPerAcre: (seeds + fert + labor + irrig + other) / (acreage || 1),
+                breakEvenYieldKg: price > 0 ? (seeds + fert + labor + irrig + other) / price : 0,
+                breakEvenPriceKg: (yieldPerAcre * acreage) > 0 ? (seeds + fert + labor + irrig + other) / (yieldPerAcre * acreage) : 0,
+                roiPct: 0
+            };
+
+            document.getElementById('simResRev').textContent = formatPrice(sim.totalRevenue, userCurrency);
+            document.getElementById('simResRevAcre').textContent = `${formatPrice(sim.revPerAcre, userCurrency)} / acre`;
+            document.getElementById('simResCost').textContent = formatPrice(sim.costs.totalCost, userCurrency);
+            document.getElementById('simResCostAcre').textContent = `${formatPrice(sim.costPerAcre, userCurrency)} / acre`;
+            
+            const profitEl = document.getElementById('simResProfit');
+            profitEl.textContent = formatPrice(sim.netProfit, userCurrency);
+            profitEl.style.color = sim.netProfit >= 0 ? 'var(--primary)' : '#ef4444';
+
+            const marginEl = document.getElementById('simResMargin');
+            marginEl.textContent = `${sim.profitMarginPct}% Margin (ROI: ${sim.roiPct}%)`;
+            marginEl.style.color = sim.netProfit >= 0 ? 'var(--primary)' : '#ef4444';
+
+            document.getElementById('simResBreakEven').textContent = `${Math.round(sim.breakEvenYieldKg).toLocaleString()} kg (${Math.round(sim.breakEvenYieldKg / (acreage || 1)).toLocaleString()} kg/acre)`;
+            document.getElementById('simResBreakPrice').textContent = `Min ${formatPrice(sim.breakEvenPriceKg, userCurrency)}/kg to break even`;
+
+            const compLabel = document.getElementById('compAcreageLabel');
+            if (compLabel) compLabel.textContent = acreage;
+
+            window.renderCropComparison(acreage);
+        };
+
+        window.renderCropComparison = (acreage) => {
+            const container = document.getElementById('cropComparisonGrid');
+            if (!container) return;
+
+            const comparisonCrops = ['Maize', 'Tomatoes', 'Potatoes', 'Beans'];
+            const icons = { 'Maize': '🌽', 'Tomatoes': '🍅', 'Potatoes': '🥔', 'Beans': '🫘' };
+
+            container.innerHTML = comparisonCrops.map(c => {
+                const s = window.AgroIntelligence ? window.AgroIntelligence.simulateCropProfit({ crop: c, acreage }) : null;
+                if (!s) return '';
+                const isProfitable = s.netProfit >= 0;
+                return `
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:14px; padding:14px; position:relative;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span style="font-size:15px; font-weight:800;">${icons[c] || '🌱'} ${c}</span>
+                            <span style="font-size:10px; font-weight:700; padding:2px 8px; border-radius:12px; background:${isProfitable ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)'}; color:${isProfitable ? 'var(--primary)' : '#ef4444'};">
+                                ${s.profitMarginPct}% Margin
+                            </span>
+                        </div>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:11px; margin-bottom:8px;">
+                            <div>
+                                <div style="color:var(--text-muted);">Est. Revenue</div>
+                                <div style="font-weight:700; color:var(--primary); font-size:13px;">${formatPrice(s.totalRevenue, userCurrency)}</div>
+                            </div>
+                            <div>
+                                <div style="color:var(--text-muted);">Total Costs</div>
+                                <div style="font-weight:700; color:#ef4444; font-size:13px;">${formatPrice(s.costs.totalCost, userCurrency)}</div>
+                            </div>
+                        </div>
+                        <div style="padding-top:6px; border-top:1px dashed var(--border); display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:11px; color:var(--text-muted);">Net Profit:</span>
+                            <span style="font-size:14px; font-weight:800; color:${isProfitable ? 'var(--primary)' : '#ef4444'};">
+                                ${formatPrice(s.netProfit, userCurrency)}
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        // Also connect farmSelector change to update simulator acreage if user chooses a specific farm
+        const origRunAnalysis = window.runAnalysis;
 
         // ── SCORING ENGINE ─────────────────────────────────────────
         function scoreCrop(crop, temp, humidity, season) {
@@ -1585,6 +1821,20 @@
 
         // ── MAIN ANALYSIS ──────────────────────────────────────────
         window.runAnalysis = () => {
+            const selectedFarmId = document.getElementById('farmSelector')?.value;
+            if (selectedFarmId && selectedFarmId !== 'all' && userFarmsMap[selectedFarmId]) {
+                const f = userFarmsMap[selectedFarmId];
+                if (f.size && !isNaN(parseFloat(f.size))) {
+                    const acreageInput = document.getElementById('simAcreage');
+                    if (acreageInput && Math.abs(parseFloat(acreageInput.value) - parseFloat(f.size)) > 0.01) {
+                        acreageInput.value = parseFloat(f.size);
+                        if (typeof window.calculateSimulation === 'function') {
+                            window.calculateSimulation();
+                        }
+                    }
+                }
+            }
+
             const climate = MONTHLY_CLIMATE[selectedMonth];
             const temp     = selectedMonth === new Date().getMonth() && window.currentWeather
                              ? window.currentWeather.temp

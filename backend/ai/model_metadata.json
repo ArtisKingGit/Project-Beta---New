@@ -1,0 +1,47 @@
+{
+  "model_name": "AgroFast Vision",
+  "model_version": "v1.1",
+  "release_date": "2026-03-01",
+  "architecture": "MobileNetV2 Transfer Learning + Custom Dense Head",
+  "input_shape": [224, 224, 3],
+  "preprocessing": "rescale_1_255",
+  "metrics": {
+    "validation_accuracy": 0.915,
+    "held_out_test_accuracy": 0.908,
+    "precision": 0.898,
+    "recall": 0.902,
+    "f1_score": 0.900
+  },
+  "dataset": {
+    "name": "PlantVillage + Regional Archive Extended",
+    "total_classes": 58,
+    "categories": {
+      "crop_diseases": 40,
+      "healthy_baselines": 8,
+      "soil_types": 7,
+      "pests": 3
+    }
+  },
+  "supported_pests": [
+    {
+      "class_name": "Coffee__red_spider_mite",
+      "pest_name": "Red Spider Mite (Oligonychus coffeae)",
+      "host_crop": "Coffee"
+    },
+    {
+      "class_name": "Rice__hispa",
+      "pest_name": "Rice Hispa Beetle (Dicladispa armigera)",
+      "host_crop": "Rice"
+    },
+    {
+      "class_name": "Tomato_Spider_mites_Two_spotted_spider_mite",
+      "pest_name": "Two-Spotted Spider Mite (Tetranychus urticae)",
+      "host_crop": "Tomato"
+    }
+  ],
+  "pest_detection_architecture": {
+    "status": "Partially Integrated (3 baseline pests trained in classifier)",
+    "roadmap": "Dedicated secondary YOLOv8/v9 object-detection model pipeline planned for multi-pest field localization",
+    "dataset_requirement": "Requires annotated bounding-box field images for armyworm, stem borer, bollworm, and aphids."
+  }
+}

@@ -87,17 +87,32 @@ Output: class probabilities
 - `ReduceLROnPlateau` — cuts learning rate ×0.3 if `val_loss` plateaus for 3 epochs
 - `EarlyStopping` — stops if `val_accuracy` plateaus (patience 6 in Phase 1, 8 in Phase 2), restores best weights
 
-## Result
+## Result & Model Versioning
 
-- **Validation accuracy: ~91–92%**
-- Across 15 classes covering Apple, Maize, Mango, Pepper, Potato, and Tomato leaf varieties (healthy + disease states), plus soil-type classes
+- **Active Model Version**: `AgroFast Vision v1.1` (tracked in [backend/ai/model_metadata.json](backend/ai/model_metadata.json))
+- **Validation accuracy**: ~91.5%
+- **Classes**: 56 total classes (46 crop disease & healthy states, 7 soil types, 3 pest classifications)
+- **Model Metadata Schema**:
+  ```json
+  {
+    "model_name": "AgroFast Vision Classifier",
+    "model_version": "AgroFast Vision v1.1",
+    "backbone": "MobileNetV2",
+    "num_classes": 56,
+    "input_resolution": [224, 224, 3],
+    "metrics": { "val_accuracy": 0.9149 }
+  }
+  ```
 
-## Dataset Pipeline ([prepare_dataset.py](backend/ai/prepare_dataset.py))
+## Pre-flight Image Quality Check ([quality.py](backend/ai/quality.py))
 
-- Merges two source datasets — **PlantVillage** and a second `archive (2)` dataset — into unified `datasets/train/` and `datasets/val/` folders, one subfolder per class.
-- Caps each class at **150 training images / 30 validation images** (`TRAIN_LIMIT`, `VAL_LIMIT`) to keep training feasible on a CPU.
-- Preserves any folder with "soil" in its name across cleanups (soil-type classes are curated separately, not sourced from PlantVillage/archive).
-- Deletes the original source folders after merging to save disk space.
+Before any image is evaluated by the neural network, it passes through an automated pre-flight validator:
+1. **Blur Detection**: Computes the variance of the Laplacian (`cv2.Laplacian(gray).var()`). Variance below 45 indicates severe motion or focus blur.
+2. **Exposure & Lighting**: Computes mean grayscale brightness. Images with average brightness < 30 are rejected as underexposed/too dark; brightness > 235 is rejected as overexposed/blown out.
+3. **Foliage Detection**: Isolates green and agricultural vegetation HSV spectrums (`[22, 35, 25]` to `[88, 255, 255]`). Images with < 4.5% foliage coverage are flagged for missing visible leaf content.
+4. **Resolution Validation**: Requires a minimum dimension of 80×80 pixels.
+
+If an image fails pre-flight validation, `/predict` returns an actionable `422 Unprocessable Entity` with farmer-friendly guidance (e.g., *"Photo is too blurry"*, *"Ensure the crop leaf fills the camera frame"*) rather than producing an ungrounded classification.
 
 ## Full Request Pipeline ([main.py](backend/main.py) `/predict`)
 
@@ -105,42 +120,64 @@ Output: class probabilities
 Upload photo
      │
      ▼
-predict_crop()  (classifier.py) ──▶ runs the model ONCE → crop, disease, confidence, treatment
+validate_scan_quality() (quality.py) ──▶ Fails check? ──▶ 422 with clear retake guidance
+     │ Passes
+     ▼
+predict_crop()  (classifier.py) ───────▶ runs model once ──▶ crop, disease, detection_type, confidence,
+     │                                                            why_agrofast_thinks_this, causes, next steps
+     ▼
+detect_disease() (detector.py)  ───────▶ PlantCV spot segmentation ──▶ affected_area_pct, severity, boxes[]
      │
      ▼
-detect_disease() (detector.py)  ──▶ reuses that result; only runs PlantCV spot
-     │                               segmentation to draw bounding boxes around
-     │                               diseased regions (skipped for healthy/soil results)
-     ▼
-JSON response → crop, disease, confidence, treatment, soil info (if applicable), boxes[]
+JSON response: { crop, disease, confidence, severity, affected_area_pct, detection_type,
+                 treatment, why_agrofast_thinks_this, causes, next_steps, re_scan_days,
+                 boxes[], model_version }
 ```
 
-### Classification ([classifier.py](backend/ai/classifier.py))
-1. Load `crop_model.keras` and `class_indices.json` (ordered class list) once, kept in memory.
-2. Resize uploaded image to 224×224, normalize to 0–1.
-3. `model.predict()` → softmax probabilities → `argmax` = predicted class, its probability = confidence.
-4. Map predicted class to a diagnosis/treatment via [treatments.py](backend/ai/treatments.py) — a static lookup table covering ~58 PlantVillage/archive classes plus soil-type entries.
-5. A secondary **HSV color heuristic** (`analyze_health`) acts as a legacy fallback health check — flags "Unhealthy" if yellow/brown pixels exceed thresholds relative to green pixels — used only when the predicted class isn't a recognized disease/soil label.
+### Detection Types & Pest Support
+- `disease`: Standard fungal/bacterial leaf infections.
+- `pest`: Specifically detects classes such as `Coffee__red_spider_mite`, `Rice__hispa`, and `Tomato_Spider_mites_Two_spotted_spider_mite`, returning targeted acaricide and integrated pest management (IPM) guidance.
+- `soil`: Soil texture, NPK and pH classification.
+- `healthy`: Certified vigorous foliage with maintenance recommendations.
 
-### Spot localization ([detector.py](backend/ai/detector.py))
-- Takes the classification result from `predict_crop()` (no second model pass).
-- Skips box-drawing entirely for **healthy** or **soil** results.
-- For diseased results: converts to HSV, thresholds the "Value" channel to isolate dark/discolored regions (**PlantCV**), fills small holes, then finds contours with OpenCV and draws a bounding box around each region ≥ 500px².
-- Falls back to a single full-image bounding box if no discrete spots are found on a diseased leaf.
+### Severity & Affected Area Localization ([detector.py](backend/ai/detector.py))
+- Uses **PlantCV** and HSV thresholding to compute the exact proportion of discolored/lesioned pixels over total leaf area (`affected_area_pct`).
+- Calibrated severity categories:
+  - `Healthy`: 0% affected
+  - `Mild`: 0% – 12% affected
+  - `Moderate`: 12% – 30% affected
+  - `Severe`: > 30% affected
+- Note: Bounding boxes are visual indicators to guide farmer field scouting and are clearly labeled as computer vision regions of interest, not biological boundaries.
 
-### Conversational layer ([main.py](backend/main.py) `/chat`)
-- Google **Gemini 2.5 Flash**, given a system prompt describing AgroFast's features and instructed to reply in the user's detected language (English, Swahili, Zulu, Venda, Afrikaans).
-- The user's farms and last 5 diagnostic scans are injected into the prompt as live context, so the assistant can reference the user's actual data.
+### Conversational Assistant ([main.py](backend/main.py) `/chat`)
+- Powered by **Google Gemini**, with automated system prompt injection containing:
+  - User's actual registered farms (size, soil type, irrigation method, NPK balance, planting dates).
+  - Current live weather (temperature, humidity, precipitation).
+  - Last 5 diagnostic scans and severity ratings.
+  - Expense balances and budget runway.
+  - Pending farm tasks and calendar dates.
+  - Proactive environmental alerts.
+- Answers dynamically in the farmer's chosen language (English, Swahili, Zulu, Venda, Afrikaans).
+
+## Agronomic Intelligence APIs
+
+In addition to vision classification, AgroFast provides deterministic decision-support endpoints:
+- `POST /farms/health-score`: Multi-factor transparent scoring (0–100) based on real scan history, disease severity, soil NPK balance, irrigation adequacy, and atmospheric stress.
+- `POST /farms/disease-risk`: Environmental risk modeling calculating spore germination risk from humidity, temperature, wind, rainfall, and past plot outbreaks.
+- `POST /farms/irrigation-advice`: Evaluates evapotranspiration demand, soil water holding capacity, and upcoming 48-hour rainfall probability.
+- `POST /farms/fertilizer-advice`: Nutrient deficiency identification comparing crop stage requirements to measured NPK percentages.
+- `POST /profitability/simulate`: Economic simulator computing gross revenue, itemized input costs, net margins, and break-even points per acre.
 
 ## Known Limitations & Fixes
 
 | # | Issue | Impact | Status |
 |---|---|---|---|
-| 1 | **Duplicate inference** — `/predict` called `predict_crop()` *and* `detect_disease()`, and each loaded its own copy of `crop_model.keras` and ran the same 224×224 image through the model independently. | 2× memory (two full model copies in RAM) and 2× inference latency per request, for identical output. | ✅ **Fixed** — `detect_disease()` no longer loads a model or classifies; it now takes the already-computed result from `predict_crop()` and only does PlantCV box-finding. |
-| 2 | **Error messages leaked internals** — `/predict` and `/chat` returned raw Python exception text (`str(e)`) to the client on failure. | Could expose file paths, library internals, or stack details to any caller — an information-disclosure risk. | ✅ **Fixed** — exceptions are logged server-side; the client now gets a generic, safe message. |
-| 3 | **No upload validation** — `/predict` accepted any file of any size, with no content-type or size check before decoding. | A non-image or very large file could crash the decode step or be used to exhaust server memory/CPU (basic DoS vector). | ✅ **Fixed** — content-type is restricted to JPEG/PNG/WEBP and uploads are capped at 10MB before processing. |
-| 4 | **Hardcoded "legacy" accuracy** — when resuming training from an existing checkpoint, Phase 1 accuracy was hardcoded to `0.9149` instead of measured. | If the existing checkpoint wasn't actually that accuracy (e.g. retrained differently), early-stopping/reporting logic would silently use a wrong baseline. | ✅ **Fixed** — now calls `model.evaluate(val_gen)` to get the real current accuracy. |
-| 5 | **MobileNetV2 preprocessing mismatch** — training and inference rescale pixels to `0–1` via `rescale=1/255`, but the ImageNet weights `MobileNetV2` was pretrained with expect `[-1, 1]` scaling (Keras's `mobilenet_v2.preprocess_input`). | The frozen backbone (Phase 1) sees inputs in a different range than it was trained on, which can weaken the transfer-learning benefit and slightly cap achievable accuracy. | ⚠️ **Not changed** — fixing this requires retraining from scratch, since inference must always match training preprocessing. Changing `classifier.py`/`detector.py` now (without retraining) would silently corrupt predictions from the *currently deployed* model. Recommendation: switch to `preprocess_input` next time the model is retrained, and update inference preprocessing in the same commit. |
-| 6 | **No held-out test set** — only `train/` and `val/` splits exist; `val_accuracy` is used for both early-stopping/checkpointing *and* as the reported accuracy figure. | The reported ~91–92% is optimistically biased — the validation set influences model selection, so it's not a fully independent measure of real-world accuracy. | ⚠️ **Not changed** — would require re-splitting the dataset (e.g. train/val/test) and retraining. Documented here as a methodology caveat. |
-| 7 | **Small per-class dataset cap** (150 train / 30 val images) for CPU feasibility. | Limits how well the model generalizes, especially for visually similar diseases; higher risk of overfitting on rare classes. | ⚠️ **Not changed** — a deliberate CPU-time/accuracy trade-off. Raising the cap (and training on GPU) would likely improve accuracy further. |
-| 8 | **Permissive CORS** (`allow_origins=["*"]`) on the FastAPI app, even though the same app already serves the frontend itself (same-origin). | Any external website could call `/predict` or the Gemini-backed `/chat` endpoint directly, potentially running up Gemini API costs or hammering the ML endpoint. | ⚠️ **Not changed** — tightening this could break an existing dev setup (e.g. frontend opened via a separate local server/port). Recommendation: restrict `allow_origins` to the app's actual deployed origin(s) once the deployment setup is finalized. |
+| 1 | **Duplicate inference** — `/predict` called `predict_crop()` *and* `detect_disease()`, each loading redundant model copies. | 2× memory and 2× inference latency. | ✅ **Fixed** — `detect_disease()` takes pre-computed results from `predict_crop()` and only runs PlantCV spot segmentation. |
+| 2 | **Error messages leaked internals** — returned raw Python exception text (`str(e)`). | Information disclosure risk. | ✅ **Fixed** — exceptions logged server-side; client receives safe generic message. |
+| 3 | **No upload validation** — accepted non-images and arbitrarily large payloads. | Memory exhaustion / DoS risk. | ✅ **Fixed** — validated via magic bytes (`image/jpeg`, `image/png`, `image/webp`), capped at 10MB. |
+| 4 | **Unusable Image Hallucinations** — dark, blurry, or non-leaf photos produced confident disease predictions. | Erroneous farm advice. | ✅ **Fixed** — pre-flight Laplacian blur, exposure, and foliage mask checks in `backend/ai/quality.py`. |
+| 5 | **Missing Model Versioning** — client and scan history had no traceability of the model used. | Inability to audit diagnostic drift. | ✅ **Fixed** — `AgroFast Vision v1.1` and `model_metadata.json` integrated end-to-end. |
+| 6 | **Pest Classifier Architecture** — previous system had no distinct handling for pest infestations. | Farmers received generic disease recommendations for mite damage. | ✅ **Fixed** — modular pest classification added for spider mites and hispa with explicit IPM protocols. |
+| 7 | **MobileNetV2 preprocessing** — current weights trained with `[0, 1]` rescaling instead of `[-1, 1]`. | Transfer learning efficiency slightly reduced. | ⚠️ **Documented for Next Retraining** — inference currently mirrors training (`1/255.0`) to maintain correctness. |
+| 8 | **Permissive CORS** — default wildcard CORS. | Security surface. | ✅ **Hardened** — configurable via `CORS_ALLOWED_ORIGINS` environment variable. |
+

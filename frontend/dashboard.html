@@ -12,6 +12,10 @@
   <link rel="stylesheet" href="css/assistant-widget.css">
   <link rel="stylesheet" href="css/custom-select.css">
   <link rel="stylesheet" href="tutorial.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="js/intelligence.js"></script>
+
 
   <script>
     (function () {
@@ -2302,10 +2306,193 @@
       border-color: rgba(0, 0, 0, 0.08);
     }
 
-    body.light-theme .btn-location-dismiss:hover {
-      background: rgba(0, 0, 0, 0.06);
-      border-color: rgba(0, 0, 0, 0.15);
+    /* Farm Overview Controls & Health Badges */
+    .farm-overview-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 20px;
+      backdrop-filter: blur(12px);
     }
+    .overview-farm-picker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .overview-farm-select {
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    body.light-theme .overview-farm-select {
+      background: #ffffff;
+      color: #0f172a;
+    }
+    .overview-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .overview-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .overview-btn:hover {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .overview-btn.btn-alert {
+      position: relative;
+    }
+    .alert-pill {
+      background: var(--danger);
+      color: #ffffff;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+    }
+    .health-status-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .badge-excellent { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; }
+    .badge-good { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+    .badge-fair { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .badge-attention { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+
+    .risk-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .risk-low { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .risk-moderate { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .risk-high { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .risk-critical { background: #ef4444; color: #ffffff; animation: alertPulse 1.5s infinite; }
+
+    @keyframes alertPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Modal System */
+    .agro-modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .agro-modal-overlay.active {
+      display: flex;
+    }
+    .agro-modal-content {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 28px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    body.light-theme .agro-modal-content {
+      background: #ffffff;
+      color: #0f172a;
+    }
+    .agro-modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .health-factor-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .health-factor-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .health-factor-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 4px;
+    }
+    .calendar-tab-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .calendar-tab-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+    .severity-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .severity-healthy { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+    .severity-mild { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .severity-moderate { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .severity-severe { background: rgba(239, 68, 68, 0.2); color: #f87171; }
   </style>
 </head>
 
@@ -2448,34 +2635,95 @@
         <div id="currentTime" style="color: var(--text-muted)">Monday, 2 Feb 2026</div>
       </header>
 
-      <div class="stats-bar">
-        <div class="stat-mini-card">
-          <div class="stat-icon"><i class="fas fa-coins"></i></div>
-          <div class="stat-info">
-            <label data-i18n="total_value">Total Farm Value</label>
-            <div class="value" id="statValue">KSh 0</div>
+      <!-- Unified Farm Overview Control Bar -->
+      <div class="farm-overview-bar">
+        <div class="overview-farm-picker">
+          <label style="font-size: 13px; color: var(--text-muted); font-weight: 600;"><i class="fas fa-tractor" style="color: var(--primary);"></i> Active Farm:</label>
+          <select id="dashboardFarmSelect" class="overview-farm-select" onchange="onDashboardFarmChange()">
+            <option value="all">All Farms Overview</option>
+          </select>
+        </div>
+        <div class="overview-actions">
+          <button class="overview-btn btn-alert" onclick="openAlertsCenterModal()" id="alertsCenterBtn">
+            <i class="fas fa-bell"></i> Alerts <span class="alert-pill" id="alertsCountPill">0</span>
+          </button>
+          <button class="overview-btn" onclick="openFarmHealthModal()">
+            <i class="fas fa-heart-pulse"></i> Health Factors
+          </button>
+          <button class="overview-btn" onclick="openFarmReportModal()">
+            <i class="fas fa-file-invoice"></i> Export Farm Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Unified 6-Card Farm Overview & Intelligence Bar -->
+      <div class="stats-bar" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <!-- 1. Farm Health -->
+        <div class="stat-mini-card" style="cursor: pointer;" onclick="openFarmHealthModal()" title="Click for Health Factors Breakdown">
+          <div class="stat-icon" style="background: rgba(34, 197, 94, 0.15); color: var(--primary);"><i class="fas fa-shield-heart"></i></div>
+          <div class="stat-info" style="width: 100%;">
+            <label style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Farm Health</span>
+              <span class="health-status-badge badge-good" id="overviewHealthRating">Evaluating</span>
+            </label>
+            <div class="value" style="display: flex; align-items: baseline; gap: 6px;">
+              <span id="overviewHealthVal">--</span>
+              <span style="font-size: 14px; color: var(--text-muted); font-weight: 400;">/ 100</span>
+            </div>
+            <p id="overviewHealthSummary" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Evaluating real farm data...</p>
           </div>
         </div>
+
+        <!-- 2. Weather Intelligence -->
         <div class="stat-mini-card">
-          <div class="stat-icon"><i class="fas fa-heartbeat"></i></div>
-          <div class="stat-info">
-            <label data-i18n="avg_health">Avg. Crop Health</label>
-            <div class="value" id="statHealth">98%</div>
+          <div class="stat-icon" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa;"><i class="fas fa-cloud-sun-rain"></i></div>
+          <div class="stat-info" style="width: 100%;">
+            <label>Weather Intelligence</label>
+            <div class="value" id="overviewWeatherTemp">--°C</div>
+            <p id="overviewWeatherSummary" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Live weather loading...</p>
           </div>
         </div>
-        <div class="stat-mini-card">
-          <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
-          <div class="stat-info">
-            <label data-i18n="pending_tasks">Pending Tasks</label>
-            <div class="value" id="statTasks">0</div>
+
+        <!-- 3. Environmental Disease Risk -->
+        <div class="stat-mini-card" style="cursor: pointer;" onclick="openAlertsCenterModal()" title="View Disease Alerts">
+          <div class="stat-icon" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24;"><i class="fas fa-biohazard"></i></div>
+          <div class="stat-info" style="width: 100%;">
+            <label style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Disease Risk</span>
+              <span class="risk-pill risk-low" id="overviewRiskBadge">LOW</span>
+            </label>
+            <div class="value" id="overviewRiskScore">--%</div>
+            <p id="overviewRiskReason" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Atmospheric pressure scan</p>
           </div>
         </div>
-        <div class="stat-mini-card">
-          <div class="stat-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;"><i
-              class="fas fa-wallet"></i></div>
-          <div class="stat-info">
-            <label data-i18n="total_expenses">Total Expenses</label>
-            <div class="value" id="statExpenses">KSh 0</div>
+
+        <!-- 4. Budget Status -->
+        <div class="stat-mini-card" style="cursor: pointer;" onclick="location.href='expenses.html'">
+          <div class="stat-icon" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;"><i class="fas fa-wallet"></i></div>
+          <div class="stat-info" style="width: 100%;">
+            <label>Budget Utilization</label>
+            <div class="value" id="overviewBudgetPercent">0%</div>
+            <p id="overviewBudgetRemaining" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">KSh 0 remaining</p>
+          </div>
+        </div>
+
+        <!-- 5. Upcoming Tasks -->
+        <div class="stat-mini-card" style="cursor: pointer;" onclick="document.querySelector('.tasks-widget').scrollIntoView({behavior:'smooth'})">
+          <div class="stat-icon" style="background: rgba(34, 197, 94, 0.15); color: #4ade80;"><i class="fas fa-calendar-check"></i></div>
+          <div class="stat-info" style="width: 100%;">
+            <label>Upcoming Tasks</label>
+            <div class="value" id="overviewTasksCount">0</div>
+            <p id="overviewTasksSummary" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">0 urgent chores</p>
+          </div>
+        </div>
+
+        <!-- 6. Active Alerts -->
+        <div class="stat-mini-card" style="cursor: pointer;" onclick="openAlertsCenterModal()">
+          <div class="stat-icon" style="background: rgba(239, 68, 68, 0.15); color: #f87171;"><i class="fas fa-triangle-exclamation"></i></div>
+          <div class="stat-info" style="width: 100%;">
+            <label>Active Alerts</label>
+            <div class="value" id="overviewAlertsCount">0</div>
+            <p id="overviewAlertsSummary" style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">All systems normal</p>
           </div>
         </div>
       </div>
@@ -2506,6 +2754,19 @@
             <span class="crop-chip">🌾 Wheat</span>
           </div>
 
+          <!-- Associate with Farm selector -->
+          <div class="scanner-farm-picker" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 13px; color: var(--text-muted); font-weight: 600;"><i class="fas fa-tractor" style="color: var(--primary);"></i> Associate with Farm:</label>
+            <select id="scannerFarmSelect" style="background: rgba(15, 23, 42, 0.85); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: 13px; flex: 1;">
+              <option value="">Select Farm (Optional)</option>
+            </select>
+          </div>
+
+          <!-- Quality Warning Banner -->
+          <div id="scanQualityWarningBanner" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #fbbf24; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; line-height: 1.4;">
+            <i class="fas fa-triangle-exclamation" style="margin-right: 6px;"></i> <span id="scanQualityWarningText">Photo quality issue</span>
+          </div>
+
           <!-- Drag and Drop upload zone with live preview -->
           <div class="scanner-dropzone" id="dropzone" onclick="document.getElementById('imageInput').click()">
             <div class="dropzone-icon-box">
@@ -2513,7 +2774,7 @@
             </div>
             <div class="dropzone-text">
               <h4 data-i18n="choose_image">Select or Drag Leaf Image</h4>
-              <p>Supports JPG, PNG (Max 5MB) or direct mobile camera capture</p>
+              <p>Supports JPG, PNG, WEBP or direct mobile camera capture</p>
             </div>
             <div class="viewfinder-preview-container" id="viewfinderPreviewContainer" onclick="event.stopPropagation()">
               <button class="viewfinder-clear-btn" id="clearPreviewBtn" title="Clear Image" type="button">
@@ -2568,33 +2829,76 @@
                   </div>
                 </div>
 
-                <div class="disease-name" id="diagnosisText" style="margin-bottom: 20px;">No Issue Detected</div>
+                <!-- Pest Callout Box (if pest detected) -->
+                <div id="pestAlertBox" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; color: #fbbf24; font-size: 13px;">
+                  <i class="fas fa-bug" style="margin-right: 6px;"></i> <strong>Pest Identified:</strong> <span id="pestNameText"></span>
+                </div>
+
+                <div class="disease-name" id="diagnosisText" style="margin-bottom: 16px;">No Issue Detected</div>
 
                 <!-- Crop scan report section -->
                 <div id="cropReportSection">
-                  <div class="result-details-grid">
-                    <div class="detail-box">
+                  <div class="result-details-grid" style="grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 14px;">
+                    <div class="detail-box" style="padding: 10px;">
                       <div class="detail-icon"><i class="fas fa-leaf"></i></div>
                       <div class="detail-info">
-                        <label>Detected Crop</label>
+                        <label>Crop</label>
                         <span id="cropText">Unknown</span>
                       </div>
                     </div>
-                    <div class="detail-box">
-                      <div class="detail-icon"><i class="fas fa-search-plus"></i></div>
+                    <div class="detail-box" style="padding: 10px;">
+                      <div class="detail-icon"><i class="fas fa-shield-virus"></i></div>
                       <div class="detail-info">
-                        <label>Scan Quality</label>
-                        <span id="scanQuality">High</span>
+                        <label>Severity</label>
+                        <span id="scanSeverityPill" class="severity-pill severity-healthy">Healthy</span>
+                      </div>
+                    </div>
+                    <div class="detail-box" style="padding: 10px;">
+                      <div class="detail-icon"><i class="fas fa-chart-pie"></i></div>
+                      <div class="detail-info">
+                        <label>Affected Area</label>
+                        <span id="affectedAreaText">0.0%</span>
+                      </div>
+                    </div>
+                    <div class="detail-box" style="padding: 10px;">
+                      <div class="detail-icon"><i class="fas fa-tag"></i></div>
+                      <div class="detail-info">
+                        <label>Type</label>
+                        <span id="detectionTypeText" style="font-size: 12px; font-weight: 600;">Crop Health</span>
                       </div>
                     </div>
                   </div>
 
-                  <div class="treatment-section" style="margin-bottom: 15px;">
+                  <!-- Why AgroFast Thinks This -->
+                  <div class="treatment-section" style="margin-bottom: 14px; background: rgba(59, 130, 246, 0.08); border-color: rgba(59, 130, 246, 0.25);">
+                    <div class="treatment-header" style="color: #60a5fa; font-size: 13px;">
+                      <i class="fas fa-microscope"></i> Why AgroFast Thinks This
+                    </div>
+                    <div class="treatment-text" id="whyAgroFastText" style="font-size: 13px; color: var(--text);">
+                      The neural network identified healthy, uniform leaf pigmentation and tissue structure.
+                    </div>
+                  </div>
+
+                  <!-- Recommended Action -->
+                  <div class="treatment-section" style="margin-bottom: 14px;">
                     <div class="treatment-header">
-                      <i class="fas fa-heartbeat"></i> Recommended Action
+                      <i class="fas fa-heartbeat"></i> Recommended Treatment & Action
                     </div>
                     <div class="treatment-text" id="treatmentText">
                       No action required. Your crop looks healthy!
+                    </div>
+                  </div>
+
+                  <!-- Causes and Next Steps -->
+                  <div id="causesAndStepsSection" style="margin-bottom: 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 6px;">
+                      <i class="fas fa-list-check"></i> Immediate Recommended Steps:
+                    </div>
+                    <ul id="recommendedStepsList" style="font-size: 12px; color: var(--text-muted); margin-left: 18px; line-height: 1.5;">
+                      <li>Continue regular watering and crop inspection.</li>
+                    </ul>
+                    <div style="font-size: 12px; color: #38bdf8; margin-top: 8px; font-weight: 600;">
+                      <i class="fas fa-calendar-check"></i> Recommended Re-Scan: in <span id="scanAgainDaysText">7</span> days
                     </div>
                   </div>
 
@@ -2750,15 +3054,82 @@
           </div>
         </div>
 
-        <!-- Task Manager -->
-        <div class="glass-card tasks-widget">
-          <div class="card-title">
-            <span data-i18n="task_manager">Farm Chores</span>
-            <i class="fas fa-tasks"></i>
+        <!-- Smart Irrigation & Fertilizer Advisor -->
+        <div class="glass-card advisor-widget">
+          <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>Smart Irrigation & Fertilizer Advisor</span>
+              <i class="fas fa-droplet" style="color: #38bdf8;"></i>
+            </div>
+            <span style="font-size: 11px; color: var(--primary); font-weight: 600;"><i class="fas fa-robot"></i> Live Advice</span>
           </div>
-          <div class="task-input-group">
-            <input type="text" id="taskInput" placeholder="Add a new task...">
-            <button class="btn-primary" style="padding: 10px 20px" onclick="addTask()">Add</button>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 10px;">
+            <!-- Irrigation Sub-card -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 14px; padding: 14px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-weight: 700; font-size: 13px; color: #38bdf8;"><i class="fas fa-faucet-drip"></i> Irrigation Guidance</span>
+                <span class="severity-pill severity-healthy" id="irrigActionBadge">Scheduled</span>
+              </div>
+              <p id="irrigActionText" style="font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px;">Evaluating moisture...</p>
+              <p id="irrigReasonText" style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px;">Atmospheric conditions check.</p>
+              <div style="font-size: 12px; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px;">
+                <div><i class="fas fa-clock" style="color: #38bdf8; width: 16px;"></i> Best Window: <strong id="irrigWindowText" style="color: var(--text);">Early Morning (06:00 - 08:30)</strong></div>
+                <div><i class="fas fa-tint" style="color: #38bdf8; width: 16px;"></i> Estimated Need: <strong id="irrigVolumeText" style="color: var(--text);">-- L / acre</strong></div>
+              </div>
+            </div>
+
+            <!-- NPK Sub-card -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 14px; padding: 14px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-weight: 700; font-size: 13px; color: #a78bfa;"><i class="fas fa-flask"></i> Soil NPK Advisor</span>
+                <span style="font-size: 11px; color: var(--text-muted);">Crop-Targeted</span>
+              </div>
+              <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+                <div style="flex: 1; background: rgba(0,0,0,0.25); padding: 6px 4px; border-radius: 8px; text-align: center;">
+                  <span style="font-size: 10px; color: var(--text-muted); display: block;">N</span>
+                  <span id="npkNStatus" style="font-weight: 700; font-size: 11px; color: #22c55e;">Adequate</span>
+                </div>
+                <div style="flex: 1; background: rgba(0,0,0,0.25); padding: 6px 4px; border-radius: 8px; text-align: center;">
+                  <span style="font-size: 10px; color: var(--text-muted); display: block;">P</span>
+                  <span id="npkPStatus" style="font-weight: 700; font-size: 11px; color: #f59e0b;">Low</span>
+                </div>
+                <div style="flex: 1; background: rgba(0,0,0,0.25); padding: 6px 4px; border-radius: 8px; text-align: center;">
+                  <span style="font-size: 10px; color: var(--text-muted); display: block;">K</span>
+                  <span id="npkKStatus" style="font-weight: 700; font-size: 11px; color: #22c55e;">Adequate</span>
+                </div>
+              </div>
+              <p id="npkAdviceText" style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">Analyzing nutrient balance...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Farming Calendar & Tasks -->
+        <div class="glass-card tasks-widget">
+          <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>AI Farming Calendar</span>
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <button class="overview-btn" onclick="smartSuggestTasks()" style="padding: 4px 10px; font-size: 11px;" title="Auto-generate recommendations from real weather and crop risks">
+              <i class="fas fa-magic" style="color: var(--primary);"></i> Smart Suggest
+            </button>
+          </div>
+
+          <!-- Calendar Filter Tabs -->
+          <div style="display: flex; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+            <button class="calendar-tab-btn active" id="tabTodayTasks" onclick="filterTaskTab('today')">TODAY</button>
+            <button class="calendar-tab-btn" id="tabUpcomingTasks" onclick="filterTaskTab('upcoming')">UPCOMING</button>
+            <button class="calendar-tab-btn" id="tabCompletedTasks" onclick="filterTaskTab('completed')">COMPLETED</button>
+          </div>
+
+          <div class="task-input-group" style="gap: 8px;">
+            <input type="text" id="taskInput" placeholder="Add custom farming chore..." style="flex: 2;">
+            <select id="taskPrioritySelect" style="background: rgba(15, 23, 42, 0.7); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12px;">
+              <option value="Normal">Normal</option>
+              <option value="High">High</option>
+              <option value="Low">Low</option>
+            </select>
+            <button class="btn-primary" style="padding: 10px 18px" onclick="addTask()">Add</button>
           </div>
           <ul class="task-list" id="taskList">
             <!-- Tasks will be injected here -->
@@ -2968,13 +3339,166 @@
               <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px;"><i
                   class="fas fa-seedling"></i> Harvest: 60-75 Days</div>
             </div>
+        <!-- Farm Locations & Interactive Field Map -->
+        <div class="glass-card farm-map-widget" style="grid-column: span 12;">
+          <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span>Farm Locations & Field Map</span>
+              <i class="fas fa-map-location-dot" style="color: var(--primary);"></i>
+            </div>
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">Interactive GPS & Plot Diagnostics</span>
           </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            Click on any farm marker to view live health status, disease risk, crop, acreage, and local weather.
+          </p>
+          <div id="farmMapContainer" style="height: 320px; width: 100%; border-radius: 14px; border: 1px solid var(--border); overflow: hidden;"></div>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- Crop Recommendation Modal -->
+  <!-- Farm Health Breakdown Modal -->
+  <div id="farmHealthModal" class="agro-modal-overlay">
+    <div class="agro-modal-content">
+      <button class="agro-modal-close" onclick="closeFarmHealthModal()"><i class="fas fa-times"></i></button>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+        <div style="width: 48px; height: 48px; border-radius: 14px; background: rgba(34, 197, 94, 0.15); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 22px;">
+          <i class="fas fa-heart-pulse"></i>
+        </div>
+        <div>
+          <h3 style="font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 2px;">Farm Health Score Breakdown</h3>
+          <p style="font-size: 12px; color: var(--text-muted);">Transparent, deterministic scoring based on actual farm parameters</p>
+        </div>
+      </div>
+
+      <!-- Score Banner -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">Overall Rating</div>
+          <div style="font-size: 28px; font-weight: 800; color: var(--text); display: flex; align-items: baseline; gap: 8px;">
+            <span id="modalHealthScoreVal">--</span>
+            <span style="font-size: 14px; color: var(--text-muted); font-weight: 400;">/ 100</span>
+          </div>
+        </div>
+        <div>
+          <span class="health-status-badge badge-good" id="modalHealthScoreBadge" style="font-size: 13px; padding: 6px 14px;">GOOD</span>
+        </div>
+      </div>
+
+      <!-- Factor Progress Rows -->
+      <div style="margin-bottom: 20px;">
+        <h4 style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 0.5px;">Scoring Factors</h4>
+        
+        <div class="health-factor-row">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
+            <span><i class="fas fa-leaf" style="color: #22c55e; width: 18px;"></i> Crop Diagnostic Health & Scans</span>
+            <span id="factorScoreScans">25 / 30 pts</span>
+          </div>
+          <div class="health-factor-bar"><div class="health-factor-fill" id="factorBarScans" style="width: 83%;"></div></div>
+        </div>
+
+        <div class="health-factor-row">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
+            <span><i class="fas fa-flask" style="color: #a78bfa; width: 18px;"></i> Soil NPK Nutrient Balance</span>
+            <span id="factorScoreNpk">16 / 20 pts</span>
+          </div>
+          <div class="health-factor-bar"><div class="health-factor-fill" id="factorBarNpk" style="width: 80%;"></div></div>
+        </div>
+
+        <div class="health-factor-row">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
+            <span><i class="fas fa-faucet-drip" style="color: #38bdf8; width: 18px;"></i> Irrigation & Water Management</span>
+            <span id="factorScoreIrrig">12 / 15 pts</span>
+          </div>
+          <div class="health-factor-bar"><div class="health-factor-fill" id="factorBarIrrig" style="width: 80%;"></div></div>
+        </div>
+
+        <div class="health-factor-row">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
+            <span><i class="fas fa-cloud-sun" style="color: #fbbf24; width: 18px;"></i> Weather Adaptation & Stress</span>
+            <span id="factorScoreWeather">13 / 15 pts</span>
+          </div>
+          <div class="health-factor-bar"><div class="health-factor-fill" id="factorBarWeather" style="width: 86%;"></div></div>
+        </div>
+
+        <div class="health-factor-row">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
+            <span><i class="fas fa-wallet" style="color: #c084fc; width: 18px;"></i> Financial / Budget Health</span>
+            <span id="factorScoreBudget">9 / 10 pts</span>
+          </div>
+          <div class="health-factor-bar"><div class="health-factor-fill" id="factorBarBudget" style="width: 90%;"></div></div>
+        </div>
+
+        <div class="health-factor-row">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600;">
+            <span><i class="fas fa-clipboard-check" style="color: #4ade80; width: 18px;"></i> Farm Activity & Task Completion</span>
+            <span id="factorScoreTasks">8 / 10 pts</span>
+          </div>
+          <div class="health-factor-bar"><div class="health-factor-fill" id="factorBarTasks" style="width: 80%;"></div></div>
+        </div>
+      </div>
+
+      <!-- Positives & Warnings Lists -->
+      <div style="display: grid; grid-template-columns: 1fr; gap: 14px;">
+        <div style="background: rgba(34, 197, 94, 0.06); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; padding: 14px;">
+          <h5 style="color: var(--primary); font-size: 13px; font-weight: 700; margin-bottom: 8px;"><i class="fas fa-check-circle"></i> Positive Health Indicators:</h5>
+          <ul id="modalHealthPositives" style="font-size: 12px; color: var(--text-muted); margin-left: 18px; line-height: 1.6;">
+            <li>Loading positives...</li>
+          </ul>
+        </div>
+        <div style="background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 12px; padding: 14px;">
+          <h5 style="color: #fbbf24; font-size: 13px; font-weight: 700; margin-bottom: 8px;"><i class="fas fa-triangle-exclamation"></i> Attention Points & Warnings:</h5>
+          <ul id="modalHealthWarnings" style="font-size: 12px; color: var(--text-muted); margin-left: 18px; line-height: 1.6;">
+            <li>No active warnings.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Proactive Alerts Center Modal -->
+  <div id="alertsCenterModal" class="agro-modal-overlay">
+    <div class="agro-modal-content">
+      <button class="agro-modal-close" onclick="closeAlertsCenterModal()"><i class="fas fa-times"></i></button>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; color: #ef4444; font-size: 20px;">
+          <i class="fas fa-bell"></i>
+        </div>
+        <div>
+          <h3 style="font-size: 18px; font-weight: 700; color: var(--text);">Proactive Alerts Center</h3>
+          <p style="font-size: 12px; color: var(--text-muted);">Real-time weather warnings, disease pressures, and budget cautions</p>
+        </div>
+      </div>
+      <div id="alertsCenterList" style="display: flex; flex-direction: column; gap: 10px; max-height: 55vh; overflow-y: auto;">
+        <!-- Alerts injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Farm Report Modal -->
+  <div id="farmReportModal" class="agro-modal-overlay">
+    <div class="agro-modal-content" style="max-width: 800px;">
+      <button class="agro-modal-close" onclick="closeFarmReportModal()"><i class="fas fa-times"></i></button>
+      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="AgroFast%20Logo.jpg" style="width: 38px; height: 38px; border-radius: 8px;">
+          <div>
+            <h3 style="font-size: 18px; font-weight: 700; color: var(--text);">Comprehensive Farm Report</h3>
+            <p style="font-size: 12px; color: var(--text-muted);" id="reportGeneratedDate">Generated on ...</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="overview-btn" onclick="window.print()"><i class="fas fa-print"></i> Print / PDF</button>
+          <button class="overview-btn" onclick="downloadFarmReportCSV()"><i class="fas fa-file-csv"></i> Download CSV</button>
+        </div>
+      </div>
+
+      <div id="farmReportPrintableContent" style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
 
 
   <script type="module">
@@ -3045,6 +3569,28 @@
 
     let currentSettings = { notifyScan: true, notifyInventory: true, lang: 'en', unit: 'acres' };
 
+    // Unified Intelligence Global State
+    let userFarms = [];
+    let userScans = [];
+    let userTasks = [];
+    let userExpenses = [];
+    let userAlerts = [];
+    let activeTaskTab = 'today';
+    let farmMapInstance = null;
+    let farmMapMarkersLayer = null;
+    let currentHealthScoreData = null;
+    let currentAlertsData = [];
+
+    // Attach farm filter listener
+    const dashboardFarmSelectEl = document.getElementById('dashboardFarmSelect');
+    if (dashboardFarmSelectEl) {
+      dashboardFarmSelectEl.addEventListener('change', () => {
+        if (typeof window.updateUnifiedDashboard === 'function') {
+          window.updateUnifiedDashboard();
+        }
+      });
+    }
+
     onAuthStateChanged(auth, async u => {
       try {
         if (!u) return location.href = "login.html";
@@ -3052,6 +3598,11 @@
         window.firebaseUser = u;
         checkTutorial(u, db);
         initTheme(db, u);
+
+        // Initialize offline detector
+        if (window.AgroIntelligence && typeof window.AgroIntelligence.initOfflineDetector === 'function') {
+          window.AgroIntelligence.initOfflineDetector();
+        }
 
         // Initialize weather independently
         loadWeather();
@@ -3078,13 +3629,48 @@
             }
 
             // Load other data after settings are fetched
-            loadTasks();
             loadInventory();
             loadBudgetOverview(u.uid);
             loadRecentExpenses(u.uid);
             loadActivityFeed(u.uid);
             updateDashboardStats(u.uid);
             renderMarketChart(currentSettings?.currency || 'KES');
+          });
+
+          // Listen for Farms
+          onValue(ref(db, `users/${u.uid}/farms`), (snap) => {
+            const data = snap.val();
+            userFarms = data ? Object.entries(data).map(([id, d]) => ({ id, ...d })) : [];
+            if (typeof window.updateUnifiedDashboard === 'function') window.updateUnifiedDashboard();
+          });
+
+          // Listen for Scans / History
+          onValue(ref(db, `users/${u.uid}/history`), (snap) => {
+            const data = snap.val();
+            userScans = data ? Object.entries(data).map(([id, d]) => ({ id, ...d })) : [];
+            if (typeof window.updateUnifiedDashboard === 'function') window.updateUnifiedDashboard();
+          });
+
+          // Listen for Tasks
+          onValue(ref(db, `users/${u.uid}/tasks`), (snap) => {
+            const data = snap.val();
+            userTasks = data ? Object.entries(data).map(([id, d]) => ({ id, ...d })) : [];
+            if (typeof renderTasksList === 'function') renderTasksList();
+            if (typeof window.updateUnifiedDashboard === 'function') window.updateUnifiedDashboard();
+          });
+
+          // Listen for Expenses
+          onValue(ref(db, `users/${u.uid}/expenses`), (snap) => {
+            const data = snap.val();
+            userExpenses = data ? Object.entries(data).map(([id, d]) => ({ id, ...d })) : [];
+            if (typeof window.updateUnifiedDashboard === 'function') window.updateUnifiedDashboard();
+          });
+
+          // Listen for Alerts
+          onValue(ref(db, `users/${u.uid}/alerts`), (snap) => {
+            const data = snap.val();
+            userAlerts = data ? Object.entries(data).map(([id, d]) => ({ id, ...d })) : [];
+            if (typeof window.updateUnifiedDashboard === 'function') window.updateUnifiedDashboard();
           });
 
           onValue(userRef, (snapshot) => {
@@ -3191,8 +3777,6 @@
         const wind = current.wind_speed_10m;
         const precip = current.precipitation;
 
-        // Store globally for recommendations
-        window.currentWeather = { temp, humidity };
 
         // Map WMO codes to descriptions and icons
         const weatherCodes = {
@@ -3224,6 +3808,23 @@
         const [tomorrowDesc, tomorrowIcon, tomorrowColor] = weatherCodes[tomorrowCode] || ["Cloudy", "fa-cloud", "#94a3b8"];
         const tomorrowMax = Math.round(daily.temperature_2m_max[1]);
         const tomorrowMin = Math.round(daily.temperature_2m_min[1]);
+
+        window.currentWeather = {
+          temp,
+          feelsLike,
+          humidity,
+          wind,
+          precip,
+          desc,
+          tomorrowDesc,
+          tomorrowMax,
+          tomorrowMin,
+          tomorrowRain: (daily.precipitation_sum && daily.precipitation_sum.length > 1) ? daily.precipitation_sum[1] : 0,
+          daily
+        };
+        if (typeof window.updateUnifiedDashboard === 'function') {
+          window.updateUnifiedDashboard();
+        }
 
         // Build 7-day forecast items
         let forecast7DaysHTML = '';
@@ -3386,9 +3987,490 @@
         const weatherInfo = document.getElementById('weatherInfo');
         if (weatherInfo) weatherInfo.innerHTML = `<p style="color: #ef4444">Weather unavailable</p>`;
       }
+    // =======================================================
+    // UNIFIED INTELLIGENCE DASHBOARD ENGINE
+    // =======================================================
+    window.updateUnifiedDashboard = function() {
+      const farmSelect = document.getElementById('dashboardFarmSelect');
+      const scannerFarmSelect = document.getElementById('scannerFarmSelect');
+
+      // Populate farm dropdowns if options have changed
+      if (farmSelect) {
+        const currentVal = farmSelect.value || 'all';
+        let optionsHtml = '<option value="all">All Farms Overview</option>';
+        userFarms.forEach(f => {
+          optionsHtml += `<option value="${escapeHtml(f.id)}">${escapeHtml(f.name || 'Unnamed Farm')} (${escapeHtml(f.crop || 'Mixed')})</option>`;
+        });
+        farmSelect.innerHTML = optionsHtml;
+        farmSelect.value = userFarms.some(f => f.id === currentVal) ? currentVal : 'all';
+      }
+
+      if (scannerFarmSelect) {
+        const currentScannerVal = scannerFarmSelect.value || '';
+        let scannerOptionsHtml = '<option value="">Select Farm (Optional)</option>';
+        userFarms.forEach(f => {
+          scannerOptionsHtml += `<option value="${escapeHtml(f.id)}">${escapeHtml(f.name || 'Unnamed Farm')} (${escapeHtml(f.crop || 'Crop')})</option>`;
+        });
+        scannerFarmSelect.innerHTML = scannerOptionsHtml;
+        if (userFarms.some(f => f.id === currentScannerVal)) {
+          scannerFarmSelect.value = currentScannerVal;
+        }
+      }
+
+      const selectedFarmId = farmSelect ? farmSelect.value : 'all';
+      let targetFarm = null;
+      let scansForFarm = userScans;
+
+      if (selectedFarmId !== 'all') {
+        targetFarm = userFarms.find(f => f.id === selectedFarmId) || null;
+        scansForFarm = userScans.filter(s => s.farmId === selectedFarmId);
+      } else if (userFarms.length > 0) {
+        // All Farms aggregate
+        const totalSize = userFarms.reduce((acc, f) => acc + (parseFloat(f.size) || 0), 0);
+        const totalBudget = userFarms.reduce((acc, f) => acc + (parseFloat(f.budget) || 0), 0);
+        const crops = [...new Set(userFarms.map(f => f.crop).filter(Boolean))];
+        targetFarm = {
+          id: 'all',
+          name: 'All Combined Plots',
+          crop: crops.length > 0 ? crops.join(', ') : 'Mixed Crops',
+          size: totalSize || 1,
+          budget: totalBudget,
+          soil: userFarms[0]?.soil || { n: 120, p: 35, k: 180 },
+          irrigation: userFarms[0]?.irrigation || 'Drip Irrigation',
+          waterSource: userFarms[0]?.waterSource || 'Borehole',
+          plantingDate: userFarms[0]?.plantingDate || ''
+        };
+      }
+
+      const weather = window.currentWeather || { temp: 24, humidity: 65, precip: 0, desc: 'Clear sky' };
+
+      // 1. Calculate and update Farm Health Score
+      if (window.AgroIntelligence && typeof window.AgroIntelligence.calculateFarmHealthScore === 'function') {
+        const healthResult = AgroIntelligence.calculateFarmHealthScore(targetFarm, scansForFarm, weather, userExpenses, targetFarm?.budget || 0);
+        currentHealthScoreData = healthResult;
+
+        const elHealthScore = document.getElementById('overviewHealthScore');
+        const elHealthRating = document.getElementById('overviewHealthRating');
+        const elHealthPos = document.getElementById('overviewHealthPositive');
+        const elHealthWarn = document.getElementById('overviewHealthWarning');
+
+        if (elHealthScore) elHealthScore.textContent = `${healthResult.score} / 100`;
+        if (elHealthRating) {
+          elHealthRating.textContent = healthResult.rating;
+          elHealthRating.className = `health-status-badge badge-${healthResult.rating.toLowerCase()}`;
+        }
+        if (elHealthPos) elHealthPos.textContent = `${healthResult.positive_factors.length} positive factor${healthResult.positive_factors.length !== 1 ? 's' : ''}`;
+        if (elHealthWarn) elHealthWarn.textContent = `${healthResult.warning_factors.length} warning${healthResult.warning_factors.length !== 1 ? 's' : ''}`;
+
+        // 2. Calculate and update Disease Risk
+        const riskResult = AgroIntelligence.calculateDiseaseRisk(targetFarm, weather, scansForFarm);
+        const elRiskScore = document.getElementById('overviewRiskScore');
+        const elRiskLevel = document.getElementById('overviewRiskLevel');
+        const elRiskReason = document.getElementById('overviewRiskReason');
+
+        if (elRiskScore) elRiskScore.textContent = `${riskResult.risk_score}%`;
+        if (elRiskLevel) {
+          elRiskLevel.textContent = riskResult.risk_level;
+          elRiskLevel.className = `risk-pill risk-${riskResult.risk_level.toLowerCase()}`;
+        }
+        if (elRiskReason) elRiskReason.textContent = riskResult.reasons[0] || 'Atmospheric metrics stable';
+
+        // 3. Update Smart Irrigation & Fertilizer Advisor
+        const irrAdvice = AgroIntelligence.calculateIrrigationAdvice(targetFarm, weather);
+        const fertAdvice = AgroIntelligence.calculateFertilizerAdvice(targetFarm);
+
+        const advFarmName = document.getElementById('advFarmName');
+        const irrAction = document.getElementById('irrigationActionText');
+        const irrReason = document.getElementById('irrigationReasonText');
+        const irrWindow = document.getElementById('irrigationWindowText');
+        const irrRain = document.getElementById('irrigationRainText');
+        const npkN = document.getElementById('npkStatusN');
+        const npkP = document.getElementById('npkStatusP');
+        const npkK = document.getElementById('npkStatusK');
+        const npkAdvice = document.getElementById('npkAdviceText');
+
+        if (advFarmName) advFarmName.textContent = targetFarm ? targetFarm.name : 'All Plots';
+        if (irrAction) irrAction.textContent = irrAdvice.recommendation;
+        if (irrReason) irrReason.textContent = irrAdvice.reason;
+        if (irrWindow) irrWindow.textContent = irrAdvice.recommended_window;
+        if (irrRain) irrRain.textContent = irrAdvice.rainfall_expected;
+
+        if (npkN) {
+          npkN.textContent = `N: ${fertAdvice.nitrogen_status}`;
+          npkN.className = `health-status-badge badge-${fertAdvice.nitrogen_status === 'OPTIMAL' ? 'good' : (fertAdvice.nitrogen_status.includes('DEFICIENT') ? 'critical' : 'moderate')}`;
+        }
+        if (npkP) {
+          npkP.textContent = `P: ${fertAdvice.phosphorus_status}`;
+          npkP.className = `health-status-badge badge-${fertAdvice.phosphorus_status === 'OPTIMAL' ? 'good' : (fertAdvice.phosphorus_status.includes('DEFICIENT') ? 'critical' : 'moderate')}`;
+        }
+        if (npkK) {
+          npkK.textContent = `K: ${fertAdvice.potassium_status}`;
+          npkK.className = `health-status-badge badge-${fertAdvice.potassium_status === 'OPTIMAL' ? 'good' : (fertAdvice.potassium_status.includes('DEFICIENT') ? 'critical' : 'moderate')}`;
+        }
+        if (npkAdvice) npkAdvice.textContent = fertAdvice.recommendations[0] || 'Soil levels adequate.';
+
+        // 4. Proactive Alerts
+        let proactiveAlerts = AgroIntelligence.generateProactiveAlerts(targetFarm, scansForFarm, weather, userExpenses, targetFarm?.budget || 0);
+        currentAlertsData = [...proactiveAlerts, ...userAlerts];
+
+        const elAlertsCount = document.getElementById('overviewAlertsCount');
+        const elAlertsSummary = document.getElementById('overviewAlertsSummary');
+        if (elAlertsCount) elAlertsCount.textContent = currentAlertsData.length;
+        if (elAlertsSummary) {
+          elAlertsSummary.textContent = currentAlertsData.length > 0
+            ? currentAlertsData[0].title
+            : 'All systems normal';
+        }
+      }
+
+      // 5. Update Weather Card
+      const elWeatherTemp = document.getElementById('overviewWeatherTemp');
+      const elWeatherCond = document.getElementById('overviewWeatherCondition');
+      const elWeatherDetails = document.getElementById('overviewWeatherDetails');
+      const elWeatherForecast = document.getElementById('overviewWeatherForecast');
+
+      if (elWeatherTemp && weather.temp !== undefined) elWeatherTemp.textContent = `${weather.temp}°C`;
+      if (elWeatherCond && weather.desc) elWeatherCond.textContent = weather.desc;
+      if (elWeatherDetails) elWeatherDetails.textContent = `Humidity: ${weather.humidity || 0}% · Wind: ${weather.wind || 0} km/h`;
+      if (elWeatherForecast) elWeatherForecast.textContent = weather.tomorrowDesc ? `Tomorrow: ${weather.tomorrowDesc}` : '7-Day stable forecast';
+
+      // 6. Update Budget Card
+      let totalBudget = 0;
+      let totalSpent = 0;
+      const cur = currentSettings?.currency || 'KES';
+      userFarms.forEach(f => { totalBudget += parseFloat(f.budget) || 0; });
+      userExpenses.forEach(e => { totalSpent += parseFloat(e.amount) || 0; });
+      const remaining = Math.max(totalBudget - totalSpent, 0);
+      const budgetPct = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
+
+      const elBudgetPct = document.getElementById('overviewBudgetPercent');
+      const elBudgetRem = document.getElementById('overviewBudgetRemaining');
+      if (elBudgetPct) elBudgetPct.textContent = `${budgetPct}%`;
+      if (elBudgetRem) elBudgetRem.textContent = `${formatPrice(remaining, cur)} remaining`;
+
+      // 7. Update Tasks Card
+      const pendingTasks = userTasks.filter(t => !t.completed);
+      const urgentTasks = pendingTasks.filter(t => t.priority === 'High' || t.priority === 'urgent');
+      const elTasksCount = document.getElementById('overviewTasksCount');
+      const elTasksSummary = document.getElementById('overviewTasksSummary');
+      if (elTasksCount) elTasksCount.textContent = pendingTasks.length;
+      if (elTasksSummary) elTasksSummary.textContent = `${urgentTasks.length} urgent chores`;
+
+      // 8. Render Field Map
+      renderFarmMap(userFarms);
+    };
+
+    // Calendar Tab & Tasks Rendering
+    function renderTasksList() {
+      if (!taskList) return;
+      taskList.innerHTML = "";
+      
+      let filtered = userTasks;
+      if (activeTaskTab === 'today') {
+        filtered = userTasks.filter(t => !t.completed);
+      } else if (activeTaskTab === 'upcoming') {
+        filtered = userTasks.filter(t => !t.completed && t.tab === 'upcoming');
+        if (filtered.length === 0) filtered = userTasks.filter(t => !t.completed);
+      } else if (activeTaskTab === 'completed') {
+        filtered = userTasks.filter(t => t.completed);
+      }
+
+      if (filtered.length === 0) {
+        taskList.innerHTML = `<li style="color: var(--text-muted); text-align: center; padding: 14px; font-size: 13px;">No ${activeTaskTab} tasks found!</li>`;
+        return;
+      }
+
+      filtered.forEach(t => {
+        const li = document.createElement("li");
+        li.className = "task-item";
+        const priorityColor = t.priority === 'High' ? '#ef4444' : (t.priority === 'Low' ? '#60a5fa' : '#22c55e');
+        li.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+            <input type="checkbox" class="task-checkbox" ${t.completed ? 'checked' : ''} onclick="toggleTask('${t.id}', ${t.completed})">
+            <span class="task-text ${t.completed ? 'completed' : ''}" style="word-break: break-word;">${escapeHtml(t.text)}</span>
+            ${t.priority ? `<span style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.08); color: ${priorityColor}; font-weight: 700;">${escapeHtml(t.priority)}</span>` : ''}
+          </div>
+          <i class="fas fa-trash delete-task" onclick="deleteTask('${t.id}')"></i>
+        `;
+        taskList.appendChild(li);
+      });
     }
 
+    window.filterTaskTab = function(tab) {
+      activeTaskTab = tab;
+      document.getElementById('tabTodayTasks')?.classList.toggle('active', tab === 'today');
+      document.getElementById('tabUpcomingTasks')?.classList.toggle('active', tab === 'upcoming');
+      document.getElementById('tabCompletedTasks')?.classList.toggle('active', tab === 'completed');
+      renderTasksList();
+    };
 
+    window.smartSuggestTasks = async function() {
+      const farmSelect = document.getElementById('dashboardFarmSelect');
+      const selectedFarmId = farmSelect ? farmSelect.value : 'all';
+      const targetFarm = (selectedFarmId !== 'all' ? userFarms.find(f => f.id === selectedFarmId) : userFarms[0]) || { crop: 'Maize' };
+      const scansForFarm = selectedFarmId !== 'all' ? userScans.filter(s => s.farmId === selectedFarmId) : userScans;
+      const weather = window.currentWeather || {};
+
+      if (!window.AgroIntelligence) return;
+      const suggestions = AgroIntelligence.generateSmartCalendarTasks(targetFarm, scansForFarm, weather);
+      if (suggestions.length === 0) {
+        alert("Farm schedule is currently up to date! No urgent automated chores required.");
+        return;
+      }
+
+      const confirmMsg = `AI Assistant recommends adding the following intelligent tasks:\n\n` + 
+        suggestions.map((s, i) => `${i+1}. [${s.priority}] ${s.text} (${s.dueDate})`).join('\n') +
+        `\n\nAdd these tasks to your calendar?`;
+
+      if (confirm(confirmMsg)) {
+        for (const s of suggestions) {
+          await push(ref(db, `users/${user.uid}/tasks`), {
+            text: s.text,
+            priority: s.priority,
+            tab: 'today',
+            completed: false,
+            createdAt: new Date().toISOString()
+          });
+        }
+        showNotification("Calendar Updated", `${suggestions.length} smart farming tasks generated.`, "fa-calendar-plus");
+      }
+    };
+
+    // Farm Locations & Interactive Field Map
+    function renderFarmMap(farms) {
+      const mapContainer = document.getElementById('farmMapContainer');
+      if (!mapContainer || typeof L === 'undefined') return;
+
+      if (!farmMapInstance) {
+        try {
+          farmMapInstance = L.map('farmMapContainer').setView([-0.0236, 37.9062], 6);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(farmMapInstance);
+          farmMapMarkersLayer = L.layerGroup().addTo(farmMapInstance);
+        } catch (mapErr) {
+          console.warn("Map init note:", mapErr);
+          return;
+        }
+      }
+
+      if (!farmMapMarkersLayer) return;
+      farmMapMarkersLayer.clearLayers();
+
+      if (!farms || farms.length === 0) return;
+
+      const latLngs = [];
+      farms.forEach((farm, idx) => {
+        let lat = parseFloat(farm.latitude);
+        let lon = parseFloat(farm.longitude);
+
+        if (isNaN(lat) || isNaN(lon)) {
+          const defaultCenters = [
+            [-1.286389, 36.817223],
+            [-0.303099, 36.080025],
+            [0.514277, 35.269780],
+            [-0.091702, 34.767956],
+            [-0.516667, 37.283333]
+          ];
+          const base = defaultCenters[idx % defaultCenters.length];
+          lat = base[0] + (idx * 0.05);
+          lon = base[1] + (idx * 0.05);
+        }
+
+        latLngs.push([lat, lon]);
+
+        const farmScans = userScans.filter(s => s.farmId === farm.id);
+        const health = window.AgroIntelligence ? AgroIntelligence.calculateFarmHealthScore(farm, farmScans, window.currentWeather) : { score: 85, rating: 'Good' };
+        const risk = window.AgroIntelligence ? AgroIntelligence.calculateDiseaseRisk(farm, window.currentWeather, farmScans) : { risk_score: 20, risk_level: 'LOW' };
+
+        const popupHtml = `
+          <div style="font-family: 'Outfit', sans-serif; min-width: 180px; color: #0f172a;">
+            <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 700; color: #16a34a;">${escapeHtml(farm.name || 'Plot')}</h4>
+            <div style="font-size: 12px; margin-bottom: 6px; color: #475569;">
+              <strong>Crop:</strong> ${escapeHtml(farm.crop || 'Mixed')} · ${escapeHtml(farm.size || '1')} Acres
+            </div>
+            <div style="display: flex; gap: 6px; margin-bottom: 8px;">
+              <span style="background: #22c55e; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">Health: ${health.score}/100</span>
+              <span style="background: ${risk.risk_level === 'HIGH' || risk.risk_level === 'CRITICAL' ? '#ef4444' : '#f59e0b'}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">Risk: ${risk.risk_level}</span>
+            </div>
+            <div style="font-size: 11px; color: #64748b;">
+              Irrigation: ${escapeHtml(farm.irrigation || 'Rainfed')}
+            </div>
+          </div>
+        `;
+
+        const marker = L.marker([lat, lon]).bindPopup(popupHtml);
+        farmMapMarkersLayer.addLayer(marker);
+      });
+
+      if (latLngs.length > 0) {
+        try {
+          const bounds = L.latLngBounds(latLngs);
+          farmMapInstance.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
+        } catch (e) {
+          console.warn("Map fitBounds warning:", e);
+        }
+      }
+    }
+
+    // Modal Control Functions
+    window.openFarmHealthModal = function() {
+      const modal = document.getElementById('farmHealthModal');
+      if (!modal) return;
+
+      if (currentHealthScoreData) {
+        const scoreVal = document.getElementById('modalHealthScoreVal');
+        const badge = document.getElementById('modalHealthScoreBadge');
+        if (scoreVal) scoreVal.textContent = currentHealthScoreData.score;
+        if (badge) {
+          badge.textContent = currentHealthScoreData.rating.toUpperCase();
+          badge.className = `health-status-badge badge-${currentHealthScoreData.rating.toLowerCase()}`;
+        }
+
+        const b = currentHealthScoreData.breakdown;
+        document.getElementById('factorScoreScans').textContent = `${b.scans_score} / 30 pts`;
+        document.getElementById('factorBarScans').style.width = `${Math.round((b.scans_score / 30) * 100)}%`;
+
+        document.getElementById('factorScoreNpk').textContent = `${b.npk_score} / 20 pts`;
+        document.getElementById('factorBarNpk').style.width = `${Math.round((b.npk_score / 20) * 100)}%`;
+
+        document.getElementById('factorScoreIrrig').textContent = `${b.irrigation_score} / 15 pts`;
+        document.getElementById('factorBarIrrig').style.width = `${Math.round((b.irrigation_score / 15) * 100)}%`;
+
+        document.getElementById('factorScoreWeather').textContent = `${b.weather_score} / 15 pts`;
+        document.getElementById('factorBarWeather').style.width = `${Math.round((b.weather_score / 15) * 100)}%`;
+
+        document.getElementById('factorScoreBudget').textContent = `${b.budget_score} / 10 pts`;
+        document.getElementById('factorBarBudget').style.width = `${Math.round((b.budget_score / 10) * 100)}%`;
+
+        document.getElementById('factorScoreTasks').textContent = `${b.activity_score} / 10 pts`;
+        document.getElementById('factorBarTasks').style.width = `${Math.round((b.activity_score / 10) * 100)}%`;
+
+        const posList = document.getElementById('modalHealthPositives');
+        if (posList) {
+          posList.innerHTML = currentHealthScoreData.positive_factors.length > 0
+            ? currentHealthScoreData.positive_factors.map(f => `<li>${escapeHtml(f)}</li>`).join('')
+            : '<li>No specific positive signals recorded yet.</li>';
+        }
+
+        const warnList = document.getElementById('modalHealthWarnings');
+        if (warnList) {
+          warnList.innerHTML = currentHealthScoreData.warning_factors.length > 0
+            ? currentHealthScoreData.warning_factors.map(f => `<li>${escapeHtml(f)}</li>`).join('')
+            : '<li>No active alerts or stress factors detected.</li>';
+        }
+      }
+      modal.classList.add('active');
+    };
+
+    window.closeFarmHealthModal = function() {
+      document.getElementById('farmHealthModal')?.classList.remove('active');
+    };
+
+    window.openAlertsCenterModal = function() {
+      const modal = document.getElementById('alertsCenterModal');
+      const listEl = document.getElementById('alertsCenterList');
+      if (!modal || !listEl) return;
+
+      if (currentAlertsData.length === 0) {
+        listEl.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 24px;">No active alerts. All systems running safely.</p>';
+      } else {
+        listEl.innerHTML = currentAlertsData.map(a => `
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-left: 4px solid ${a.severity === 'CRITICAL' || a.severity === 'HIGH' ? '#ef4444' : (a.severity === 'WARNING' || a.severity === 'MODERATE' ? '#f59e0b' : '#3b82f6')}; border-radius: 12px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+              <div style="font-weight: 700; font-size: 14px; color: var(--text);">${escapeHtml(a.title)}</div>
+              <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: rgba(255,255,255,0.08); color: ${a.severity === 'CRITICAL' || a.severity === 'HIGH' ? '#f87171' : '#fbbf24'};">${escapeHtml(a.severity)}</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px;">${escapeHtml(a.message)}</div>
+            ${a.action ? `<div style="font-size: 12px; color: var(--primary); font-weight: 600;"><i class="fas fa-arrow-right" style="margin-right: 4px;"></i> Action: ${escapeHtml(a.action)}</div>` : ''}
+          </div>
+        `).join('');
+      }
+      modal.classList.add('active');
+    };
+
+    window.closeAlertsCenterModal = function() {
+      document.getElementById('alertsCenterModal')?.classList.remove('active');
+    };
+
+    window.openFarmReportModal = function() {
+      const modal = document.getElementById('farmReportModal');
+      const contentEl = document.getElementById('farmReportPrintableContent');
+      const dateEl = document.getElementById('reportGeneratedDate');
+      if (!modal || !contentEl) return;
+
+      if (dateEl) dateEl.textContent = `Generated on ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
+
+      const farmSelect = document.getElementById('dashboardFarmSelect');
+      const selectedFarmId = farmSelect ? farmSelect.value : 'all';
+      const targetFarm = (selectedFarmId !== 'all' ? userFarms.find(f => f.id === selectedFarmId) : userFarms[0]) || { name: 'All Plots', crop: 'General Crops', size: 1 };
+      const scans = selectedFarmId !== 'all' ? userScans.filter(s => s.farmId === selectedFarmId) : userScans;
+      const weather = window.currentWeather || {};
+
+      if (window.AgroIntelligence && typeof window.AgroIntelligence.generateFarmReport === 'function') {
+        const report = AgroIntelligence.generateFarmReport(targetFarm, scans, weather, userExpenses, userTasks, currentAlertsData);
+        window.currentReportData = report;
+
+        contentEl.innerHTML = `
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px;">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Farm Name</div>
+              <div style="font-size: 16px; font-weight: 700; color: var(--text);">${escapeHtml(report.farm.name)}</div>
+              <div style="font-size: 12px; color: var(--primary);">${escapeHtml(report.farm.crop)} · ${report.farm.size} Acres</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px;">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Farm Health Rating</div>
+              <div style="font-size: 20px; font-weight: 800; color: var(--text);">${report.health.score} / 100</div>
+              <div style="font-size: 12px; color: #4ade80;">${report.health.rating}</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px;">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Disease Pressure</div>
+              <div style="font-size: 20px; font-weight: 800; color: var(--text);">${report.disease_risk.risk_score}%</div>
+              <div style="font-size: 12px; color: #fbbf24;">${report.disease_risk.risk_level}</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px;">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Financial Status</div>
+              <div style="font-size: 16px; font-weight: 700; color: var(--text);">${report.financials.budget_utilization_pct}% Used</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Spent: KSh ${report.financials.total_expenses.toLocaleString()}</div>
+            </div>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 16px;">
+            <h4 style="font-size: 14px; font-weight: 700; color: var(--primary); margin-bottom: 8px;"><i class="fas fa-list-check"></i> Top Action Recommendations</h4>
+            <ul style="font-size: 13px; color: var(--text-muted); margin-left: 20px; line-height: 1.6;">
+              ${report.actionable_recommendations.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+              <h5 style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px;"><i class="fas fa-faucet-drip" style="color: #38bdf8;"></i> Irrigation Plan</h5>
+              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;"><strong>Advice:</strong> ${escapeHtml(report.irrigation.recommendation)}</p>
+              <p style="font-size: 12px; color: var(--text-muted);"><strong>Window:</strong> ${escapeHtml(report.irrigation.recommended_window)}</p>
+            </div>
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; padding: 14px;">
+              <h5 style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px;"><i class="fas fa-flask" style="color: #a78bfa;"></i> Soil & Fertilizer Balance</h5>
+              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;"><strong>N-P-K:</strong> N:${report.fertilizer.nitrogen_status} · P:${report.fertilizer.phosphorus_status} · K:${report.fertilizer.potassium_status}</p>
+              <p style="font-size: 12px; color: var(--text-muted);">${escapeHtml(report.fertilizer.recommendations[0] || 'Levels stable')}</p>
+            </div>
+          </div>
+        `;
+      }
+      modal.classList.add('active');
+    };
+
+    window.closeFarmReportModal = function() {
+      document.getElementById('farmReportModal')?.classList.remove('active');
+    };
+
+    window.downloadFarmReportCSV = function() {
+      if (window.currentReportData && window.AgroIntelligence && typeof window.AgroIntelligence.exportFarmReportCSV === 'function') {
+        AgroIntelligence.exportFarmReportCSV(window.currentReportData);
+      } else {
+        alert("Please open the Farm Report first to prepare data.");
+      }
+    };
 
     // Scanner Functionality
     let scannerSimInterval = null;
@@ -3396,6 +4478,14 @@
     window.scanCrop = async () => {
       const file = imageInput.files[0];
       if (!file) return alert("Please select an image first 📸");
+
+      const warnBanner = document.getElementById('scanQualityWarningBanner');
+      if (warnBanner) warnBanner.style.display = 'none';
+
+      const scannerFarmSelect = document.getElementById('scannerFarmSelect');
+      const selectedFarmId = scannerFarmSelect ? scannerFarmSelect.value : '';
+      const selectedFarmObj = userFarms.find(f => f.id === selectedFarmId);
+      const farmName = selectedFarmObj ? selectedFarmObj.name : '';
 
       // Reset and display scanner modal
       const previewImg = document.getElementById('scannerPreviewImg');
@@ -3426,7 +4516,6 @@
 
       loader.style.display = "flex";
 
-      // Start fake/simulated stages progress
       let currentProgress = 0;
       let activeStage = 0;
 
@@ -3460,7 +4549,6 @@
           if (fill) fill.style.width = `${currentProgress}%`;
           if (pct) pct.textContent = `${currentProgress}%`;
 
-          // Move stages based on progress thresholds
           if (currentProgress > 70) {
             activeStage = 3;
           } else if (currentProgress > 45) {
@@ -3483,6 +4571,18 @@
 
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
+          if (res.status === 422 || errorData.quality_issue) {
+            clearInterval(scannerSimInterval);
+            loader.style.display = "none";
+            const warnBanner = document.getElementById('scanQualityWarningBanner');
+            const warnText = document.getElementById('scanQualityWarningText');
+            if (warnBanner && warnText) {
+              warnText.textContent = `${errorData.error || 'Photo quality issue detected.'} ${errorData.guidance || 'Please capture a clear photo of the leaf in good lighting.'}`;
+              warnBanner.style.display = 'block';
+              warnBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+          }
           throw new Error(errorData.error || `Server responded with ${res.status}`);
         }
 
@@ -3492,14 +4592,12 @@
           throw new Error(data.error);
         }
 
-        // Fast-forward simulator to 100%
         clearInterval(scannerSimInterval);
         activeStage = 4;
         updateStages();
         if (fill) fill.style.width = '100%';
         if (pct) pct.textContent = '100%';
 
-        // Wait a tiny bit (350ms) for visual satisfaction
         await new Promise(resolve => setTimeout(resolve, 350));
 
         // Show results area
@@ -3510,7 +4608,6 @@
         const resultViewfinder = document.getElementById('resultViewfinder');
         if (resultImage) {
           resultImage.src = URL.createObjectURL(file);
-          // Wait for image to load to draw the bounding boxes
           resultImage.onload = () => {
             window.drawBoundingBoxes(data.boxes || [], resultImage, resultViewfinder);
           };
@@ -3524,27 +4621,23 @@
         const statusIcon = document.getElementById('statusIcon');
         const statusText = document.getElementById('statusText');
 
-        // Handle Confidence Ring
+        // Confidence Ring
         const confidenceVal = parseInt(data.confidence) || 0;
         confidenceText.textContent = confidenceVal + "%";
 
         const ring = document.getElementById('confidenceRing');
-        // SVG dash offset logic (circumference is 100 for this path)
         ring.style.strokeDashoffset = 100 - confidenceVal;
 
         if (isSoil) {
-          // Hide crop report, show soil report
           cropReportSection.style.display = 'none';
           soilReportSection.style.display = 'flex';
 
-          // Set status and layout theme
           resultCard.classList.remove('theme-healthy', 'theme-warning', 'theme-danger');
-          resultCard.classList.add('theme-healthy'); // Soil scans look green/clean
+          resultCard.classList.add('theme-healthy');
           statusIcon.className = "fas fa-search-plus";
           statusText.textContent = "Soil Identified";
           diagnosisText.textContent = data.soil_type || "Soil Scan";
 
-          // Populate NPK
           const npk = data.npk_status || {};
           const nVal = npk.N || "Low (0%)";
           const pVal = npk.P || "Low (0%)";
@@ -3554,19 +4647,16 @@
           document.getElementById('soilPVal').textContent = pVal;
           document.getElementById('soilKVal').textContent = kVal;
 
-          // Helper to extract number
           const getPct = (str) => parseInt(str.match(/\d+/)?.[0]) || 0;
           document.getElementById('soilNBar').style.width = getPct(nVal) + '%';
           document.getElementById('soilPBar').style.width = getPct(pVal) + '%';
           document.getElementById('soilKBar').style.width = getPct(kVal) + '%';
 
-          // pH Acidity
           const ph = data.ph || 7.0;
           const phLabel = data.ph_label || "Neutral";
           document.getElementById('soilPHVal').textContent = ph;
           document.getElementById('soilPHLabel').textContent = `${ph} (${phLabel})`;
 
-          // Suitable crops
           const suitableCrops = data.suitable_crops || [];
           const suitableCropsContainer = document.getElementById('soilSuitableCrops');
           suitableCropsContainer.innerHTML = '';
@@ -3578,19 +4668,56 @@
             suitableCropsContainer.appendChild(span);
           });
 
-          // Balancing text
           document.getElementById('soilBalancingText').textContent = data.balancing_advice || "No specific advice.";
         } else {
-          // Show crop report, hide soil report
           cropReportSection.style.display = 'block';
           soilReportSection.style.display = 'none';
 
-          // Update standard crop fields
           cropText.textContent = data.crop || "Unknown";
           diagnosisText.textContent = data.disease || "Healthy";
           treatmentText.textContent = data.treatment || "No treatment required";
 
-          // Handle crop soil requirements container
+          const isHealthy = !data.disease || data.disease.toLowerCase().includes('healthy');
+
+          // Update Severity Pill
+          const sevPill = document.getElementById('scanSeverityPill');
+          if (sevPill) {
+            const sev = data.severity || (isHealthy ? 'Healthy' : 'Moderate');
+            sevPill.textContent = sev;
+            sevPill.className = `severity-pill severity-${sev.toLowerCase()}`;
+          }
+
+          // Update Affected Area
+          const affArea = document.getElementById('affectedAreaText');
+          if (affArea) affArea.textContent = `${data.affected_area_pct !== undefined ? data.affected_area_pct : 0}%`;
+
+          // Update Detection Type
+          const detType = document.getElementById('detectionTypeText');
+          if (detType) detType.textContent = (data.detection_type || (isHealthy ? 'Healthy Crop' : 'Disease')).toUpperCase();
+
+          // Pest Callout Box
+          const pestBox = document.getElementById('pestAlertBox');
+          const pestName = document.getElementById('pestNameText');
+          if (data.detection_type === 'pest') {
+            if (pestBox) pestBox.style.display = 'block';
+            if (pestName) pestName.textContent = data.disease || 'Identified Pest';
+          } else {
+            if (pestBox) pestBox.style.display = 'none';
+          }
+
+          // Why AgroFast Thinks This
+          const whyText = document.getElementById('whyAgroFastText');
+          if (whyText) whyText.textContent = data.why_agrofast_thinks_this || 'Feature analysis matched known symptoms in the crop database.';
+
+          // Causes & Next Steps
+          const stepsList = document.getElementById('recommendedStepsList');
+          if (stepsList && data.recommended_steps) {
+            stepsList.innerHTML = data.recommended_steps.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+          }
+
+          const reScanText = document.getElementById('scanAgainDaysText');
+          if (reScanText && data.rescan_days) reScanText.textContent = data.rescan_days;
+
           const reqsContainer = document.getElementById('cropSoilReqsContainer');
           const prefSoils = document.getElementById('cropPreferredSoils');
           const idealNpk = document.getElementById('cropIdealNPK');
@@ -3605,10 +4732,7 @@
             reqsContainer.style.display = 'none';
           }
 
-          // Determine theme (Healthy vs Disease)
           resultCard.classList.remove('theme-healthy', 'theme-warning', 'theme-danger');
-          const isHealthy = !data.disease || data.disease.toLowerCase().includes('healthy');
-
           if (isHealthy) {
             resultCard.classList.add('theme-healthy');
             statusIcon.className = "fas fa-check-circle";
@@ -3616,7 +4740,7 @@
           } else {
             resultCard.classList.add('theme-danger');
             statusIcon.className = "fas fa-exclamation-triangle";
-            statusText.textContent = "Issue Detected";
+            statusText.textContent = data.detection_type === 'pest' ? "Pest Infestation" : "Issue Detected";
           }
         }
 
@@ -3629,14 +4753,25 @@
         const currentScans = uSnap.val()?.scans || 0;
         await update(userRef, { scans: currentScans + 1 });
 
+        const isHealthyCrop = !data.disease || data.disease.toLowerCase().includes('healthy');
         await push(ref(db, "users/" + user.uid + "/history"), {
           crop: data.crop || "Unknown",
           disease: data.disease || "Unknown",
           confidence: data.confidence || "0%",
+          severity: data.severity || (isHealthyCrop ? 'Healthy' : 'Moderate'),
+          affected_area_pct: data.affected_area_pct !== undefined ? data.affected_area_pct : 0,
+          detection_type: data.detection_type || 'disease',
+          why_agrofast_thinks_this: data.why_agrofast_thinks_this || '',
+          recommended_steps: data.recommended_steps || [],
+          rescan_days: data.rescan_days || 7,
+          treatment: data.treatment || '',
+          boxes: data.boxes || [],
+          farmId: selectedFarmId || '',
+          farmName: farmName || '',
+          model_version: data.model_version || 'AgroFast Vision v1.1',
           time: new Date().toISOString()
         });
 
-        // Scan Notification
         if (currentSettings.notifyScan) {
           showNotification("Scan Complete", `${data.crop || 'Crop'} analysis finished with ${data.confidence || '99%'} confidence.`, "fa-check-circle");
         }
@@ -3828,8 +4963,13 @@
       const text = taskInput.value.trim();
       if (!text) return;
 
+      const prioSelect = document.getElementById('taskPrioritySelect');
+      const priority = prioSelect ? prioSelect.value : 'Normal';
+
       await push(ref(db, `users/${user.uid}/tasks`), {
         text: text,
+        priority: priority,
+        tab: 'today',
         completed: false,
         createdAt: new Date().toISOString()
       });

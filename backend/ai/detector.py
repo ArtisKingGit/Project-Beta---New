@@ -46,9 +46,34 @@ def detect_disease(image_bytes, diagnosis_data):
         except Exception as e:
             print(f"Error in PlantCV spot detection: {e}")
 
+    # Compute affected area percentage and severity estimate
+    affected_area_pct = 0.0
+    severity = "Healthy" if is_healthy or diagnosis_data.get("is_soil") else "Mild"
+
+    if img_cv is not None and not is_healthy and not diagnosis_data.get("is_soil"):
+        total_pixels = img_cv.shape[0] * img_cv.shape[1]
+        total_spot_area = sum(b["width"] * b["height"] for b in boxes)
+        # Cap spot area calculation to avoid over-counting overlapping boxes
+        effective_area = min(total_spot_area, total_pixels)
+        affected_area_pct = round((effective_area / float(total_pixels)) * 100.0, 1)
+
+        if affected_area_pct >= 20.0:
+            severity = "Severe"
+        elif affected_area_pct >= 5.0:
+            severity = "Moderate"
+        else:
+            severity = "Mild"
+
     # Fallback: if no specific spots found, use full image box (only for diseased/unhealthy scans)
-    if not boxes and img_cv is not None and not is_healthy:
+    if not boxes and img_cv is not None and not is_healthy and not diagnosis_data.get("is_soil"):
         h, w, _ = img_cv.shape
         boxes = [{"x": 0, "y": 0, "width": w, "height": h}]
+        if severity == "Healthy":
+            severity = "Mild"
 
-    return {"boxes": boxes}
+    return {
+        "boxes": boxes,
+        "affected_area_pct": affected_area_pct,
+        "severity": severity
+    }
+

@@ -20,8 +20,86 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/assistant-widget.css">
     <link rel="stylesheet" href="tutorial.css">
+    <script src="js/intelligence.js"></script>
 
     <style>
+        .timeline-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+            overflow-x: auto;
+            padding: 20px 10px;
+            scrollbar-width: thin;
+        }
+
+        .timeline-step {
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            min-width: 210px;
+            max-width: 230px;
+            flex-shrink: 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .timeline-step:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 24px rgba(34, 197, 94, 0.15);
+        }
+
+        .timeline-step::after {
+            content: '';
+            position: absolute;
+            top: 24px;
+            right: -24px;
+            width: 24px;
+            height: 2px;
+            background: var(--border);
+        }
+
+        .timeline-step:last-child::after {
+            display: none;
+        }
+
+        .timeline-step-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .timeline-date {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .timeline-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .status-healthy { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .status-infected { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .status-warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+        .severity-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+        .severity-healthy { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .severity-mild { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .severity-moderate { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .severity-severe { background: rgba(239, 68, 68, 0.15); color: #f87171; }
         :root {
             --primary: #22c55e;
             --primary-glow: rgba(34, 197, 94, 0.35);
@@ -676,13 +754,44 @@
                 </div>
             </div>
 
-            <!-- Search and Filter Bar -->
-            <div class="glass-card" style="padding: 14px 20px; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                <div style="flex: 1; position: relative; min-width: 220px;">
-                    <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px;"></i>
-                    <input type="text" id="historySearchInput" placeholder="Search by crop or disease name..." style="width: 100%; padding: 9px 12px 9px 36px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; outline: none;">
+            <!-- Crop Health Timeline Visualizer Card -->
+            <div class="glass-card" style="margin-bottom: 20px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(34, 197, 94, 0.15); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 18px;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <h3 style="font-size: 16px; font-weight: 700; color: var(--text);">Crop Health Diagnostic Timeline</h3>
+                            <p style="font-size: 11px; color: var(--text-muted);">Visual trajectory showing how crop health changes over time</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span id="timelineTrendBadge" class="timeline-badge status-healthy" style="padding: 4px 10px; font-size: 11px;">
+                            <i class="fas fa-circle-check"></i> Overall Trend: Stable
+                        </span>
+                    </div>
                 </div>
-                <select id="historyStatusFilter" style="padding: 9px 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; outline: none; cursor: pointer;">
+
+                <!-- Horizontal scrollable timeline track -->
+                <div class="timeline-container" id="timelineTrack">
+                    <!-- Steps injected dynamically -->
+                </div>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="glass-card" style="padding: 14px 20px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 2; position: relative; min-width: 180px;">
+                    <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 13px;"></i>
+                    <input type="text" id="historySearchInput" placeholder="Search by crop or disease name..." style="width: 100%; padding: 8px 12px 8px 34px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; outline: none;">
+                </div>
+                <select id="historyFarmFilter" style="flex: 1; min-width: 140px; padding: 8px 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; outline: none; cursor: pointer;">
+                    <option value="all" style="background: #0f172a; color: #fff;">All Farms</option>
+                </select>
+                <select id="historyCropFilter" style="flex: 1; min-width: 130px; padding: 8px 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; outline: none; cursor: pointer;">
+                    <option value="all" style="background: #0f172a; color: #fff;">All Crops</option>
+                </select>
+                <select id="historyStatusFilter" style="flex: 1; min-width: 130px; padding: 8px 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; outline: none; cursor: pointer;">
                     <option value="all" style="background: #0f172a; color: #fff;">All Statuses</option>
                     <option value="healthy" style="background: #0f172a; color: #fff;">Healthy Only</option>
                     <option value="infected" style="background: #0f172a; color: #fff;">Diseased / Infected</option>
@@ -694,9 +803,12 @@
                     <thead>
                         <tr>
                             <th>Date & Time</th>
+                            <th>Farm</th>
                             <th>Crop</th>
                             <th>Diagnosis</th>
                             <th>Confidence</th>
+                            <th>Severity</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -706,6 +818,32 @@
                 </table>
             </div>
         </main>
+    </div>
+
+    <!-- Scan Details Modal -->
+    <div class="modal-overlay" id="scanDetailModal">
+        <div class="modal-content" style="max-width: 540px; text-align: left; padding: 26px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(34, 197, 94, 0.15); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 700; color: var(--text);" id="modalDetailTitle">Diagnostic Scan Record</h3>
+                        <p style="font-size: 11px; color: var(--text-muted);" id="modalDetailDate">Date & Time</p>
+                    </div>
+                </div>
+                <button onclick="closeScanDetailModal()" style="background: none; border: none; color: var(--text-muted); font-size: 18px; cursor: pointer;"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div id="modalDetailBody" style="display: flex; flex-direction: column; gap: 12px; max-height: 60vh; overflow-y: auto;">
+                <!-- Dynamically populated -->
+            </div>
+            
+            <div style="margin-top: 16px; text-align: right;">
+                <button class="btn-cancel" onclick="closeScanDetailModal()" style="padding: 8px 18px; font-size: 13px;">Close</button>
+            </div>
+        </div>
     </div>
 
     <!-- Custom Modal -->
@@ -824,33 +962,134 @@
         });
 
         let allRawHistoryItems = [];
+        let userFarms = [];
+
+        // Fetch user farms to populate filter
+        function loadUserFarms() {
+            onValue(ref(db, `users/${user.uid}/farms`), (snap) => {
+                const data = snap.val();
+                userFarms = data ? Object.entries(data).map(([id, d]) => ({ id, ...d })) : [];
+                populateFarmFilter();
+                populateCropFilter();
+                filterAndRenderHistory();
+            });
+        }
+
+        function populateFarmFilter() {
+            const select = document.getElementById('historyFarmFilter');
+            if (!select) return;
+            const currentVal = select.value || 'all';
+            let html = '<option value="all">All Farms</option>';
+            userFarms.forEach(f => {
+                html += `<option value="${escapeHtml(f.id)}">${escapeHtml(f.name || 'Farm')} (${escapeHtml(f.crop || 'Mixed')})</option>`;
+            });
+            select.innerHTML = html;
+            select.value = userFarms.some(f => f.id === currentVal) ? currentVal : 'all';
+        }
+
+        function populateCropFilter() {
+            const select = document.getElementById('historyCropFilter');
+            if (!select) return;
+            const currentVal = select.value || 'all';
+            const crops = new Set();
+            userFarms.forEach(f => { if (f.crop) crops.add(f.crop); });
+            allRawHistoryItems.forEach(h => { if (h.crop) crops.add(h.crop); });
+
+            let html = '<option value="all">All Crops</option>';
+            crops.forEach(c => {
+                html += `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`;
+            });
+            select.innerHTML = html;
+            select.value = crops.has(currentVal) ? currentVal : 'all';
+        }
 
         window.exportHistoryCSV = () => {
             if (!allRawHistoryItems || allRawHistoryItems.length === 0) {
                 alert("No scan history data to export.");
                 return;
             }
-            let csvContent = "data:text/csv;charset=utf-8,Date,Crop,Diagnosis,Confidence\n";
+            let csvContent = "data:text/csv;charset=utf-8,Date,Farm,Crop,Diagnosis,Confidence,Severity,AffectedAreaPct,DetectionType,ModelVersion,Treatment\n";
             allRawHistoryItems.forEach(item => {
                 const dateStr = new Date(item.time).toISOString().replace(/T/, ' ').replace(/\..+/, '');
+                const farm = `"${(item.farmName || 'General Plot').replace(/"/g, '""')}"`;
                 const crop = `"${(item.crop || '').replace(/"/g, '""')}"`;
                 const disease = `"${(item.disease || '').replace(/"/g, '""')}"`;
                 const conf = `"${(item.confidence || '').replace(/"/g, '""')}"`;
-                csvContent += `${dateStr},${crop},${disease},${conf}\n`;
+                const sev = `"${(item.severity || 'Moderate').replace(/"/g, '""')}"`;
+                const aff = `"${item.affected_area_pct || 0}%"`;
+                const det = `"${(item.detection_type || 'disease').replace(/"/g, '""')}"`;
+                const ver = `"${(item.model_version || 'AgroFast Vision v1.1').replace(/"/g, '""')}"`;
+                const treat = `"${(item.treatment || '').replace(/"/g, '""')}"`;
+                csvContent += `${dateStr},${farm},${crop},${disease},${conf},${sev},${aff},${det},${ver},${treat}\n`;
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `AgroFast_Scan_History_${Date.now()}.csv`);
+            link.setAttribute("download", `AgroFast_Crop_Health_History_${Date.now()}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         };
 
+        // Render Visual Timeline Strip
+        function renderTimeline() {
+            const track = document.getElementById('timelineTrack');
+            const trendBadge = document.getElementById('timelineTrendBadge');
+            if (!track || !window.AgroIntelligence) return;
+
+            const selectedFarmId = document.getElementById('historyFarmFilter')?.value || 'all';
+            const selectedCrop = document.getElementById('historyCropFilter')?.value || 'all';
+
+            const timelineData = AgroIntelligence.generateCropTimeline(allRawHistoryItems, selectedFarmId, selectedCrop);
+            const items = timelineData.timeline;
+
+            if (items.length === 0) {
+                track.innerHTML = '<p style="color: var(--text-muted); font-size: 13px; padding: 12px;">No historical scan points available for timeline projection yet.</p>';
+                if (trendBadge) trendBadge.innerHTML = '<i class="fas fa-info-circle"></i> Waiting for scan data';
+                return;
+            }
+
+            if (trendBadge) {
+                if (timelineData.overall_trend === 'IMPROVING') {
+                    trendBadge.className = 'timeline-badge status-healthy';
+                    trendBadge.innerHTML = '<i class="fas fa-arrow-trend-up"></i> Trajectory: Improving Crop Health';
+                } else if (timelineData.overall_trend === 'NEEDS_ATTENTION') {
+                    trendBadge.className = 'timeline-badge status-infected';
+                    trendBadge.innerHTML = '<i class="fas fa-triangle-exclamation"></i> Trajectory: Action Required';
+                } else {
+                    trendBadge.className = 'timeline-badge status-healthy';
+                    trendBadge.innerHTML = '<i class="fas fa-circle-check"></i> Trajectory: Stable';
+                }
+            }
+
+            track.innerHTML = items.map((step, idx) => {
+                const sevClass = `severity-${(step.severity || 'healthy').toLowerCase()}`;
+                return `
+                    <div class="timeline-step" onclick="openScanDetailModal('${step.id}')">
+                        <div class="timeline-step-header">
+                            <span class="timeline-date">${step.formattedDate}</span>
+                            <span class="timeline-badge ${step.statusBadgeClass}">${step.healthStatus}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                            <i class="fas ${step.icon}" style="color: ${step.color}; font-size: 14px;"></i>
+                            <span style="font-size: 14px; font-weight: 700; color: var(--text);">${escapeHtml(step.crop)}</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px;">
+                            ${escapeHtml(step.disease)}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 8px;">
+                            <span class="severity-badge ${sevClass}">${step.severity}</span>
+                            <span style="font-size: 11px; font-weight: 700; color: var(--primary);">${step.confidence}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         function renderHistoryRows(items) {
             historyList.innerHTML = "";
             if (!items || items.length === 0) {
-                historyList.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">No matching scan records found.</td></tr>';
+                historyList.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">No matching scan records found.</td></tr>';
                 return;
             }
 
@@ -864,10 +1103,13 @@
                     minute: '2-digit'
                 });
 
-                const isHealthy = (item.disease || '').toLowerCase().includes('healthy');
+                const isHealthy = (item.disease || '').toLowerCase().includes('healthy') || (item.disease || '').toLowerCase().includes('no issue');
+                const severity = item.severity || (isHealthy ? 'Healthy' : 'Moderate');
+                const sevClass = `severity-${severity.toLowerCase()}`;
 
                 row.innerHTML = `
                     <td>${date}</td>
+                    <td style="color: var(--text-muted); font-size: 13px;">${escapeHtml(item.farmName || 'General Plot')}</td>
                     <td style="font-weight: 600;">${escapeHtml(item.crop)}</td>
                     <td>
                       <span class="status-pill ${isHealthy ? 'status-healthy' : 'status-infected'}">
@@ -875,8 +1117,14 @@
                       </span>
                     </td>
                     <td>${item.confidence}</td>
+                    <td><span class="severity-badge ${sevClass}">${escapeHtml(severity)}</span></td>
                     <td>
-                        <button class="view-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                        <span style="font-size: 11px; font-weight: 700; color: ${isHealthy ? '#4ade80' : '#f87171'}">
+                            ${isHealthy ? 'Healthy' : 'Affected'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="view-btn" onclick="openScanDetailModal('${item.id}')" title="View Full Report"><i class="fas fa-eye"></i></button>
                         <button class="delete-btn" onclick="deleteHistoryItem('${item.id}')" title="Delete record"><i class="fas fa-trash"></i></button>
                     </td>
                 `;
@@ -886,27 +1134,39 @@
 
         function filterAndRenderHistory() {
             const query = (document.getElementById('historySearchInput')?.value || '').toLowerCase().trim();
+            const farmFilter = document.getElementById('historyFarmFilter')?.value || 'all';
+            const cropFilter = document.getElementById('historyCropFilter')?.value || 'all';
             const statusFilter = document.getElementById('historyStatusFilter')?.value || 'all';
 
             const filtered = allRawHistoryItems.filter(item => {
                 const cropMatch = (item.crop || '').toLowerCase().includes(query);
                 const diseaseMatch = (item.disease || '').toLowerCase().includes(query);
-                const matchesQuery = cropMatch || diseaseMatch;
+                const farmMatch = (item.farmName || '').toLowerCase().includes(query);
+                const matchesQuery = cropMatch || diseaseMatch || farmMatch;
+
+                const matchesFarm = farmFilter === 'all' || item.farmId === farmFilter;
+                const matchesCrop = cropFilter === 'all' || (item.crop || '').toLowerCase() === cropFilter.toLowerCase();
 
                 const isHealthy = (item.disease || '').toLowerCase().includes('healthy');
                 let matchesStatus = true;
                 if (statusFilter === 'healthy') matchesStatus = isHealthy;
                 if (statusFilter === 'infected') matchesStatus = !isHealthy;
 
-                return matchesQuery && matchesStatus;
+                return matchesQuery && matchesFarm && matchesCrop && matchesStatus;
             });
 
             renderHistoryRows(filtered);
+            renderTimeline();
         }
 
         const searchInput = document.getElementById('historySearchInput');
+        const farmFilterSelect = document.getElementById('historyFarmFilter');
+        const cropFilterSelect = document.getElementById('historyCropFilter');
         const statusFilterSelect = document.getElementById('historyStatusFilter');
+
         if (searchInput) searchInput.addEventListener('input', filterAndRenderHistory);
+        if (farmFilterSelect) farmFilterSelect.addEventListener('change', filterAndRenderHistory);
+        if (cropFilterSelect) cropFilterSelect.addEventListener('change', filterAndRenderHistory);
         if (statusFilterSelect) statusFilterSelect.addEventListener('change', filterAndRenderHistory);
 
         function updateHistoryStats(items) {
@@ -914,7 +1174,6 @@
             const healthyCount = items.filter(i => (i.disease || '').toLowerCase().includes('healthy')).length;
             const ratio = total > 0 ? Math.round((healthyCount / total) * 100) : 100;
 
-            // Find top issue
             const diseaseCounts = {};
             items.forEach(i => {
                 const d = i.disease;
@@ -942,6 +1201,7 @@
         }
 
         function loadHistory() {
+            loadUserFarms();
             const historyRef = ref(db, `users/${user.uid}/history`);
             onValue(historyRef, (snapshot) => {
                 const historyData = snapshot.val();
@@ -949,7 +1209,8 @@
                 if (!historyData) {
                     allRawHistoryItems = [];
                     updateHistoryStats([]);
-                    historyList.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">No scan history yet. Start scanning!</td></tr>';
+                    historyList.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">No scan history yet. Start scanning!</td></tr>';
+                    renderTimeline();
                     return;
                 }
 
@@ -957,10 +1218,84 @@
                     .map(([id, data]) => ({ id, ...data }))
                     .sort((a, b) => new Date(b.time) - new Date(a.time));
 
+                populateCropFilter();
                 updateHistoryStats(allRawHistoryItems);
                 filterAndRenderHistory();
             });
         }
+
+        // Scan Detail Modal
+        window.openScanDetailModal = (scanId) => {
+            const item = allRawHistoryItems.find(s => s.id === scanId);
+            if (!item) return;
+
+            const modal = document.getElementById('scanDetailModal');
+            const titleEl = document.getElementById('modalDetailTitle');
+            const dateEl = document.getElementById('modalDetailDate');
+            const bodyEl = document.getElementById('modalDetailBody');
+            if (!modal || !bodyEl) return;
+
+            const date = new Date(item.time).toLocaleString('en-US', {
+                weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            if (titleEl) titleEl.textContent = `${item.crop || 'Crop'} Scan Report`;
+            if (dateEl) dateEl.textContent = `Scanned on ${date} · Farm: ${item.farmName || 'General Plot'}`;
+
+            const isHealthy = (item.disease || '').toLowerCase().includes('healthy');
+            const sev = item.severity || (isHealthy ? 'Healthy' : 'Moderate');
+
+            bodyEl.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 10px;">
+                        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Diagnosis</div>
+                        <div style="font-size: 14px; font-weight: 700; color: ${isHealthy ? '#4ade80' : '#f87171'};">${escapeHtml(item.disease)}</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 10px;">
+                        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Confidence & Severity</div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text);">${item.confidence} · ${escapeHtml(sev)}</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 10px;">
+                        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Affected Surface Area</div>
+                        <div style="font-size: 14px; font-weight: 700; color: var(--text);">${item.affected_area_pct || 0}%</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 10px;">
+                        <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Engine Model Version</div>
+                        <div style="font-size: 13px; font-weight: 600; color: var(--primary);">${escapeHtml(item.model_version || 'AgroFast Vision v1.1')}</div>
+                    </div>
+                </div>
+
+                ${item.why_agrofast_thinks_this ? `
+                    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 10px; padding: 12px;">
+                        <div style="font-size: 12px; font-weight: 700; color: #60a5fa; margin-bottom: 4px;"><i class="fas fa-microscope"></i> Why AgroFast Thinks This</div>
+                        <p style="font-size: 12px; color: var(--text); line-height: 1.4;">${escapeHtml(item.why_agrofast_thinks_this)}</p>
+                    </div>
+                ` : ''}
+
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 10px; padding: 12px;">
+                    <div style="font-size: 12px; font-weight: 700; color: var(--primary); margin-bottom: 4px;"><i class="fas fa-heartbeat"></i> Recommended Treatment</div>
+                    <p style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">${escapeHtml(item.treatment || 'No specific treatment required. Maintain regular monitoring.')}</p>
+                </div>
+
+                ${item.recommended_steps && item.recommended_steps.length > 0 ? `
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 10px; padding: 12px;">
+                        <div style="font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 4px;"><i class="fas fa-list-check"></i> Action Steps</div>
+                        <ul style="font-size: 12px; color: var(--text-muted); margin-left: 18px; line-height: 1.5;">
+                            ${item.recommended_steps.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            `;
+
+            modal.classList.add('active');
+        };
+
+        window.closeScanDetailModal = () => {
+            document.getElementById('scanDetailModal')?.classList.remove('active');
+        };
 
         window.deleteHistoryItem = (itemId) => {
             showModal({

@@ -278,6 +278,72 @@ def train():
     best_phase2_val = max(history2.history.get("val_accuracy", [0]))
     print(f"\n[RESULT] Phase 2 best val_accuracy: {best_phase2_val:.4f} ({best_phase2_val*100:.1f}%)")
 
+    # ─── Phase 3: Independent Held-Out Test Evaluation & Metrics ─────────────
+    test_dir = os.path.join(DATASET_DIR, "test")
+    test_metrics = {}
+    if os.path.isdir(test_dir) and len(os.listdir(test_dir)) > 0:
+        print(f"\n{'='*60}")
+        print(f"[PHASE 3] Independent Held-Out Test Set Evaluation")
+        print(f"{'='*60}")
+        try:
+            test_datagen = ImageDataGenerator(rescale=1.0 / 255)
+            test_gen = test_datagen.flow_from_directory(
+                test_dir,
+                target_size=IMG_SIZE,
+                batch_size=BATCH_SIZE,
+                class_mode="categorical",
+                shuffle=False,
+            )
+            test_loss, test_acc = model.evaluate(test_gen, verbose=1)
+            print(f"[TEST RESULT] Independent Test Accuracy: {test_acc:.4f} ({test_acc*100:.1f}%) | Loss: {test_loss:.4f}")
+
+            # Compute precision, recall, f1 via sklearn if available
+            try:
+                from sklearn.metrics import classification_report, confusion_matrix
+                test_preds = model.predict(test_gen, verbose=0)
+                y_pred = np.argmax(test_preds, axis=1)
+                y_true = test_gen.classes
+                report = classification_report(y_true, y_pred, target_names=ordered_classes, output_dict=True, zero_division=0)
+                print("\n[CLASSIFICATION REPORT SUMMARY]")
+                print(f"   Macro Precision : {report['macro avg']['precision']:.4f}")
+                print(f"   Macro Recall    : {report['macro avg']['recall']:.4f}")
+                print(f"   Macro F1-Score  : {report['macro avg']['f1-score']:.4f}")
+                test_metrics = {
+                    "test_accuracy": float(test_acc),
+                    "test_loss": float(test_loss),
+                    "macro_precision": float(report['macro avg']['precision']),
+                    "macro_recall": float(report['macro avg']['recall']),
+                    "macro_f1": float(report['macro avg']['f1-score'])
+                }
+            except ImportError:
+                test_metrics = {"test_accuracy": float(test_acc), "test_loss": float(test_loss)}
+        except Exception as e:
+            print(f"[WARN] Test evaluation failed: {e}")
+    else:
+        print(f"\n[NOTE] No independent test directory found at {test_dir}. Using validation metrics as baseline.")
+
+    # ─── Save Comprehensive Model Metadata ────────────────────────────────────
+    metadata_path = os.path.join(BASE_DIR, "model_metadata.json")
+    from datetime import datetime
+    metadata = {
+        "model_name": "AgroFast Vision Classifier",
+        "model_version": "AgroFast Vision v1.1",
+        "backbone": "MobileNetV2",
+        "training_date": datetime.utcnow().isoformat() + "Z",
+        "dataset_version": "PlantVillage + Regional Pest Additions v1.1",
+        "num_classes": num_classes,
+        "classes": ordered_classes,
+        "input_resolution": [224, 224, 3],
+        "preprocessing": "rescale_1_255",
+        "metrics": {
+            "val_accuracy": float(max(best_phase1_val, best_phase2_val)),
+            **test_metrics
+        }
+    }
+    with open(metadata_path, "w") as f:
+        json.dump(metadata, f, indent=4)
+    print(f"[METADATA] Saved model versioning metadata -> {metadata_path}")
+
     # ModelCheckpoint already saved the best weights during training
     print(f"\n[DONE] Training complete!")
     print(f"       Best val_accuracy overall: {max(best_phase1_val, best_phase2_val)*100:.1f}%")

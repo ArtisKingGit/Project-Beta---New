@@ -227,6 +227,9 @@
         let currentUid = null;
         let userScans = [];
         let userFarms = [];
+        let userExpenses = [];
+        let userTasks = [];
+        let userAlerts = [];
         let allChats = {};
 
         async function initFirebaseChat() {
@@ -241,6 +244,9 @@
 
                 let unsubScans = null;
                 let unsubFarms = null;
+                let unsubExpenses = null;
+                let unsubTasks = null;
+                let unsubAlerts = null;
                 let unsubChats = null;
 
                 onAuthStateChanged(auth, async (user) => {
@@ -275,15 +281,39 @@
                             const val = snapshot.val();
                             userFarms = val ? Object.values(val) : [];
                         });
+
+                        // Listen to expenses realtime to provide chatbot context
+                        unsubExpenses = onValue(ref(db, `users/${user.uid}/expenses`), (snapshot) => {
+                            const val = snapshot.val();
+                            userExpenses = val ? Object.values(val) : [];
+                        });
+
+                        // Listen to tasks realtime to provide chatbot context
+                        unsubTasks = onValue(ref(db, `users/${user.uid}/tasks`), (snapshot) => {
+                            const val = snapshot.val();
+                            userTasks = val ? Object.values(val) : [];
+                        });
+
+                        // Listen to alerts realtime to provide chatbot context
+                        unsubAlerts = onValue(ref(db, `users/${user.uid}/alerts`), (snapshot) => {
+                            const val = snapshot.val();
+                            userAlerts = val ? Object.values(val) : [];
+                        });
                     } else {
                         currentUid = null;
                         chatHistory = [];
                         currentChatId = null;
                         userScans = [];
                         userFarms = [];
+                        userExpenses = [];
+                        userTasks = [];
+                        userAlerts = [];
                         allChats = {};
                         if (unsubScans) { unsubScans(); unsubScans = null; }
                         if (unsubFarms) { unsubFarms(); unsubFarms = null; }
+                        if (unsubExpenses) { unsubExpenses(); unsubExpenses = null; }
+                        if (unsubTasks) { unsubTasks(); unsubTasks = null; }
+                        if (unsubAlerts) { unsubAlerts(); unsubAlerts = null; }
                         if (unsubChats) { unsubChats(); unsubChats = null; }
                         clearChatUI();
                     }
@@ -616,7 +646,11 @@
                         message, 
                         history: chatHistory,
                         scans: userScans,
-                        farms: userFarms
+                        farms: userFarms,
+                        expenses: userExpenses,
+                        tasks: userTasks,
+                        alerts: userAlerts,
+                        weather: window.currentWeather || null
                     })
                 });
 
