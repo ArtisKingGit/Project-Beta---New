@@ -213,6 +213,17 @@ if os.path.isdir(frontend_path):
     async def read_index():
         return FileResponse(os.path.join(frontend_path, "login.html"))
 
+    @app.get("/{page_name}")
+    async def read_page(page_name: str):
+        target = os.path.join(frontend_path, page_name)
+        if os.path.isfile(target):
+            return FileResponse(target)
+        if not page_name.endswith(".html"):
+            target_html = os.path.join(frontend_path, f"{page_name}.html")
+            if os.path.isfile(target_html):
+                return FileResponse(target_html)
+        return FileResponse(os.path.join(frontend_path, "login.html"))
+
     # Mount frontend at root BUT after specific API routes to ensure they take precedence
     app.mount("/", StaticFiles(directory=frontend_path, html=True), name="frontend")
 else:

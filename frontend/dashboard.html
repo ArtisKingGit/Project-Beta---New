@@ -1751,7 +1751,7 @@
       --result-rgb: 239, 68, 68;
     }
 
-    }
+
 
     /* Upgraded Crop Scanner UI Styles */
 
@@ -2738,7 +2738,8 @@
               <span data-i18n="weather_info">Local Weather</span>
               <i class="fas fa-cloud-sun"></i>
             </div>
-            <div class="weather-expand-pill" id="weatherExpandBadge" style="font-size: 11px; font-weight: 600; color: var(--primary); background: rgba(34, 197, 94, 0.1); padding: 3px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px; transition: all 0.3s ease;">
+            <div class="weather-expand-pill" id="weatherExpandBadge"
+              style="font-size: 11px; font-weight: 600; color: var(--primary); background: rgba(34, 197, 94, 0.1); padding: 3px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px; transition: all 0.3s ease;">
               <span>7-Day Forecast</span>
               <i class="fas fa-chevron-down" id="weatherChevron" style="transition: transform 0.3s ease;"></i>
             </div>
@@ -2907,40 +2908,65 @@
               <span>Regional Crop Calendar & Planting Advisor</span>
               <i class="fas fa-calendar-alt" style="color: var(--primary)"></i>
             </div>
-            <span style="font-size: 11px; color: var(--primary); font-weight: 600; background: rgba(34, 197, 94, 0.1); padding: 3px 10px; border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.2);">Active Season</span>
+            <span
+              style="font-size: 11px; color: var(--primary); font-weight: 600; background: rgba(34, 197, 94, 0.1); padding: 3px 10px; border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.2);">Active
+              Season</span>
           </div>
-          <div class="crop-calendar-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 12px;">
-            <div class="calendar-crop-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; transition: transform 0.2s;">
-              <div style="font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
+          <div class="crop-calendar-grid"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 12px;">
+            <div class="calendar-crop-card"
+              style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; transition: transform 0.2s;">
+              <div
+                style="font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
                 <span>🌽 Maize</span>
-                <span style="font-size: 10px; padding: 2px 6px; border-radius: 6px; background: rgba(34, 197, 94, 0.15); color: var(--primary);">Planting</span>
+                <span
+                  style="font-size: 10px; padding: 2px 6px; border-radius: 6px; background: rgba(34, 197, 94, 0.15); color: var(--primary);">Planting</span>
               </div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;"><i class="far fa-calendar"></i> Plant: Mar - Apr</div>
-              <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px;"><i class="fas fa-seedling"></i> Harvest: Aug - Sep</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;"><i class="far fa-calendar"></i>
+                Plant: Mar - Apr</div>
+              <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px;"><i
+                  class="fas fa-seedling"></i> Harvest: Aug - Sep</div>
             </div>
-            <div class="calendar-crop-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; transition: transform 0.2s;">
-              <div style="font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
+            <div class="calendar-crop-card"
+              style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; transition: transform 0.2s;">
+              <div
+                style="font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
                 <span>🍅 Tomato</span>
-                <span style="font-size: 10px; padding: 2px 6px; border-radius: 6px; background: rgba(59, 130, 246, 0.15); color: #60a5fa;">All Year</span>
+                <span
+                  style="font-size: 10px; padding: 2px 6px; border-radius: 6px; background: rgba(59, 130, 246, 0.15); color: #60a5fa;">All
+                  Year</span>
               </div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;"><i class="far fa-calendar"></i> Plant: Irrigated</div>
-              <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px;"><i class="fas fa-seedling"></i> Harvest: 75-90 Days</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;"><i class="far fa-calendar"></i>
+                Plant: Irrigated</div>
+              <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px;"><i
+                  class="fas fa-seedling"></i> Harvest: 75-90 Days</div>
             </div>
-            <div class="calendar-crop-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; transition: transform 0.2s;">
-              <div style="font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
+            <div class="calendar-crop-card"
+              style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; transition: transform 0.2s;">
+              <div
+                style="font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
                 <span>🥔 Potato</span>
-                <span style="font-size: 10px; padding: 2px 6px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); color: #fbbf24;">Short Rains</span>
+                <span
+                  style="font-size: 10px; padding: 2px 6px; border-radius: 6px; background: rgba(245, 158, 11, 0.15); color: #fbbf24;">Short
+                  Rains</span>
               </div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;"><i class="far fa-calendar"></i> Plant: Apr & Oct</div>
-              <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px;"><i class="fas fa-seedling"></i> Harvest: Jul & Jan</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;"><i class="far fa-calendar"></i>
+                Plant: Apr & Oct</div>
+              <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px;"><i
+                  class="fas fa-seedling"></i> Harvest: Jul & Jan</div>
             </div>
-            <div class="calendar-crop-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; transition: transform 0.2s;">
-              <div style="font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
+            <div class="calendar-crop-card"
+              style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border); border-radius: 12px; padding: 12px; transition: transform 0.2s;">
+              <div
+                style="font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: space-between;">
                 <span>🫘 Beans</span>
-                <span style="font-size: 10px; padding: 2px 6px; border-radius: 6px; background: rgba(34, 197, 94, 0.15); color: var(--primary);">Optimal</span>
+                <span
+                  style="font-size: 10px; padding: 2px 6px; border-radius: 6px; background: rgba(34, 197, 94, 0.15); color: var(--primary);">Optimal</span>
               </div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;"><i class="far fa-calendar"></i> Plant: Mar & Oct</div>
-              <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px;"><i class="fas fa-seedling"></i> Harvest: 60-75 Days</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;"><i class="far fa-calendar"></i>
+                Plant: Mar & Oct</div>
+              <div style="font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 4px;"><i
+                  class="fas fa-seedling"></i> Harvest: 60-75 Days</div>
             </div>
           </div>
         </div>

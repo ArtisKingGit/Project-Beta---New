@@ -1174,11 +1174,12 @@
             }, 80);
         }
 
-        if (document.readyState === 'complete') {
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
             initPageLoader();
         } else {
+            window.addEventListener('DOMContentLoaded', initPageLoader);
             window.addEventListener('load', initPageLoader);
-            setTimeout(initPageLoader, 3000);
+            setTimeout(initPageLoader, 1500);
         }
 
         // Loading Feedback Helper
