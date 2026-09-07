@@ -3987,6 +3987,8 @@
         const weatherInfo = document.getElementById('weatherInfo');
         if (weatherInfo) weatherInfo.innerHTML = `<p style="color: #ef4444">Weather unavailable</p>`;
       }
+    }
+
     // =======================================================
     // UNIFIED INTELLIGENCE DASHBOARD ENGINE
     // =======================================================
@@ -5105,7 +5107,8 @@
           });
         }
 
-        document.getElementById('statValue').textContent = formatPrice(totalValue, currentSettings?.currency || 'KES');
+        const statValueEl = document.getElementById('statValue');
+        if (statValueEl) statValueEl.textContent = formatPrice(totalValue, currentSettings?.currency || 'KES');
 
         // Calculate Tasks
         const taskSnap = await get(tasksRef);
@@ -5113,8 +5116,10 @@
         if (taskSnap.exists()) {
           taskSnap.forEach(t => { if (!t.val().completed) pending++; });
         }
-        document.getElementById('statTasks').textContent = pending;
-        document.getElementById('statHealth').textContent = "98%";
+        const statTasksEl = document.getElementById('statTasks');
+        if (statTasksEl) statTasksEl.textContent = pending;
+        const statHealthEl = document.getElementById('statHealth');
+        if (statHealthEl) statHealthEl.textContent = "98%";
 
         // Calculate Total Expenses
         const expSnap = await get(expensesRef);
@@ -5122,7 +5127,8 @@
         if (expSnap.exists()) {
           expSnap.forEach(e => { totalExp += parseFloat(e.val().amount) || 0; });
         }
-        document.getElementById('statExpenses').textContent = formatPrice(totalExp, currentSettings?.currency || 'KES');
+        const statExpensesEl = document.getElementById('statExpenses');
+        if (statExpensesEl) statExpensesEl.textContent = formatPrice(totalExp, currentSettings?.currency || 'KES');
       } catch (err) {
         console.error("Stats Error:", err);
       }

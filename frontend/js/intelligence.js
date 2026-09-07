@@ -52,7 +52,10 @@
     };
 
     function matchCrop(cropName) {
-        const name = (cropName || "").trim().toLowerCase();
+        if (typeof cropName === 'object' && cropName !== null) {
+            cropName = cropName.crop || cropName.name || "";
+        }
+        const name = (typeof cropName === 'string' ? cropName : "").trim().toLowerCase();
         for (const [k, v] of Object.entries(CROP_AGRONOMY)) {
             if (k.toLowerCase().includes(name) || name.includes(k.toLowerCase())) {
                 return { name: k, data: v };
@@ -304,7 +307,9 @@
 
             return {
                 riskScore: riskScore,
+                risk_score: riskScore,
                 riskLevel: level,
+                risk_level: level,
                 crop: crop,
                 reasons: reasons,
                 recommendation: recommendation,
@@ -364,11 +369,14 @@
 
             return {
                 action: action,
+                recommendation: action,
                 reason: reason,
                 irrigationWindow: window,
+                recommended_window: window,
                 estimatedWaterLiters: litersNeeded,
                 litersPerAcre: Math.round(litersNeeded / size),
                 expectedRainMm: Math.round(rainForecast * 10) / 10,
+                rainfall_expected: rainForecast ? `${Math.round(rainForecast * 10) / 10} mm` : (precip ? `${precip} mm` : '0 mm'),
                 soilType: f.soilType || "Loam",
                 irrigationType: f.irrigation || "Drip"
             };
@@ -419,6 +427,9 @@
                 nStatus, nValue: Math.round(n), idealN: agronomy.idealN,
                 pStatus, pValue: Math.round(p), idealP: agronomy.idealP,
                 kStatus, kValue: Math.round(k), idealK: agronomy.idealK,
+                nitrogen_status: nStatus,
+                phosphorus_status: pStatus,
+                potassium_status: kStatus,
                 recommendations,
                 disclaimer: "Guidance provided as decision support. Confirm with local soil testing laboratories before high-rate application."
             };
@@ -662,6 +673,8 @@
                     document.body.removeChild(link);
                 }
             }
+        },
+
         // -------------------------------------------------------------
         // 7. Crop Health Timeline Engine
         // -------------------------------------------------------------
